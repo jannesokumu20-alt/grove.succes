@@ -69,24 +69,24 @@ export default function BulkImportModal({
 
           // Validate and transform data
           const validatedData: ImportRow[] = jsonData
-            .map((row: any, index: number) => ({
-              full_name: row.full_name?.toString().trim() || '',
-              phone: row.phone?.toString().trim() || '',
-              amount: row.amount ? parseFloat(row.amount) : undefined,
-              month: row.month ? parseInt(row.month) : undefined,
-              note: row.note?.toString().trim() || '',
-            }))
-            .filter((row) => {
+            .map((row: any, index: number): ImportRow => {
+              const transformedRow: ImportRow = {
+                full_name: row.full_name?.toString().trim() || '',
+                phone: row.phone?.toString().trim() || '',
+                amount: row.amount ? parseFloat(row.amount) : undefined,
+                month: row.month ? parseInt(row.month) : undefined,
+                note: row.note?.toString().trim() || '',
+              };
+              
               // Validate required fields
-              if (!row.full_name) {
-                row.error = 'Missing full_name';
-                return true;
+              if (!transformedRow.full_name) {
+                transformedRow.error = 'Missing full_name';
               }
-              if (!row.phone) {
-                row.error = 'Missing phone';
-                return true;
+              if (!transformedRow.phone) {
+                transformedRow.error = 'Missing phone';
               }
-              return true;
+              
+              return transformedRow;
             });
 
           if (validatedData.length === 0) {

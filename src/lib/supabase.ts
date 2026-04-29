@@ -244,7 +244,7 @@ export async function recordContribution(
           month,
           year,
           note: note || null,
-          recorded_by: recordedBy || auth.currentUser?.id || '',
+          recorded_by: recordedBy || '',
         },
       ], {
         onConflict: 'chama_id,member_id,month,year'
