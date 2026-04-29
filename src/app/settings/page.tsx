@@ -7,6 +7,7 @@ import Sidebar from '@/components/Sidebar';
 import BottomNav from '@/components/BottomNav';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
+import GoalPlannerModal from '@/components/GoalPlannerModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { useChamaStore } from '@/store/useChamaStore';
@@ -20,6 +21,7 @@ export default function SettingsPage() {
   const chama = useChamaStore((state) => state.chama);
   const updateChamaStore = useChamaStore((state) => state.updateChama);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoalPlannerOpen, setIsGoalPlannerOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     contributionAmount: '',
@@ -32,9 +34,9 @@ export default function SettingsPage() {
     if (chama) {
       setFormData({
         name: chama?.name || '',
-        contributionAmount: chama?.contribution_amount?.toString() || '',
+        contributionAmount: (chama?.contribution_amount || 0)?.toString() || '0',
         meetingDay: chama?.meeting_day || 'Monday',
-        savingsGoal: chama?.savings_goal?.toString() || '',
+        savingsGoal: (chama?.savings_goal || 0)?.toString() || '0',
       });
     }
   }, [chama]);
@@ -87,6 +89,30 @@ export default function SettingsPage() {
       toast.error(error.message || 'Failed to save settings');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoalPlannerSelect = async (amount: number) => {
+    if (!chama) return;
+
+    try {
+      const updatedChama = await updateChama(chama.id, {
+        contribution_amount: amount,
+      } as any);
+
+      updateChamaStore({
+        contribution_amount: updatedChama.contribution_amount,
+      } as any);
+
+      setFormData((prev) => ({
+        ...prev,
+        contributionAmount: amount.toString(),
+      }));
+
+      toast.success(`Contribution amount updated to KES ${amount.toLocaleString()}!`);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update contribution amount');
+      throw error;
     }
   };
 
@@ -182,6 +208,16 @@ export default function SettingsPage() {
               >
                 Save Settings
               </Button>
+
+              {/* Goal Planner Button */}
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full"
+                onClick={() => setIsGoalPlannerOpen(true)}
+              >
+                💡 Calculate Contribution with Goal Planner
+              </Button>
             </form>
           </div>
 
@@ -205,6 +241,14 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
+
+          {/* Goal Planner Modal */}
+          <GoalPlannerModal
+            isOpen={isGoalPlannerOpen}
+            onClose={() => setIsGoalPlannerOpen(false)}
+            onCalculate={handleGoalPlannerSelect}
+            currentAmount={chama?.contribution_amount || 0}
+          />
         </div>
       </main>
     </div>

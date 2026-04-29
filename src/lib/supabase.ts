@@ -244,7 +244,7 @@ export async function recordContribution(
           month,
           year,
           note: note || null,
-          recorded_by: recordedBy,
+          recorded_by: recordedBy || auth.currentUser?.id || '',
         },
       ], {
         onConflict: 'chama_id,member_id,month,year'
@@ -258,6 +258,106 @@ export async function recordContribution(
     console.error('recordContribution error:', err);
     throw err;
   }
+}
+
+export async function getInviteByCode(code: string) {
+  try {
+    const { data, error } = await supabase
+      .from('invite_links')
+      .select('*, chamas(*)')
+      .eq('code', code)
+      .eq('used', false)
+      .gt('expires_at', new Date().toISOString())
+      .single();
+
+    if (error && error.code !== 'PGRST116') throw error;
+    return data as any;
+  } catch (err: any) {
+    console.error('getInviteByCode error:', err);
+    return null;
+  }
+}
+
+export async function useInviteCode(
+  inviteId: string,
+  chamaId: string,
+  fullName: string,
+  phone: string,
+  userId?: string
+) {
+  try {
+    // Add member
+    const { data: memberData, error: memberError } = await supabase
+      .from('members')
+      .insert([
+        {
+          chama_id: chamaId,
+          full_name: fullName,
+          phone,
+          user_id: userId || null,
+          status: 'active',
+          credit_score: 50,
+        },
+      ])
+      .select()
+      .single();
+
+    if (memberError) throw memberError;
+
+    // Mark invite as used
+    const { error: inviteError } = await supabase
+      .from('invite_links')
+      .update({
+        used: true,
+        used_by: userId || null,
+        used_at: new Date().toISOString(),
+      })
+      .eq('id', inviteId);
+
+    if (inviteError) throw inviteError;
+
+    return memberData as Member;
+  } catch (err: any) {
+    console.error('useInviteCode error:', err);
+    throw err;
+  }
+}
+
+export async function generateInviteLink(
+  chamaId: string,
+  userId: string
+) {
+  try {
+    const code = generateRandomCode();
+    
+    const { data, error } = await supabase
+      .from('invite_links')
+      .insert([
+        {
+          chama_id: chamaId,
+          code,
+          created_by: userId,
+          expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return { ...data, link: `${typeof window !== 'undefined' ? window.location.origin : ''}/join?code=${code}` };
+  } catch (err: any) {
+    console.error('generateInviteLink error:', err);
+    throw err;
+  }
+}
+
+function generateRandomCode(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
 }
 
 export async function getContributions(chamaId: string) {

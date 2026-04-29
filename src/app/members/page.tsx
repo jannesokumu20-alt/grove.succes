@@ -10,12 +10,13 @@ import Input from '@/components/Input';
 import Modal from '@/components/Modal';
 import Table from '@/components/Table';
 import Badge from '@/components/Badge';
+import BulkImportModal from '@/components/BulkImportModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { useChamaStore } from '@/store/useChamaStore';
-import { getMembers, addMember, getChamaByInviteCode } from '@/lib/supabase';
+import { getMembers, addMember, generateInviteLink, recordContribution } from '@/lib/supabase';
 import { formatDate, isValidPhoneNumber, generateInviteCode } from '@/lib/utils';
-import { Plus, Copy, Share2 } from 'lucide-react';
+import { Plus, Copy, Share2, Upload } from 'lucide-react';
 
 export default function MembersPage() {
   const router = useRouter();
@@ -25,8 +26,11 @@ export default function MembersPage() {
   const [members, setMembers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBulkImportModalOpen, setIsBulkImportModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isBulkImporting, setIsBulkImporting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
@@ -114,6 +118,87 @@ export default function MembersPage() {
     }
   };
 
+  const handleGenerateInviteLink = async () => {
+    if (!chama || !user) return;
+
+    try {
+      setIsSubmitting(true);
+      const newInvite = await generateInviteLink(chama.id, user.id);
+      setInviteLink(newInvite.link);
+      toast.success('Invite link generated!');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to generate invite link');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCopyInviteLink = () => {
+    if (inviteLink) {
+      navigator.clipboard.writeText(inviteLink);
+      toast.success('Invite link copied!');
+    }
+  };
+
+  const handleBulkImport = async (data: any[]) => {
+    if (!chama || !user) return;
+
+    setIsBulkImporting(true);
+
+    try {
+      let addedCount = 0;
+      let contributedCount = 0;
+      const errors: string[] = [];
+
+      for (const row of data) {
+        try {
+          // Add member
+          const newMember = await addMember(chama.id, row.full_name, row.phone);
+          addedCount++;
+
+          // Record contribution if amount is provided
+          if (row.amount && row.month) {
+            try {
+              await recordContribution(
+                chama.id,
+                newMember.id,
+                parseFloat(row.amount),
+                parseInt(row.month),
+                new Date().getFullYear(),
+                user.id,
+                row.note || ''
+              );
+              contributedCount++;
+            } catch (err: any) {
+              // Contribution might fail due to duplicate, but member was added
+              console.error('Contribution error:', err);
+            }
+          }
+        } catch (err: any) {
+          errors.push(`${row.full_name}: ${err.message}`);
+        }
+      }
+
+      // Reload members
+      const updatedMembers = await getMembers(chama.id);
+      setMembers(updatedMembers);
+
+      let message = `Imported ${addedCount} member${addedCount !== 1 ? 's' : ''}`;
+      if (contributedCount > 0) {
+        message += ` and ${contributedCount} contribution${contributedCount !== 1 ? 's' : ''}`;
+      }
+      if (errors.length > 0) {
+        message += `. ${errors.length} error${errors.length !== 1 ? 's' : ''}`;
+      }
+
+      toast.success(message);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to import data');
+    } finally {
+      setIsBulkImporting(false);
+    }
+  };
+
   const filteredMembers = members.filter((member) =>
     member.full_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -132,46 +217,89 @@ export default function MembersPage() {
               <h1 className="text-3xl font-bold text-white mb-2">Members</h1>
               <p className="text-slate-400">Manage your chama members</p>
             </div>
-            <Button
-              variant="primary"
-              onClick={() => setIsModalOpen(true)}
-              icon={<Plus size={16} />}
-            >
-              Add Member
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => setIsBulkImportModalOpen(true)}
+                icon={<Upload size={16} />}
+              >
+                Bulk Import
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => setIsModalOpen(true)}
+                icon={<Plus size={16} />}
+              >
+                Add Member
+              </Button>
+            </div>
           </div>
 
           {/* Invite Section */}
           {chama && (
             <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 mb-8">
               <h2 className="text-lg font-semibold text-white mb-4">Invite Members</h2>
-              <div className="flex gap-2">
-                <Input
-                  value={chama.invite_code}
-                  readOnly
-                  label="Invite Code"
-                  className="bg-slate-800 cursor-not-allowed"
-                />
-                <Button
-                  variant="secondary"
-                  onClick={handleCopyInviteCode}
-                  icon={<Copy size={16} />}
-                  className="mt-6"
-                >
-                  Copy
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={handleShareInviteCode}
-                  icon={<Share2 size={16} />}
-                  className="mt-6"
-                >
-                  Share
-                </Button>
+              
+              {/* Old Invite Code Method */}
+              <div className="mb-6 pb-6 border-b border-slate-800">
+                <p className="text-sm text-slate-400 mb-3">Using invite code:</p>
+                <div className="flex gap-2 flex-col sm:flex-row">
+                  <Input
+                    value={chama.invite_code}
+                    readOnly
+                    label="Invite Code"
+                    className="bg-slate-800 cursor-not-allowed"
+                  />
+                  <Button
+                    variant="secondary"
+                    onClick={handleCopyInviteCode}
+                    icon={<Copy size={16} />}
+                    className="sm:mt-6"
+                  >
+                    Copy
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={handleShareInviteCode}
+                    icon={<Share2 size={16} />}
+                    className="sm:mt-6"
+                  >
+                    Share
+                  </Button>
+                </div>
               </div>
-              <p className="text-slate-400 text-sm mt-2">
-                Share this code with others to invite them to join
-              </p>
+
+              {/* New Invite Link Method */}
+              <div>
+                <p className="text-sm text-slate-400 mb-3">Or generate a one-time invite link:</p>
+                {inviteLink ? (
+                  <div className="flex gap-2 flex-col sm:flex-row">
+                    <Input
+                      value={inviteLink}
+                      readOnly
+                      label="Invite Link"
+                      className="bg-slate-800 cursor-not-allowed text-xs"
+                    />
+                    <Button
+                      variant="secondary"
+                      onClick={handleCopyInviteLink}
+                      icon={<Copy size={16} />}
+                      className="sm:mt-6"
+                    >
+                      Copy Link
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="primary"
+                    onClick={handleGenerateInviteLink}
+                    isLoading={isSubmitting}
+                    className="w-full sm:w-auto"
+                  >
+                    Generate Link
+                  </Button>
+                )}
+              </div>
             </div>
           )}
 
@@ -253,6 +381,14 @@ export default function MembersPage() {
             </Button>
           </form>
         </Modal>
+
+        {/* Bulk Import Modal */}
+        <BulkImportModal
+          isOpen={isBulkImportModalOpen}
+          onClose={() => setIsBulkImportModalOpen(false)}
+          onImport={handleBulkImport}
+          isLoading={isBulkImporting}
+        />
       </main>
     </div>
   );
