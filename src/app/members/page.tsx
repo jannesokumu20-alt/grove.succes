@@ -200,7 +200,7 @@ export default function MembersPage() {
   };
 
   const filteredMembers = members.filter((member) =>
-    member.full_name.toLowerCase().includes(searchTerm.toLowerCase())
+    (member?.full_name || '').toLowerCase().includes((searchTerm || '').toLowerCase())
   );
 
   return (

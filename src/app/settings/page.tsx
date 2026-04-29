@@ -34,9 +34,9 @@ export default function SettingsPage() {
     if (chama) {
       setFormData({
         name: chama?.name || '',
-        contributionAmount: (chama?.contribution_amount || 0)?.toString() || '0',
+        contributionAmount: String(chama?.contribution_amount || 0),
         meetingDay: chama?.meeting_day || 'Monday',
-        savingsGoal: (chama?.savings_goal || 0)?.toString() || '0',
+        savingsGoal: String(chama?.savings_goal || 0),
       });
     }
   }, [chama]);
@@ -106,7 +106,7 @@ export default function SettingsPage() {
 
       setFormData((prev) => ({
         ...prev,
-        contributionAmount: amount.toString(),
+        contributionAmount: String(amount),
       }));
 
       toast.success(`Contribution amount updated to KES ${amount.toLocaleString()}!`);

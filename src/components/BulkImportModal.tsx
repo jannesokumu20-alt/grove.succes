@@ -71,11 +71,11 @@ export default function BulkImportModal({
           const validatedData: ImportRow[] = jsonData
             .map((row: any, index: number): ImportRow => {
               const transformedRow: ImportRow = {
-                full_name: row.full_name?.toString().trim() || '',
-                phone: row.phone?.toString().trim() || '',
+                full_name: row.full_name?.toString()?.trim() || '',
+                phone: row.phone?.toString()?.trim() || '',
                 amount: row.amount ? parseFloat(row.amount) : undefined,
                 month: row.month ? parseInt(row.month) : undefined,
-                note: row.note?.toString().trim() || '',
+                note: row.note?.toString()?.trim() || '',
               };
               
               // Validate required fields
