@@ -1,31 +1,48 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/useAuthStore';
-import { useAuth } from '@/hooks/useAuth';
 
 export default function Page() {
   const router = useRouter();
-  const { user } = useAuthStore();
-
-  useAuth();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is authenticated
-    if (!user) {
-      // Redirect to login if not authenticated
+    try {
+      // Safe auth check with timeout
+      const timeout = setTimeout(() => {
+        // Fallback to login after 2 seconds
+        router.push('/login');
+      }, 2000);
+
+      // Check localStorage for auth token
+      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+      
+      if (token) {
+        clearTimeout(timeout);
+        router.push('/dashboard');
+      } else {
+        clearTimeout(timeout);
+        router.push('/login');
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      // Fallback to login on any error
       router.push('/login');
-    } else {
-      // Redirect to dashboard if authenticated
-      router.push('/dashboard');
     }
-  }, [user, router]);
+  }, [router]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-grove-dark">
-      <div className="animate-pulse">
-        <p className="text-white text-lg">Loading...</p>
+    <div className="min-h-screen bg-gradient-to-br from-grove-dark to-slate-900 flex items-center justify-center px-4">
+      <div className="text-center">
+        <div className="mb-8 text-6xl animate-bounce">🌿</div>
+        <h1 className="text-4xl font-bold text-white mb-4">Grove</h1>
+        <p className="text-slate-300 text-lg mb-8">Loading your chama...</p>
+        <div className="flex justify-center gap-1">
+          <div className="w-2 h-2 bg-grove-accent rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+          <div className="w-2 h-2 bg-grove-accent rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+          <div className="w-2 h-2 bg-grove-accent rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+        </div>
       </div>
     </div>
   );

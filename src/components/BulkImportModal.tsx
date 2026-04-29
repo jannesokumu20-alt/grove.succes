@@ -1,11 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import * as XLSX from 'xlsx';
 import Modal from './Modal';
 import Button from './Button';
-import Table from './Table';
+import Input from './Input';
 import { Upload } from 'lucide-react';
+
+// Dynamically import xlsx to avoid build issues
+const loadXLSX = async () => {
+  try {
+    const XLSX = await import('xlsx');
+    return XLSX.default || XLSX;
+  } catch (error) {
+    console.error('Failed to load xlsx:', error);
+    return null;
+  }
+};
 
 interface ImportRow {
   full_name: string;
@@ -34,57 +44,67 @@ export default function BulkImportModal({
   const [step, setStep] = useState<'upload' | 'preview' | 'importing'>('upload');
   const [error, setError] = useState<string>('');
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setError('');
     setSelectedFile(file);
 
-    // Parse Excel file
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const data = new Uint8Array(event.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-        // Validate and transform data
-        const validatedData: ImportRow[] = jsonData
-          .map((row: any, index: number) => ({
-            full_name: row.full_name?.toString().trim() || '',
-            phone: row.phone?.toString().trim() || '',
-            amount: row.amount ? parseFloat(row.amount) : undefined,
-            month: row.month ? parseInt(row.month) : undefined,
-            note: row.note?.toString().trim() || '',
-          }))
-          .filter((row) => {
-            // Validate required fields
-            if (!row.full_name) {
-              row.error = 'Missing full_name';
-              return true;
-            }
-            if (!row.phone) {
-              row.error = 'Missing phone';
-              return true;
-            }
-            return true;
-          });
-
-        if (validatedData.length === 0) {
-          setError('No valid rows found in Excel file');
-          return;
-        }
-
-        setParsedData(validatedData);
-        setStep('preview');
-      } catch (err: any) {
-        setError(err.message || 'Failed to parse Excel file');
+    try {
+      const XLSX = await loadXLSX();
+      if (!XLSX) {
+        setError('Failed to load Excel parser. Please refresh the page and try again.');
+        return;
       }
-    };
 
-    reader.readAsArrayBuffer(file);
+      // Parse Excel file
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = new Uint8Array(event.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+          // Validate and transform data
+          const validatedData: ImportRow[] = jsonData
+            .map((row: any, index: number) => ({
+              full_name: row.full_name?.toString().trim() || '',
+              phone: row.phone?.toString().trim() || '',
+              amount: row.amount ? parseFloat(row.amount) : undefined,
+              month: row.month ? parseInt(row.month) : undefined,
+              note: row.note?.toString().trim() || '',
+            }))
+            .filter((row) => {
+              // Validate required fields
+              if (!row.full_name) {
+                row.error = 'Missing full_name';
+                return true;
+              }
+              if (!row.phone) {
+                row.error = 'Missing phone';
+                return true;
+              }
+              return true;
+            });
+
+          if (validatedData.length === 0) {
+            setError('No valid rows found in Excel file');
+            return;
+          }
+
+          setParsedData(validatedData);
+          setStep('preview');
+        } catch (err: any) {
+          setError(err.message || 'Failed to parse Excel file');
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+    } catch (err: any) {
+      setError(err.message || 'Failed to process file');
+    }
   };
 
   const handleImport = async () => {
