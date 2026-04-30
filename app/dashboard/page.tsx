@@ -1,0 +1,224 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Navbar from '@/components/Navbar';
+import Sidebar from '@/components/Sidebar';
+import BottomNav from '@/components/BottomNav';
+import Button from '@/components/Button';
+import SummaryCard from '@/components/SummaryCard';
+import Table from '@/components/Table';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
+import { useChamaStore } from '@/store/useChamaStore';
+import { getUserChama, getChamaStats, getContributions, getLoans } from '@/lib/supabase';
+import { formatCurrency, formatDate } from '@/lib/utils';
+import { Plus, Users, DollarSign, Banknote } from 'lucide-react';
+import Link from 'next/link';
+
+export default function DashboardPage() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const toast = useToast();
+  const { setChama } = useChamaStore();
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalSavings: 0,
+    activeLoanBalance: 0,
+    activeLoanCount: 0,
+    memberCount: 0,
+    thisMonthTotal: 0,
+  });
+  const [recentContributions, setRecentContributions] = useState<any[]>([]);
+  const [recentLoans, setRecentLoans] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadDashboard = async () => {
+      if (!user) {
+        console.log('No user found, redirecting to login');
+        router.push('/login');
+        return;
+      }
+
+      try {
+        console.log('Loading dashboard for user:', user.id);
+        const chama = await getUserChama(user.id);
+        
+        if (!chama) {
+          console.log('No chama found for user');
+          setError('No chama found. Please create or join a chama to continue.');
+          setIsLoading(false);
+          return;
+        }
+
+        console.log('Chama loaded:', chama.id);
+        setChama(chama);
+
+        // Load stats with error handling
+        try {
+          const chamaStats = await getChamaStats(chama.id);
+          console.log('Stats loaded:', chamaStats);
+          setStats(chamaStats);
+        } catch (statsError) {
+          console.error('Error loading stats:', statsError);
+        }
+
+        // Load recent contributions with error handling
+        try {
+          const contributions = await getContributions(chama.id);
+          console.log('Contributions loaded:', contributions.length);
+          setRecentContributions(contributions.slice(0, 5));
+        } catch (contribError) {
+          console.error('Error loading contributions:', contribError);
+        }
+
+        // Load recent loans with error handling
+        try {
+          const loans = await getLoans(chama.id);
+          console.log('Loans loaded:', loans.length);
+          setRecentLoans(loans.slice(0, 5));
+        } catch (loanError) {
+          console.error('Error loading loans:', loanError);
+        }
+      } catch (error: any) {
+        console.error('Dashboard error:', error);
+        setError(error.message || 'Failed to load dashboard. Please check your connection.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadDashboard();
+  }, [user, router, setChama]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-grove-dark flex items-center justify-center">
+        <p className="text-slate-400">Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-grove-dark flex items-center justify-center px-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-4">Dashboard</h1>
+          <p className="text-red-400 mb-6">{error}</p>
+          <div className="flex gap-4 justify-center">
+            <Link href="/signup">
+              <Button variant="primary">Create Chama</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-grove-dark">
+      <Navbar />
+      <Sidebar />
+      <BottomNav />
+
+      <main className="md:ml-64 md:pt-20 pt-0 pb-20 md:pb-0 px-4 md:px-6 py-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
+            <p className="text-slate-400">Welcome back! Here's your chama overview.</p>
+          </div>
+
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <SummaryCard
+              title="Total Savings"
+              value={formatCurrency(stats.totalSavings)}
+              icon="💰"
+              color="green"
+            />
+            <SummaryCard
+              title="Active Loans"
+              value={formatCurrency(stats.activeLoanBalance)}
+              icon="🏦"
+              color="red"
+            />
+            <SummaryCard
+              title="Total Members"
+              value={stats.memberCount}
+              icon="👥"
+              color="blue"
+            />
+            <SummaryCard
+              title="This Month"
+              value={formatCurrency(stats.thisMonthTotal)}
+              icon="📊"
+              color="purple"
+            />
+          </div>
+
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <Link href="/contributions">
+              <Button variant="primary" className="w-full" icon={<Plus size={16} />}>
+                Record Contribution
+              </Button>
+            </Link>
+            <Link href="/members">
+              <Button variant="secondary" className="w-full" icon={<Users size={16} />}>
+                Add Member
+              </Button>
+            </Link>
+            <Link href="/loans">
+              <Button variant="secondary" className="w-full" icon={<Banknote size={16} />}>
+                New Loan
+              </Button>
+            </Link>
+          </div>
+
+          {/* Recent Transactions */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Recent Contributions */}
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-white mb-4">Recent Contributions</h2>
+              <Table
+                columns={[
+                  { key: 'members', label: 'Member', render: (_, row) => row.members?.full_name },
+                  { key: 'amount', label: 'Amount', render: (val) => formatCurrency(val) },
+                  { key: 'created_at', label: 'Date', render: (val) => formatDate(val) },
+                ]}
+                data={recentContributions}
+                isEmpty={recentContributions.length === 0}
+                emptyMessage="No contributions yet"
+              />
+            </div>
+
+            {/* Recent Loans */}
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-white mb-4">Recent Loans</h2>
+              <Table
+                columns={[
+                  { key: 'members', label: 'Member', render: (_, row) => row.members?.full_name },
+                  { key: 'amount', label: 'Amount', render: (val) => formatCurrency(val) },
+                  { key: 'status', label: 'Status', render: (val) => (
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      val === 'approved' ? 'bg-green-900 text-green-200' :
+                      val === 'pending' ? 'bg-yellow-900 text-yellow-200' :
+                      'bg-slate-700 text-slate-200'
+                    }`}>
+                      {val}
+                    </span>
+                  )},
+                ]}
+                data={recentLoans}
+                isEmpty={recentLoans.length === 0}
+                emptyMessage="No loans yet"
+              />
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
