@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     const { data: members, error: membersError } = await supabase
       .from('members')
-      .select('id, full_name, phone')
+      .select('id, name, phone')
       .eq('chama_id', chamaId)
       .eq('status', 'active');
 

@@ -47,9 +47,8 @@ export default function JoinPageContent() {
         }
 
         setInviteData(invite);
-        setChama(invite.chamas);
+        setChama(invite);
       } catch (err: any) {
-        console.error('Invite error:', err);
         setError(err.message || 'Failed to load invite');
       } finally {
         setIsLoading(false);
@@ -88,7 +87,6 @@ export default function JoinPageContent() {
       
       // Use invite code to add member
       await useInviteCode(
-        inviteData.id,
         chama.id,
         formData.fullName,
         formData.phone

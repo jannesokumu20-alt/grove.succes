@@ -10,6 +10,7 @@ import SummaryCard from '@/components/SummaryCard';
 import Table from '@/components/Table';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
+import { useAuthStore } from '@/store/useAuthStore';
 import { useChamaStore } from '@/store/useChamaStore';
 import { getUserChama, getChamaStats, getContributions, getLoans } from '@/lib/supabase';
 import { formatCurrency, formatDate } from '@/lib/utils';
@@ -19,6 +20,7 @@ import Link from 'next/link';
 export default function DashboardPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { isLoading: authLoading } = useAuthStore();
   const toast = useToast();
   const { setChama } = useChamaStore();
   const [isLoading, setIsLoading] = useState(true);
@@ -34,55 +36,52 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadDashboard = async () => {
-      if (!user) {
-        console.log('No user found, redirecting to login');
-        router.push('/login');
-        return;
-      }
+    // If auth is still loading, don't do anything yet
+    if (authLoading) {
+      return;
+    }
 
+    // If auth has finished loading and no user, redirect to login
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    const loadDashboard = async () => {
       try {
-        console.log('Loading dashboard for user:', user.id);
         const chama = await getUserChama(user.id);
         
         if (!chama) {
-          console.log('No chama found for user');
           setError('No chama found. Please create or join a chama to continue.');
           setIsLoading(false);
           return;
         }
-
-        console.log('Chama loaded:', chama.id);
         setChama(chama);
 
         // Load stats with error handling
         try {
           const chamaStats = await getChamaStats(chama.id);
-          console.log('Stats loaded:', chamaStats);
           setStats(chamaStats);
         } catch (statsError) {
-          console.error('Error loading stats:', statsError);
+          // Stats loading error - continue with default stats
         }
 
         // Load recent contributions with error handling
         try {
           const contributions = await getContributions(chama.id);
-          console.log('Contributions loaded:', contributions.length);
           setRecentContributions(contributions.slice(0, 5));
         } catch (contribError) {
-          console.error('Error loading contributions:', contribError);
+          // Contributions loading error - continue
         }
 
         // Load recent loans with error handling
         try {
           const loans = await getLoans(chama.id);
-          console.log('Loans loaded:', loans.length);
           setRecentLoans(loans.slice(0, 5));
         } catch (loanError) {
-          console.error('Error loading loans:', loanError);
+          // Loans loading error - continue
         }
       } catch (error: any) {
-        console.error('Dashboard error:', error);
         setError(error.message || 'Failed to load dashboard. Please check your connection.');
       } finally {
         setIsLoading(false);
@@ -90,7 +89,7 @@ export default function DashboardPage() {
     };
 
     loadDashboard();
-  }, [user, router, setChama]);
+  }, [user, authLoading, router, setChama]);
 
   if (isLoading) {
     return (
@@ -184,7 +183,7 @@ export default function DashboardPage() {
               <h2 className="text-lg font-semibold text-white mb-4">Recent Contributions</h2>
               <Table
                 columns={[
-                  { key: 'members', label: 'Member', render: (_, row) => row.members?.full_name },
+                  { key: 'members', label: 'Member', render: (_, row) => row.members?.name },
                   { key: 'amount', label: 'Amount', render: (val) => formatCurrency(val) },
                   { key: 'created_at', label: 'Date', render: (val) => formatDate(val) },
                 ]}
@@ -199,7 +198,7 @@ export default function DashboardPage() {
               <h2 className="text-lg font-semibold text-white mb-4">Recent Loans</h2>
               <Table
                 columns={[
-                  { key: 'members', label: 'Member', render: (_, row) => row.members?.full_name },
+                  { key: 'members', label: 'Member', render: (_, row) => row.members?.name },
                   { key: 'amount', label: 'Amount', render: (val) => formatCurrency(val) },
                   { key: 'status', label: 'Status', render: (val) => (
                     <span className={`px-2 py-1 rounded text-xs font-medium ${

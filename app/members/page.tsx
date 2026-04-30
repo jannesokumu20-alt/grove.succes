@@ -153,7 +153,7 @@ export default function MembersPage() {
       for (const row of data) {
         try {
           // Add member
-          const newMember = await addMember(chama.id, row.full_name, row.phone);
+          const newMember = await addMember(chama.id, row.name, row.phone);
           addedCount++;
 
           // Record contribution if amount is provided
@@ -175,7 +175,7 @@ export default function MembersPage() {
             }
           }
         } catch (err: any) {
-          errors.push(`${row.full_name}: ${err.message}`);
+          errors.push(`${row.name}: ${err.message}`);
         }
       }
 
@@ -200,7 +200,7 @@ export default function MembersPage() {
   };
 
   const filteredMembers = members.filter((member) =>
-    (member?.full_name || '').toLowerCase().includes((searchTerm || '').toLowerCase())
+    (member?.name || '').toLowerCase().includes((searchTerm || '').toLowerCase())
   );
 
   return (
@@ -316,7 +316,7 @@ export default function MembersPage() {
           <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
             <Table
               columns={[
-                { key: 'full_name', label: 'Name' },
+                { key: 'name', label: 'Name' },
                 { key: 'phone', label: 'Phone' },
                 {
                   key: 'status',

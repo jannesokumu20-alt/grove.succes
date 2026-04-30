@@ -18,7 +18,7 @@ const loadXLSX = async () => {
 };
 
 interface ImportRow {
-  full_name: string;
+  name: string;
   phone: string;
   amount?: number | string;
   month?: number | string;
@@ -71,7 +71,7 @@ export default function BulkImportModal({
           const validatedData: ImportRow[] = jsonData
             .map((row: any, index: number): ImportRow => {
               const transformedRow: ImportRow = {
-                full_name: row.full_name?.toString()?.trim() || '',
+                name: row.name?.toString()?.trim() || '',
                 phone: row.phone?.toString()?.trim() || '',
                 amount: row.amount ? parseFloat(row.amount) : undefined,
                 month: row.month ? parseInt(row.month) : undefined,
@@ -79,8 +79,8 @@ export default function BulkImportModal({
               };
               
               // Validate required fields
-              if (!transformedRow.full_name) {
-                transformedRow.error = 'Missing full_name';
+              if (!transformedRow.name) {
+                transformedRow.error = 'Missing name';
               }
               if (!transformedRow.phone) {
                 transformedRow.error = 'Missing phone';
@@ -156,7 +156,7 @@ export default function BulkImportModal({
                 Click to select or drag Excel file
               </p>
               <p className="text-slate-500 text-sm mb-4">
-                Expected columns: full_name, phone, amount (optional), month (optional), note (optional)
+                Expected columns: name, phone, amount (optional), month (optional), note (optional)
               </p>
               <input
                 type="file"
@@ -201,7 +201,7 @@ export default function BulkImportModal({
                 <tbody>
                   {parsedData.map((row, idx) => (
                     <tr key={idx} className="border-b border-slate-800">
-                      <td className="px-3 py-2 text-slate-200">{row.full_name}</td>
+                      <td className="px-3 py-2 text-slate-200">{row.name}</td>
                       <td className="px-3 py-2 text-slate-200">{row.phone}</td>
                       <td className="px-3 py-2 text-slate-200">{row.amount || '-'}</td>
                       <td className="px-3 py-2 text-slate-200">{row.month || '-'}</td>

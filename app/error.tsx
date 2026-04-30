@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import Link from 'next/link';
 import Button from '@/components/Button';
 
@@ -11,10 +10,6 @@ export default function ErrorPage({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
-
   return (
     <div className="min-h-screen bg-grove-dark flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">

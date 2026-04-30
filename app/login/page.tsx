@@ -49,8 +49,6 @@ export default function LoginPage() {
     const loadingToast = toast.loading('Logging in...');
 
     try {
-      console.log('Attempting login with email:', formData.email);
-      
       if (!supabase) {
         throw new Error('Supabase is not configured. Please check your environment variables.');
       }
@@ -61,16 +59,13 @@ export default function LoginPage() {
       });
 
       if (error) {
-        console.error('Login error:', error);
         toast.error(error.message);
         return;
       }
 
-      console.log('Login successful, redirecting to dashboard');
       toast.success('Logged in successfully!');
       router.push('/dashboard');
     } catch (error: any) {
-      console.error('Login exception:', error);
       toast.error(error.message || 'An error occurred during login');
     } finally {
       setIsLoading(false);

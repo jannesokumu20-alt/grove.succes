@@ -10,31 +10,51 @@ export function useAuth() {
   const { user, setUser, setLoading } = useAuthStore();
 
   useEffect(() => {
-    const checkAuth = async () => {
+    let isSubscribed = true;
+
+    const initializeAuth = async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase.auth.getUser();
-        if (error) {
+        // First, try to get the current session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
           setUser(null);
-          return;
+        } else if (session?.user) {
+          if (isSubscribed) {
+            setUser(session.user as any);
+          }
+        } else {
+          // No active session
+          setUser(null);
         }
-        setUser(data.user as any);
       } catch (error) {
         setUser(null);
       } finally {
-        setLoading(false);
+        if (isSubscribed) {
+          setLoading(false);
+        }
       }
     };
 
-    checkAuth();
+    initializeAuth();
 
+    // Listen for auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event: any, session: any) => {
-        setUser(session?.user as any);
+      (event: string, session: any) => {
+        if (isSubscribed) {
+          if (session?.user) {
+            setUser(session.user as any);
+          } else {
+            setUser(null);
+          }
+          setLoading(false);
+        }
       }
     );
 
     return () => {
+      isSubscribed = false;
       authListener?.subscription?.unsubscribe();
     };
   }, [setUser, setLoading]);

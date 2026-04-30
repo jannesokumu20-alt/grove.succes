@@ -10,12 +10,24 @@ import type {
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
 
+// Create a singleton Supabase client
+let supabaseClient: any = null;
+
+function getSupabaseClient() {
+  if (!supabaseClient) {
+    supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    });
+  }
+  return supabaseClient;
+}
+
 // Create a dummy client that handles missing configuration gracefully
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: false,
-  },
-});
+export const supabase = getSupabaseClient();
 
 // ============================================
 // AUTHENTICATION
@@ -27,7 +39,7 @@ export async function signUp(email: string, password: string, fullName: string) 
     password,
     options: {
       data: {
-        full_name: fullName,
+        name: fullName,
       },
     },
   });
@@ -171,7 +183,7 @@ export async function addMember(
     .insert([
       {
         chama_id: chamaId,
-        full_name: fullName,
+        name: fullName,
         phone,
         user_id: userId || null,
         status: 'active',
@@ -263,15 +275,13 @@ export async function recordContribution(
 export async function getInviteByCode(code: string) {
   try {
     const { data, error } = await supabase
-      .from('invite_links')
-      .select('*, chamas(*)')
-      .eq('code', code)
-      .eq('used', false)
-      .gt('expires_at', new Date().toISOString())
+      .from('chamas')
+      .select('*')
+      .eq('invite_code', code)
       .single();
 
     if (error && error.code !== 'PGRST116') throw error;
-    return data as any;
+    return data as Chama | null;
   } catch (err: any) {
     console.error('getInviteByCode error:', err);
     return null;
@@ -279,20 +289,19 @@ export async function getInviteByCode(code: string) {
 }
 
 export async function useInviteCode(
-  inviteId: string,
   chamaId: string,
   fullName: string,
   phone: string,
   userId?: string
 ) {
   try {
-    // Add member
+    // Add member to chama using invite code
     const { data: memberData, error: memberError } = await supabase
       .from('members')
       .insert([
         {
           chama_id: chamaId,
-          full_name: fullName,
+          name: fullName,
           phone,
           user_id: userId || null,
           status: 'active',
@@ -303,18 +312,6 @@ export async function useInviteCode(
       .single();
 
     if (memberError) throw memberError;
-
-    // Mark invite as used
-    const { error: inviteError } = await supabase
-      .from('invite_links')
-      .update({
-        used: true,
-        used_by: userId || null,
-        used_at: new Date().toISOString(),
-      })
-      .eq('id', inviteId);
-
-    if (inviteError) throw inviteError;
 
     return memberData as Member;
   } catch (err: any) {
@@ -328,23 +325,19 @@ export async function generateInviteLink(
   userId: string
 ) {
   try {
-    const code = generateRandomCode();
-    
-    const { data, error } = await supabase
-      .from('invite_links')
-      .insert([
-        {
-          chama_id: chamaId,
-          code,
-          created_by: userId,
-          expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        },
-      ])
-      .select()
+    // Get existing chama invite code
+    const { data: chamaData, error: chamaError } = await supabase
+      .from('chamas')
+      .select('invite_code')
+      .eq('id', chamaId)
       .single();
 
-    if (error) throw error;
-    return { ...data, link: `${typeof window !== 'undefined' ? window.location.origin : ''}/join?code=${code}` };
+    if (chamaError) throw chamaError;
+    
+    const code = chamaData?.invite_code || generateRandomCode();
+    const link = `${typeof window !== 'undefined' ? window.location.origin : ''}/join?code=${code}`;
+    
+    return { code, link };
   } catch (err: any) {
     console.error('generateInviteLink error:', err);
     throw err;
@@ -363,7 +356,7 @@ function generateRandomCode(): string {
 export async function getContributions(chamaId: string) {
   const { data, error } = await supabase
     .from('contributions')
-    .select(`*, members(full_name, phone)`)
+    .select(`*, members(name, phone)`)
     .eq('chama_id', chamaId)
     .order('created_at', { ascending: false });
 
@@ -439,7 +432,7 @@ export async function createLoan(
 export async function getLoans(chamaId: string) {
   const { data, error } = await supabase
     .from('loans')
-    .select(`*, members(full_name, phone)`)
+    .select(`*, members(name, phone)`)
     .eq('chama_id', chamaId)
     .order('created_at', { ascending: false });
 
