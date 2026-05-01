@@ -175,7 +175,7 @@ export default function MeetingsPage() {
       <Sidebar />
       <BottomNav />
 
-      <main className="flex-1 lg:ml-64 min-h-screen bg-slate-900 p-6 pt-[70px] lg:pt-6 pb-20 lg:pb-0 relative z-10">
+      <main className="flex-1 md:ml-64 min-h-screen bg-slate-900 p-6 pt-[70px] md:pt-6 pb-20 md:pb-0 relative z-10">
         <div className="w-full max-w-6xl mx-auto">
           {/* Header */}
           <div className="mb-8">
@@ -345,7 +345,7 @@ export default function MeetingsPage() {
                   key={member.id}
                   className="flex items-center justify-between p-3 bg-slate-700 rounded hover:bg-slate-600 transition"
                 >
-                  <span className="text-white">{member.full_name}</span>
+                  <span className="text-white">{member.name}</span>
                   <button
                     onClick={() => handleRecordAttendance(member.id, !isAttended)}
                     className={`px-3 py-1 rounded text-sm font-medium transition ${

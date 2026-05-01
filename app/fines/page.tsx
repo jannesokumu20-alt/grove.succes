@@ -151,7 +151,7 @@ export default function FinesPage() {
       <Sidebar />
       <BottomNav />
 
-      <main className="flex-1 lg:ml-64 min-h-screen bg-slate-900 p-6 pt-[70px] lg:pt-6 pb-20 lg:pb-0 relative z-10">
+      <main className="flex-1 md:ml-64 min-h-screen bg-slate-900 p-6 pt-[70px] md:pt-6 pb-20 md:pb-0 relative z-10">
         <div className="w-full max-w-6xl mx-auto">
           {/* Header */}
           <div className="mb-8">
@@ -191,7 +191,7 @@ export default function FinesPage() {
             <h2 className="text-lg font-semibold text-white mb-4">All Fines</h2>
             <Table
               columns={[
-                { key: 'members', label: 'Member', render: (_, row) => row.members?.full_name },
+                { key: 'members', label: 'Member', render: (_, row) => row.members?.name },
                 { key: 'reason', label: 'Reason' },
                 { key: 'amount', label: 'Amount', render: (val) => formatCurrency(val) },
                 {
@@ -257,7 +257,7 @@ export default function FinesPage() {
               <option value="">Select a member</option>
               {members.map((member) => (
                 <option key={member.id} value={member.id}>
-                  {member.full_name}
+                  {member.name}
                 </option>
               ))}
             </select>
