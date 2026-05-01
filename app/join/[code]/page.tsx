@@ -84,6 +84,13 @@ export default function JoinPage({
       return;
     }
 
+    // Extra safety check: ensure name is not empty before proceeding
+    const trimmedName = formData.name.trim();
+    if (!trimmedName) {
+      setErrors({ name: 'Full name is required' });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -91,7 +98,7 @@ export default function JoinPage({
       const authData = await signUp(
         formData.email,
         formData.password,
-        formData.name
+        trimmedName
       );
 
       if (!authData.user) {
@@ -101,7 +108,7 @@ export default function JoinPage({
       // Step 2: Add user as member to the chama
       await addMember(
         chama.id,
-        formData.name.trim(),
+        trimmedName,
         '', // phone optional for invite signup
         authData.user.id // link user immediately
       );

@@ -159,6 +159,12 @@ export default function MembersPage() {
 
       for (const row of data) {
         try {
+          // Validate name before attempting to add member
+          if (!row.name || !row.name.trim()) {
+            errors.push(`Row skipped: Name is required`);
+            continue;
+          }
+          
           // Add member
           const newMember = await addMember(chama.id, row.name, row.phone);
           addedCount++;

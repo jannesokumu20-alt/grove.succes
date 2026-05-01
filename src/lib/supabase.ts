@@ -179,10 +179,11 @@ export async function addMember(
   userId?: string
 ) {
   // Validate required fields BEFORE any database operation
-  const trimmedName = fullName?.trim() || '';
-  const trimmedPhone = phone?.trim() || '';
+  const trimmedName = (fullName || '')?.trim() || '';
+  const trimmedPhone = (phone || '')?.trim() || '';
   
-  if (!trimmedName) {
+  // CRITICAL: Name must never be empty
+  if (!trimmedName || trimmedName.length === 0) {
     throw new Error('Full name is required and cannot be empty');
   }
 
