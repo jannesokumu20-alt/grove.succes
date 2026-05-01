@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import { supabase } from '@/lib/supabase';
@@ -11,7 +12,7 @@ import { isValidEmail } from '@/lib/utils';
 
 export default function LoginPage() {
   const router = useRouter();
-  const toast = useToast();
+  const toast_service = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -46,7 +47,7 @@ export default function LoginPage() {
     }
 
     setIsLoading(true);
-    const loadingToast = toast.loading('Logging in...');
+    const loadingToastId = toast_service.loading('Logging in...');
 
     try {
       if (!supabase) {
@@ -59,14 +60,17 @@ export default function LoginPage() {
       });
 
       if (error) {
-        toast.error(error.message);
+        toast_service.error(error.message);
+        toast.dismiss(loadingToastId);
         return;
       }
 
-      toast.success('Logged in successfully!');
+      toast_service.success('Logged in successfully!');
+      toast.dismiss(loadingToastId);
       router.push('/dashboard');
     } catch (error: any) {
-      toast.error(error.message || 'An error occurred during login');
+      toast_service.error(error.message || 'An error occurred during login');
+      toast.dismiss(loadingToastId);
     } finally {
       setIsLoading(false);
     }

@@ -8,7 +8,7 @@ export default function Navbar() {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="fixed top-0 right-0 left-0 md:left-[240px] bg-slate-900 border-b border-slate-800 z-40">
+    <nav className="fixed top-0 right-0 left-0 lg:left-64 bg-slate-900 border-b border-slate-800 z-40">
       <div className="px-6 py-4 flex items-center justify-between">
         <div>
           <p className="text-xs text-slate-400">Logged in as</p>

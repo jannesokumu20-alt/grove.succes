@@ -122,7 +122,7 @@ export default function DashboardPage() {
       <Sidebar />
       <BottomNav />
 
-      <main className="ml-[240px] md:pt-[70px] pt-0 pb-20 md:pb-0 px-5 md:px-7 py-6 relative z-10">
+      <main className="flex-1 lg:ml-64 min-h-screen bg-slate-900 p-6 pt-[70px] lg:pt-6 pb-20 lg:pb-0 relative z-10">
         <div className="w-full">
           {/* Header */}
           <div className="mb-8">
@@ -131,27 +131,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Summary Cards */}
-          <div 
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(5, 1fr)',
-              gap: '16px',
-              marginBottom: '32px'
-            }}
-            className="responsive-grid"
-          >
-            <style>{`
-              @media (max-width: 1024px) {
-                .responsive-grid {
-                  grid-template-columns: repeat(2, 1fr) !important;
-                }
-              }
-              @media (max-width: 600px) {
-                .responsive-grid {
-                  grid-template-columns: 1fr !important;
-                }
-              }
-            `}</style>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <SummaryCard
               title="Total Savings"
               value={formatCurrency(stats.totalSavings)}
