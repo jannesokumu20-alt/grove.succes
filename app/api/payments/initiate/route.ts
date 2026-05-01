@@ -71,12 +71,10 @@ export async function POST(request: NextRequest) {
     // Log transaction
     const { error: logError } = await supabase.from('mpesa_transactions').insert([
       {
-        transaction_ref: transactionRef,
-        phone_number: formattedPhone,
+        phone: formattedPhone,
         amount: amount,
         status: 'pending',
-        description: description,
-        loan_id: loanId || null,
+        mpesa_code: transactionRef,
         created_at: new Date().toISOString(),
       },
     ]);

@@ -190,7 +190,7 @@ export default function DashboardPage() {
               <h2 className="text-lg font-semibold text-white mb-4">Recent Contributions</h2>
               <Table
                 columns={[
-                  { key: 'members', label: 'Member', render: (_, row) => row.members?.name },
+                  { key: 'members', label: 'Member', render: (_, row) => row.members?.full_name },
                   { key: 'amount', label: 'Amount', render: (val) => formatCurrency(val) },
                   { key: 'created_at', label: 'Date', render: (val) => formatDate(val) },
                 ]}
@@ -205,7 +205,7 @@ export default function DashboardPage() {
               <h2 className="text-lg font-semibold text-white mb-4">Recent Loans</h2>
               <Table
                 columns={[
-                  { key: 'members', label: 'Member', render: (_, row) => row.members?.name },
+                  { key: 'members', label: 'Member', render: (_, row) => row.members?.full_name },
                   { key: 'amount', label: 'Amount', render: (val) => formatCurrency(val) },
                   { key: 'status', label: 'Status', render: (val) => (
                     <span className={`px-2 py-1 rounded text-xs font-medium ${

@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const { data: transaction, error: fetchError } = await supabase
       .from('mpesa_transactions')
       .select('*')
-      .eq('transaction_ref', transactionRef)
+      .eq('mpesa_code', transactionRef)
       .single();
 
     if (fetchError) {
@@ -46,10 +46,9 @@ export async function POST(request: NextRequest) {
     const { error: updateError } = await supabase
       .from('mpesa_transactions')
       .update({
-        status: status === 'Success' ? 'completed' : 'failed',
-        updated_at: new Date().toISOString(),
+        status: status === 'Success' ? 'success' : 'failed',
       })
-      .eq('transaction_ref', transactionRef);
+      .eq('mpesa_code', transactionRef);
 
     if (updateError) {
       console.error('Failed to update transaction:', updateError);
@@ -67,7 +66,7 @@ export async function POST(request: NextRequest) {
         .eq('id', transaction.loan_id)
         .single();
 
-      if (!loanError && loan) {
+      if (!loanError && loan && transaction.member_id) {
         const newBalance = Math.max(0, loan.balance - amount);
         const isFullyRepaid = newBalance <= 0;
 
@@ -75,7 +74,7 @@ export async function POST(request: NextRequest) {
           .from('loans')
           .update({
             balance: newBalance,
-            status: isFullyRepaid ? 'repaid' : 'approved',
+            status: isFullyRepaid ? 'paid' : 'approved',
           })
           .eq('id', transaction.loan_id);
 
@@ -83,9 +82,10 @@ export async function POST(request: NextRequest) {
         await supabase.from('loan_repayments').insert([
           {
             loan_id: transaction.loan_id,
+            member_id: transaction.member_id,
             amount: amount,
-            payment_date: new Date().toISOString(),
-            payment_method: 'mpesa',
+            paid_at: new Date().toISOString(),
+            recorded_by: transaction.member_id,
           },
         ]);
       }
