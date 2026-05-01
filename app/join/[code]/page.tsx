@@ -22,6 +22,7 @@ export default function JoinPage({
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: '',
   });
@@ -59,6 +60,12 @@ export default function JoinPage({
       newErrors.email = 'Email is required';
     } else if (!isValidEmail(formData.email)) {
       newErrors.email = 'Invalid email address';
+    }
+
+    if (!formData.phone) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!isValidPhoneNumber(formData.phone)) {
+      newErrors.phone = 'Invalid Kenyan phone number';
     }
 
     if (!formData.password) {
@@ -109,7 +116,7 @@ export default function JoinPage({
       await addMember(
         chama.id,
         trimmedName,
-        '', // phone optional for invite signup
+        formData.phone.trim(),
         authData.user.id // link user immediately
       );
 
@@ -178,6 +185,16 @@ export default function JoinPage({
                 setFormData({ ...formData, email: e.target.value })
               }
               error={errors.email}
+            />
+
+            <Input
+              label="Phone Number"
+              placeholder="+254712345678 or 0712345678"
+              value={formData.phone}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
+              error={errors.phone}
             />
 
             <Input
