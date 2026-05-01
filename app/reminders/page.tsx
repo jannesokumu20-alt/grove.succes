@@ -43,8 +43,9 @@ export default function RemindersPage() {
       try {
         const remindersData = await getReminders(chama.id);
         setReminders(remindersData);
-      } catch (error) {
-        toast.error('Failed to load reminders');
+      } catch (error: any) {
+        console.error('Error loading reminders:', error);
+        toast.error(error.message || 'Failed to load reminders');
       } finally {
         setIsLoading(false);
       }
