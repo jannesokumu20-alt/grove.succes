@@ -34,6 +34,7 @@ export default function DashboardPage() {
 
     const loadData = async () => {
       if (!user) {
+        console.log('[Dashboard] No user, redirecting to login');
         router.push('/login');
         return;
       }
@@ -42,6 +43,7 @@ export default function DashboardPage() {
         // If chama is not in store, load it from database
         let activeCham = chama;
         if (!activeCham) {
+          console.log('[Dashboard] Loading chama for user:', user.id);
           const { data: chamaData, error: chamaError } = await supabase
             .from('chamas')
             .select('*')
@@ -49,20 +51,23 @@ export default function DashboardPage() {
             .single();
 
           if (!chamaData || chamaError) {
-            // User is not an owner, redirect to member
+            console.log('[Dashboard] No chama found, redirecting to member');
             router.push('/member');
             return;
           }
 
+          console.log('[Dashboard] Chama loaded:', chamaData.id);
           activeCham = chamaData;
           setChama(activeCham);
         }
 
         if (!activeCham) {
+          console.log('[Dashboard] No active chama, redirecting to member');
           router.push('/member');
           return;
         }
 
+        console.log('[Dashboard] Loading stats for chama:', activeCham.id);
         const [membersData, contributionsData, loansData] = await Promise.all([
           getMembers(activeCham.id).catch(() => []),
           getContributions(activeCham.id).catch(() => []),
@@ -86,8 +91,9 @@ export default function DashboardPage() {
           totalMembers: activeMembers,
           thisMonthContributions: thisMonthTotal,
         });
+        console.log('[Dashboard] Stats loaded successfully');
       } catch (error: any) {
-        console.error('Error loading dashboard data:', error);
+        console.error('[Dashboard] Error loading dashboard data:', error);
         router.push('/login');
       } finally {
         setIsLoading(false);

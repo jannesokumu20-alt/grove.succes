@@ -85,6 +85,7 @@ export default function LoginPage() {
         .single();
 
       if (chamaData) {
+        console.log('[Login] User is a chama owner, redirecting to dashboard');
         toast.dismiss(loadingToastId);
         await router.push('/dashboard');
         return;
@@ -98,6 +99,7 @@ export default function LoginPage() {
         .single();
 
       if (memberData) {
+        console.log('[Login] User is a member, redirecting to member page');
         toast.dismiss(loadingToastId);
         await router.push('/member');
         return;
@@ -145,6 +147,7 @@ export default function LoginPage() {
       }
 
       // No chama or member found
+      console.log('[Login] No role found for user, defaulting to dashboard');
       toast.dismiss(loadingToastId);
       await router.push('/dashboard');
     } catch (error: any) {
