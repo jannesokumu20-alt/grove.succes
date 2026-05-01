@@ -178,11 +178,14 @@ export async function addMember(
   phone: string,
   userId?: string
 ) {
-  // Validate required fields
-  if (!fullName || !fullName.trim()) {
+  // Validate required fields BEFORE any database operation
+  const trimmedName = fullName?.trim() || '';
+  const trimmedPhone = phone?.trim() || '';
+  
+  if (!trimmedName) {
     throw new Error('Full name is required and cannot be empty');
   }
-  if (!phone || !phone.trim()) {
+  if (!trimmedPhone) {
     throw new Error('Phone number is required and cannot be empty');
   }
 
@@ -191,8 +194,8 @@ export async function addMember(
     .insert([
       {
         chama_id: chamaId,
-        full_name: fullName.trim(),
-        phone: phone.trim(),
+        name: trimmedName,
+        phone: trimmedPhone,
         user_id: userId || null,
         status: 'active',
         credit_score: 50,

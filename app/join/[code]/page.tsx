@@ -75,8 +75,8 @@ export default function JoinPage({
     try {
       await addMember(
         chama.id,
-        formData.fullName,
-        formData.phone
+        formData.fullName.trim(),
+        formData.phone.trim()
       );
 
       toast.success('Successfully joined the chama! Redirecting to login...');

@@ -14,7 +14,7 @@ export interface Member {
   id: string;
   chama_id: string;
   user_id: string | null;
-  full_name: string;
+  name: string;
   phone: string;
   status: 'active' | 'inactive' | 'suspended';
   credit_score: number;
