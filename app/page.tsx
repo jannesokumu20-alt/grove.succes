@@ -19,13 +19,38 @@ export default function Page() {
           return;
         }
 
-        // If session exists, redirect to dashboard
-        if (session?.user) {
-          router.replace('/dashboard');
-        } else {
+        if (!session?.user) {
           // No session, go to login
           router.replace('/login');
+          return;
         }
+
+        // Check if user is a chama owner
+        const { data: chamaData } = await supabase
+          .from('chamas')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (chamaData) {
+          router.replace('/dashboard');
+          return;
+        }
+
+        // Check if user is a member
+        const { data: memberData } = await supabase
+          .from('members')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (memberData) {
+          router.replace('/member');
+          return;
+        }
+
+        // Default to dashboard if no role found
+        router.replace('/dashboard');
       } catch (err) {
         console.error('Auth check failed:', err);
         // Fallback to login on any error
