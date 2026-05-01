@@ -183,7 +183,7 @@ export async function addMember(
     .insert([
       {
         chama_id: chamaId,
-        full_name: fullName,
+        name: fullName,
         phone,
         user_id: userId || null,
         status: 'active',
@@ -301,7 +301,7 @@ export async function useInviteCode(
       .insert([
         {
           chama_id: chamaId,
-          full_name: fullName,
+          name: fullName,
           phone,
           user_id: userId || null,
           status: 'active',
@@ -356,7 +356,7 @@ function generateRandomCode(): string {
 export async function getContributions(chamaId: string) {
   const { data, error } = await supabase
     .from('contributions')
-    .select(`*, members(full_name, phone)`)
+    .select(`*, members(name, phone)`)
     .eq('chama_id', chamaId)
     .order('created_at', { ascending: false });
 
@@ -432,7 +432,7 @@ export async function createLoan(
 export async function getLoans(chamaId: string) {
   const { data, error } = await supabase
     .from('loans')
-    .select(`*, members(full_name, phone)`)
+    .select(`*, members(name, phone)`)
     .eq('chama_id', chamaId)
     .order('created_at', { ascending: false });
 
@@ -637,7 +637,7 @@ export async function createFine(
 export async function getFines(chamaId: string) {
   const { data, error } = await supabase
     .from('fines')
-    .select(`*, members(full_name, phone)`)
+    .select(`*, members(name, phone)`)
     .eq('chama_id', chamaId)
     .order('created_at', { ascending: false });
 
@@ -741,7 +741,7 @@ export async function recordAttendance(
 export async function getAttendance(meetingId: string) {
   const { data, error } = await supabase
     .from('meeting_attendance')
-    .select(`*, members(full_name, phone)`)
+    .select(`*, members(name, phone)`)
     .eq('meeting_id', meetingId);
 
   if (error) throw error;

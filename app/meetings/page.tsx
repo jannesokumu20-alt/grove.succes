@@ -345,7 +345,7 @@ export default function MeetingsPage() {
                   key={member.id}
                   className="flex items-center justify-between p-3 bg-slate-700 rounded hover:bg-slate-600 transition"
                 >
-                  <span className="text-white">{member.full_name}</span>
+                  <span className="text-white">{member.name}</span>
                   <button
                     onClick={() => handleRecordAttendance(member.id, !isAttended)}
                     className={`px-3 py-1 rounded text-sm font-medium transition ${
