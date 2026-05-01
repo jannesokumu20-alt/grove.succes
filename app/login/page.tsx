@@ -8,6 +8,7 @@ import Button from '@/components/Button';
 import Input from '@/components/Input';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/useToast';
+import { getMemberByEmailAndPhone, updateMember } from '@/lib/supabase';
 import { isValidEmail } from '@/lib/utils';
 
 export default function LoginPage() {
@@ -102,6 +103,39 @@ export default function LoginPage() {
         toast.dismiss(loadingToastId);
         router.replace('/member/dashboard');
         return;
+      }
+
+      // If no member found with user_id, check if this user should link to an existing member
+      // (someone who joined via invite code before creating an account)
+      try {
+        // Get the user's email
+        const userEmail = session.user.email;
+        if (userEmail) {
+          // Get the phone number from the user's metadata if available
+          const phoneMetadata = session.user.user_metadata?.phone;
+          
+          // Try to find a member with matching phone that has no user_id
+          if (phoneMetadata) {
+            const { data: unlinkedMember, error: unlinkedError } = await supabase
+              .from('members')
+              .select('*')
+              .eq('phone', phoneMetadata)
+              .eq('user_id', null)
+              .single();
+
+            if (unlinkedMember) {
+              // Link this member to the user
+              await updateMember(unlinkedMember.id, { user_id: session.user.id });
+              toast_service.success('Logged in successfully!');
+              toast.dismiss(loadingToastId);
+              router.replace('/member/dashboard');
+              return;
+            }
+          }
+        }
+      } catch (err) {
+        // If linking fails, continue with standard redirect
+        console.error('Member linking error:', err);
       }
 
       // No chama or member found

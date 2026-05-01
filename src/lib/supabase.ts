@@ -231,6 +231,17 @@ export async function updateMember(memberId: string, updates: Partial<Member>) {
   return data as Member;
 }
 
+export async function getMemberByEmailAndPhone(email: string, phone: string) {
+  const { data, error } = await supabase
+    .from('members')
+    .select('*')
+    .eq('phone', phone)
+    .single();
+
+  if (error) return null;
+  return data as Member | null;
+}
+
 // ============================================
 // CONTRIBUTION OPERATIONS
 // ============================================

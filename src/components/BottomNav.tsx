@@ -18,10 +18,14 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
+  { name: 'Members', href: '/members', icon: Users },
   { name: 'Contributions', href: '/contributions', icon: DollarSign },
   { name: 'Loans', href: '/loans', icon: Banknote },
+  { name: 'Fines', href: '/fines', icon: AlertCircle },
+  { name: 'Meetings', href: '/meetings', icon: Calendar },
   { name: 'Announcements', href: '/announcements', icon: Megaphone },
   { name: 'Reminders', href: '/reminders', icon: Clock },
+  { name: 'Reports', href: '/reports', icon: BarChart3 },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
