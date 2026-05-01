@@ -356,7 +356,7 @@ function generateRandomCode(): string {
 export async function getContributions(chamaId: string) {
   const { data, error } = await supabase
     .from('contributions')
-    .select(`*, members(name, phone)`)
+    .select(`*, members(full_name, phone)`)
     .eq('chama_id', chamaId)
     .order('created_at', { ascending: false });
 
@@ -432,7 +432,7 @@ export async function createLoan(
 export async function getLoans(chamaId: string) {
   const { data, error } = await supabase
     .from('loans')
-    .select(`*, members(name, phone)`)
+    .select(`*, members(full_name, phone)`)
     .eq('chama_id', chamaId)
     .order('created_at', { ascending: false });
 
