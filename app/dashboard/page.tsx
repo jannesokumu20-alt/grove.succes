@@ -5,222 +5,162 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
 import BottomNav from '@/components/BottomNav';
-import Button from '@/components/Button';
-import SummaryCard from '@/components/SummaryCard';
-import Table from '@/components/Table';
+import StatCard from '@/components/StatCard';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/useToast';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useRBAC } from '@/hooks/useRBAC';
 import { useChamaStore } from '@/store/useChamaStore';
-import { getUserChama, getChamaStats, getContributions, getLoans } from '@/lib/supabase';
-import { formatCurrency, formatDate } from '@/lib/utils';
-import { Plus, Users, DollarSign, Banknote } from 'lucide-react';
+import { getMembers, getContributions, getLoans } from '@/lib/supabase';
+import { formatCurrency } from '@/lib/utils';
+import { Plus, Users, DollarSign, Banknote, TrendingUp, Activity } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { isLoading: authLoading } = useAuthStore();
-  const toast = useToast();
-  const { setChama } = useChamaStore();
+  const { role, isLoading: rbacLoading } = useRBAC();
+  const chama = useChamaStore((state) => state.chama);
+
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
     totalSavings: 0,
-    activeLoanBalance: 0,
-    activeLoanCount: 0,
-    totalLoansCount: 0,
-    memberCount: 0,
-    thisMonthTotal: 0,
+    activeLoans: 0,
+    totalMembers: 0,
+    thisMonthContributions: 0,
   });
-  const [recentContributions, setRecentContributions] = useState<any[]>([]);
-  const [recentLoans, setRecentLoans] = useState<any[]>([]);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // If auth is still loading, don't do anything yet
-    if (authLoading) {
-      return;
-    }
+    if (rbacLoading) return;
 
-    // If auth has finished loading and no user, redirect to login
-    if (!user) {
-      router.push('/login');
-      return;
-    }
+    const loadData = async () => {
+      if (!chama || !user) {
+        router.push('/login');
+        return;
+      }
 
-    const loadDashboard = async () => {
       try {
-        const chama = await getUserChama(user.id);
-        
-        if (!chama) {
-          setError('No chama found. Please create or join a chama to continue.');
-          setIsLoading(false);
-          return;
-        }
-        setChama(chama);
+        const [membersData, contributionsData, loansData] = await Promise.all([
+          getMembers(chama.id).catch(() => []),
+          getContributions(chama.id).catch(() => []),
+          getLoans(chama.id).catch(() => []),
+        ]);
 
-        // Load stats with error handling
-        try {
-          const chamaStats = await getChamaStats(chama.id);
-          setStats(chamaStats);
-        } catch (statsError) {
-          // Stats loading error - continue with default stats
-        }
+        const activeMembers = membersData.filter((m: any) => m.status === 'active').length;
+        const now = new Date();
+        const thisMonthContribs = contributionsData.filter((c: any) => 
+          c.month === now.getMonth() + 1 && c.year === now.getFullYear()
+        );
+        const allTimeTotal = contributionsData.reduce((sum: number, c: any) => sum + (c.amount || 0), 0);
+        const activeLoanBalance = loansData
+          .filter((l: any) => l.status === 'active')
+          .reduce((sum: number, l: any) => sum + (l.balance || 0), 0);
+        const thisMonthTotal = thisMonthContribs.reduce((sum: number, c: any) => sum + (c.amount || 0), 0);
 
-        // Load recent contributions with error handling
-        try {
-          const contributions = await getContributions(chama.id);
-          setRecentContributions(contributions.slice(0, 5));
-        } catch (contribError) {
-          // Contributions loading error - continue
-        }
-
-        // Load recent loans with error handling
-        try {
-          const loans = await getLoans(chama.id);
-          setRecentLoans(loans.slice(0, 5));
-        } catch (loanError) {
-          // Loans loading error - continue
-        }
+        setStats({
+          totalSavings: allTimeTotal,
+          activeLoans: activeLoanBalance,
+          totalMembers: activeMembers,
+          thisMonthContributions: thisMonthTotal,
+        });
       } catch (error: any) {
-        setError(error.message || 'Failed to load dashboard. Please check your connection.');
+        console.error('Error loading dashboard data:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadDashboard();
-  }, [user, authLoading, router, setChama]);
+    loadData();
+  }, [chama, user, router, rbacLoading]);
 
-  if (isLoading) {
+  if (rbacLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-grove-dark flex items-center justify-center">
-        <p className="text-slate-400">Loading dashboard...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-grove-dark flex items-center justify-center px-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">Dashboard</h1>
-          <p className="text-red-400 mb-6">{error}</p>
-          <div className="flex gap-4 justify-center">
-            <Link href="/signup">
-              <Button variant="primary">Create Chama</Button>
-            </Link>
-          </div>
-        </div>
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <p className="text-slate-400">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-grove-dark">
+    <div className="min-h-screen bg-slate-950">
       <Navbar />
       <Sidebar />
       <BottomNav />
 
-      <main className="flex-1 md:ml-64 min-h-screen bg-slate-900 p-6 pt-[70px] md:pt-6 pb-20 md:pb-0 relative z-10">
-        <div className="w-full">
-          {/* Header */}
+      <main className="flex-1 md:ml-64 min-h-screen bg-slate-950 pt-[70px] md:pt-6 pb-24 md:pb-6">
+        <div className="w-full max-w-7xl mx-auto px-4 md:px-6 py-6">
+          {/* Welcome Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-            <p className="text-slate-400">Welcome back! Here's your chama overview.</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+              Welcome back, {user?.email?.split('@')[0]}! 👋
+            </h1>
+            <p className="text-slate-400">Here's what's happening in {chama?.name}</p>
           </div>
 
-          {/* Summary Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <SummaryCard
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <StatCard
               title="Total Savings"
               value={formatCurrency(stats.totalSavings)}
-              icon="💰"
-              color="green"
+              icon={<DollarSign size={24} />}
+              color="emerald"
             />
-            <SummaryCard
+            <StatCard
               title="Active Loans"
-              value={formatCurrency(stats.activeLoanBalance)}
-              icon="🏦"
-              color="red"
-            />
-            <SummaryCard
-              title="Total Members"
-              value={stats.memberCount}
-              icon="👥"
+              value={formatCurrency(stats.activeLoans)}
+              icon={<Banknote size={24} />}
               color="blue"
             />
-            <SummaryCard
-              title="Total Loans"
-              value={stats.totalLoansCount}
-              icon="📋"
-              color="indigo"
+            <StatCard
+              title="Total Members"
+              value={stats.totalMembers}
+              icon={<Users size={24} />}
+              color="cyan"
             />
-            <SummaryCard
+            <StatCard
               title="This Month"
-              value={formatCurrency(stats.thisMonthTotal)}
-              icon="📊"
-              color="purple"
+              value={formatCurrency(stats.thisMonthContributions)}
+              icon={<TrendingUp size={24} />}
+              color="orange"
             />
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <Link href="/contributions">
-              <Button variant="primary" className="w-full" icon={<Plus size={16} />}>
-                Record Contribution
-              </Button>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+            <Link
+              href="/contributions"
+              className="w-full bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 block"
+            >
+              <Plus size={20} />
+              <span className="hidden md:inline">Contribution</span>
             </Link>
-            <Link href="/members">
-              <Button variant="secondary" className="w-full" icon={<Users size={16} />}>
-                Add Member
-              </Button>
+            <Link
+              href="/members"
+              className="w-full bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 block"
+            >
+              <Plus size={20} />
+              <span className="hidden md:inline">Member</span>
             </Link>
-            <Link href="/loans">
-              <Button variant="secondary" className="w-full" icon={<Banknote size={16} />}>
-                New Loan
-              </Button>
+            <Link
+              href="/loans"
+              className="w-full bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 block"
+            >
+              <Plus size={20} />
+              <span className="hidden md:inline">Loan</span>
+            </Link>
+            <Link
+              href="/meetings"
+              className="w-full bg-gradient-to-br from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 block"
+            >
+              <Plus size={20} />
+              <span className="hidden md:inline">Meeting</span>
             </Link>
           </div>
 
-          {/* Recent Transactions */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Recent Contributions */}
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">Recent Contributions</h2>
-              <Table
-                columns={[
-                  { key: 'members', label: 'Member', render: (_, row) => row.members?.name },
-                  { key: 'amount', label: 'Amount', render: (val) => formatCurrency(val) },
-                  { key: 'created_at', label: 'Date', render: (val) => formatDate(val) },
-                ]}
-                data={recentContributions}
-                isEmpty={recentContributions.length === 0}
-                emptyMessage="No contributions yet"
-              />
-            </div>
-
-            {/* Recent Loans */}
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">Recent Loans</h2>
-              <Table
-                columns={[
-                  { key: 'members', label: 'Member', render: (_, row) => row.members?.name },
-                  { key: 'amount', label: 'Amount', render: (val) => formatCurrency(val) },
-                  { key: 'status', label: 'Status', render: (val) => (
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      val === 'approved' ? 'bg-green-900 text-green-200' :
-                      val === 'pending' ? 'bg-yellow-900 text-yellow-200' :
-                      'bg-slate-700 text-slate-200'
-                    }`}>
-                      {val}
-                    </span>
-                  )},
-                ]}
-                data={recentLoans}
-                isEmpty={recentLoans.length === 0}
-                emptyMessage="No loans yet"
-              />
+          {/* Recent Activity */}
+          <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+            <h2 className="text-xl font-bold text-white mb-4">Recent Activity</h2>
+            <div className="text-center py-12">
+              <Activity size={48} className="text-slate-600 mx-auto mb-4" />
+              <p className="text-slate-400">No recent activity yet</p>
             </div>
           </div>
         </div>
