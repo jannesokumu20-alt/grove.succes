@@ -15,24 +15,31 @@ import {
   Clock,
 } from 'lucide-react';
 import { useChamaStore } from '@/store/useChamaStore';
+import { useRBAC } from '@/hooks/useRBAC';
 import { cn } from '@/lib/utils';
 
-const navItems = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Members', href: '/members', icon: Users },
-  { name: 'Contributions', href: '/contributions', icon: DollarSign },
-  { name: 'Loans', href: '/loans', icon: Banknote },
-  { name: 'Fines', href: '/fines', icon: AlertCircle },
-  { name: 'Meetings', href: '/meetings', icon: Calendar },
-  { name: 'Announcements', href: '/announcements', icon: Megaphone },
-  { name: 'Reminders', href: '/reminders', icon: Clock },
-  { name: 'Reports', href: '/reports', icon: BarChart3 },
-  { name: 'Settings', href: '/settings', icon: Settings },
+const allNavItems = [
+  { name: 'Dashboard', href: '/dashboard', icon: Home, roles: ['owner', 'member'] },
+  { name: 'Members', href: '/members', icon: Users, roles: ['owner'] },
+  { name: 'Contributions', href: '/contributions', icon: DollarSign, roles: ['owner', 'member'] },
+  { name: 'Loans', href: '/loans', icon: Banknote, roles: ['owner', 'member'] },
+  { name: 'Fines', href: '/fines', icon: AlertCircle, roles: ['owner'] },
+  { name: 'Meetings', href: '/meetings', icon: Calendar, roles: ['owner'] },
+  { name: 'Announcements', href: '/announcements', icon: Megaphone, roles: ['owner', 'member'] },
+  { name: 'Reminders', href: '/reminders', icon: Clock, roles: ['owner', 'member'] },
+  { name: 'Reports', href: '/reports', icon: BarChart3, roles: ['owner'] },
+  { name: 'Settings', href: '/settings', icon: Settings, roles: ['owner', 'member'] },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { role } = useRBAC();
   const chama = useChamaStore((state) => state.chama);
+
+  // Filter nav items based on user role
+  const navItems = allNavItems.filter((item) =>
+    role && item.roles.includes(role as any)
+  );
 
   return (
     <aside className="hidden md:flex fixed left-0 top-0 w-64 h-screen bg-slate-900 z-40 flex-col">

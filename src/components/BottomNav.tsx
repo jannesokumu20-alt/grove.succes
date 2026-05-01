@@ -14,23 +14,30 @@ import {
   Megaphone,
   Clock,
 } from 'lucide-react';
+import { useRBAC } from '@/hooks/useRBAC';
 import { cn } from '@/lib/utils';
 
-const navItems = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Members', href: '/members', icon: Users },
-  { name: 'Contributions', href: '/contributions', icon: DollarSign },
-  { name: 'Loans', href: '/loans', icon: Banknote },
-  { name: 'Fines', href: '/fines', icon: AlertCircle },
-  { name: 'Meetings', href: '/meetings', icon: Calendar },
-  { name: 'Announcements', href: '/announcements', icon: Megaphone },
-  { name: 'Reminders', href: '/reminders', icon: Clock },
-  { name: 'Reports', href: '/reports', icon: BarChart3 },
-  { name: 'Settings', href: '/settings', icon: Settings },
+const allNavItems = [
+  { name: 'Dashboard', href: '/dashboard', icon: Home, roles: ['owner', 'member'] },
+  { name: 'Members', href: '/members', icon: Users, roles: ['owner'] },
+  { name: 'Contributions', href: '/contributions', icon: DollarSign, roles: ['owner', 'member'] },
+  { name: 'Loans', href: '/loans', icon: Banknote, roles: ['owner', 'member'] },
+  { name: 'Fines', href: '/fines', icon: AlertCircle, roles: ['owner'] },
+  { name: 'Meetings', href: '/meetings', icon: Calendar, roles: ['owner'] },
+  { name: 'Announcements', href: '/announcements', icon: Megaphone, roles: ['owner', 'member'] },
+  { name: 'Reminders', href: '/reminders', icon: Clock, roles: ['owner', 'member'] },
+  { name: 'Reports', href: '/reports', icon: BarChart3, roles: ['owner'] },
+  { name: 'Settings', href: '/settings', icon: Settings, roles: ['owner', 'member'] },
 ];
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { role } = useRBAC();
+
+  // Filter nav items based on user role (showing top 5 most important for mobile)
+  const navItems = allNavItems
+    .filter((item) => role && item.roles.includes(role as any))
+    .slice(0, 5); // Show only first 5 items on mobile
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 md:hidden bg-slate-900 border-t border-slate-800 z-40">

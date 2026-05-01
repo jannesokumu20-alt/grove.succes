@@ -253,6 +253,20 @@ export async function getMemberByEmailAndPhone(email: string, phone: string) {
   return data as Member | null;
 }
 
+export async function getUserMemberId(userId: string): Promise<string | null> {
+  try {
+    const { data } = await supabase
+      .from('members')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
+    return data?.id || null;
+  } catch (error) {
+    console.error('Error getting user member_id:', error);
+    return null;
+  }
+}
+
 // ============================================
 // CONTRIBUTION OPERATIONS
 // ============================================

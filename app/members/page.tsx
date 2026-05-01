@@ -12,6 +12,7 @@ import Table from '@/components/Table';
 import Badge from '@/components/Badge';
 import BulkImportModal from '@/components/BulkImportModal';
 import { useAuth } from '@/hooks/useAuth';
+import { useRBAC } from '@/hooks/useRBAC';
 import { useToast } from '@/hooks/useToast';
 import { useChamaStore } from '@/store/useChamaStore';
 import { getMembers, addMember, generateInviteLink, recordContribution } from '@/lib/supabase';
@@ -21,6 +22,7 @@ import { Plus, Copy, Share2, Upload } from 'lucide-react';
 export default function MembersPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { role, isLoading: rbacLoading } = useRBAC();
   const toast = useToast();
   const chama = useChamaStore((state) => state.chama);
   const [members, setMembers] = useState<any[]>([]);
@@ -38,6 +40,11 @@ export default function MembersPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
+    // Show loading while RBAC checks
+    if (rbacLoading) {
+      return;
+    }
+
     const loadMembers = async () => {
       if (!chama) {
         router.push('/dashboard');

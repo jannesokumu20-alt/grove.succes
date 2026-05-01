@@ -10,6 +10,7 @@ import Input from '@/components/Input';
 import Modal from '@/components/Modal';
 import Table from '@/components/Table';
 import { useAuth } from '@/hooks/useAuth';
+import { useRBAC } from '@/hooks/useRBAC';
 import { useToast } from '@/hooks/useToast';
 import { useChamaStore } from '@/store/useChamaStore';
 import {
@@ -17,6 +18,7 @@ import {
   getContributions,
   recordContribution,
   getContributionsByMonthYear,
+  getUserMemberId,
 } from '@/lib/supabase';
 import {
   getAllMemberWallets,
@@ -32,6 +34,7 @@ import { Plus, TrendingUp, AlertCircle, Wallet } from 'lucide-react';
 export default function ContributionsPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { role, isLoading: rbacLoading } = useRBAC();
   const toast = useToast();
   const chama = useChamaStore((state) => state.chama);
   
@@ -42,6 +45,7 @@ export default function ContributionsPage() {
   const [topContributors, setTopContributors] = useState<any[]>([]);
   const [defaulters, setDefaulters] = useState<any[]>([]);
   const [monthlyStats, setMonthlyStats] = useState<any[]>([]);
+  const [currentMemberId, setCurrentMemberId] = useState<string | null>(null);
   
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,6 +65,10 @@ export default function ContributionsPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
+    if (rbacLoading) {
+      return;
+    }
+
     const loadData = async () => {
       if (!chama || !user) {
         router.push('/dashboard');
@@ -68,6 +76,12 @@ export default function ContributionsPage() {
       }
 
       try {
+        // If user is a member, get their member ID
+        if (role === 'member') {
+          const memberId = await getUserMemberId(user.id);
+          setCurrentMemberId(memberId);
+        }
+
         // Load all data in parallel
         const [membersData, contributionsData, walletsData, topContribsData, defaultersData, monthlyStatsData] = await Promise.all([
           getMembers(chama.id),
@@ -79,7 +93,16 @@ export default function ContributionsPage() {
         ]);
 
         setMembers(membersData);
-        setContributions(contributionsData);
+        
+        // Filter contributions based on user role
+        let filteredContributions = contributionsData;
+        if (role === 'member' && currentMemberId) {
+          filteredContributions = contributionsData.filter(
+            (c: any) => c.member_id === currentMemberId
+          );
+        }
+        
+        setContributions(filteredContributions);
         setWallets(walletsData || []);
         setTopContributors(topContribsData || []);
         setDefaulters(defaultersData || []);
@@ -102,7 +125,7 @@ export default function ContributionsPage() {
     };
 
     loadData();
-  }, [chama, user, router, toast, selectedMonth, selectedYear]);
+  }, [chama, user, router, toast, role, currentMemberId, selectedMonth, selectedYear, rbacLoading]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -203,6 +226,7 @@ export default function ContributionsPage() {
               variant="primary"
               onClick={() => setIsModalOpen(true)}
               icon={<Plus size={16} />}
+              className={role === 'member' ? 'hidden' : ''}
             >
               Record Contribution
             </Button>
