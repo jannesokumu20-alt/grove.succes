@@ -191,7 +191,7 @@ export default function FinesPage() {
             <h2 className="text-lg font-semibold text-white mb-4">All Fines</h2>
             <Table
               columns={[
-                { key: 'members', label: 'Member', render: (_, row) => row.members?.name },
+                { key: 'members', label: 'Member', render: (_, row) => row.members?.full_name },
                 { key: 'reason', label: 'Reason' },
                 { key: 'amount', label: 'Amount', render: (val) => formatCurrency(val) },
                 {
@@ -257,7 +257,7 @@ export default function FinesPage() {
               <option value="">Select a member</option>
               {members.map((member) => (
                 <option key={member.id} value={member.id}>
-                  {member.name}
+                  {member.full_name}
                 </option>
               ))}
             </select>

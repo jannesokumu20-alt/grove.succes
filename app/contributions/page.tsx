@@ -326,7 +326,7 @@ export default function ContributionsPage() {
                 <h2 className="text-lg font-semibold text-white mb-4">Contributions</h2>
                 <Table
                   columns={[
-                    { key: 'members', label: 'Member', render: (_, row) => row.members?.name },
+                    { key: 'members', label: 'Member', render: (_, row) => row.members?.full_name },
                     { key: 'amount', label: 'Amount', render: (val) => formatCur(val) },
                     { key: 'month', label: 'Month', render: (val) => getMonthName(val) },
                     { key: 'year', label: 'Year' },

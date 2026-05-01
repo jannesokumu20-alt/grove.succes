@@ -178,13 +178,21 @@ export async function addMember(
   phone: string,
   userId?: string
 ) {
+  // Validate required fields
+  if (!fullName || !fullName.trim()) {
+    throw new Error('Full name is required and cannot be empty');
+  }
+  if (!phone || !phone.trim()) {
+    throw new Error('Phone number is required and cannot be empty');
+  }
+
   const { data, error } = await supabase
     .from('members')
     .insert([
       {
         chama_id: chamaId,
-        name: fullName,
-        phone,
+        full_name: fullName.trim(),
+        phone: phone.trim(),
         user_id: userId || null,
         status: 'active',
         credit_score: 50,
