@@ -13,7 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { useChamaStore } from '@/store/useChamaStore';
 import { getReminders, createReminder, deleteReminder, sendReminder } from '@/lib/supabase';
-import { formatDate, formatTime } from '@/lib/utils';
+import { formatDate } from '@/lib/utils';
 import { Plus, Trash2, Send, Clock } from 'lucide-react';
 
 export default function RemindersPage() {
