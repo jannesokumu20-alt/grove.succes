@@ -9,7 +9,7 @@ import StatCard from '@/components/StatCard';
 import { useAuth } from '@/hooks/useAuth';
 import { useRBAC } from '@/hooks/useRBAC';
 import { useChamaStore } from '@/store/useChamaStore';
-import { getMembers, getContributions, getLoans } from '@/lib/supabase';
+import { getMembers, getContributions, getLoans, supabase } from '@/lib/supabase';
 import { formatCurrency } from '@/lib/utils';
 import { Plus, Users, DollarSign, Banknote, TrendingUp, Activity } from 'lucide-react';
 import Link from 'next/link';
@@ -19,6 +19,7 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const { role, isLoading: rbacLoading } = useRBAC();
   const chama = useChamaStore((state) => state.chama);
+  const setChama = useChamaStore((state) => state.setChama);
 
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -32,16 +33,40 @@ export default function DashboardPage() {
     if (rbacLoading) return;
 
     const loadData = async () => {
-      if (!chama || !user) {
+      if (!user) {
         router.push('/login');
         return;
       }
 
       try {
+        // If chama is not in store, load it from database
+        let activeCham = chama;
+        if (!activeCham) {
+          const { data: chamaData, error: chamaError } = await supabase
+            .from('chamas')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
+
+          if (!chamaData || chamaError) {
+            // User is not an owner, redirect to member
+            router.push('/member');
+            return;
+          }
+
+          activeCham = chamaData;
+          setChama(activeCham);
+        }
+
+        if (!activeCham) {
+          router.push('/member');
+          return;
+        }
+
         const [membersData, contributionsData, loansData] = await Promise.all([
-          getMembers(chama.id).catch(() => []),
-          getContributions(chama.id).catch(() => []),
-          getLoans(chama.id).catch(() => []),
+          getMembers(activeCham.id).catch(() => []),
+          getContributions(activeCham.id).catch(() => []),
+          getLoans(activeCham.id).catch(() => []),
         ]);
 
         const activeMembers = membersData.filter((m: any) => m.status === 'active').length;
@@ -63,13 +88,14 @@ export default function DashboardPage() {
         });
       } catch (error: any) {
         console.error('Error loading dashboard data:', error);
+        router.push('/login');
       } finally {
         setIsLoading(false);
       }
     };
 
     loadData();
-  }, [chama, user, router, rbacLoading]);
+  }, [user, router, rbacLoading, chama, setChama]);
 
   if (rbacLoading || isLoading) {
     return (
