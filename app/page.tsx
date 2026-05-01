@@ -12,7 +12,7 @@ export default function Page() {
       // Safe auth check with timeout
       const timeout = setTimeout(() => {
         // Fallback to login after 2 seconds
-        router.push('/login');
+        router.replace('/login');
       }, 2000);
 
       // Check localStorage for auth token
@@ -20,15 +20,15 @@ export default function Page() {
       
       if (token) {
         clearTimeout(timeout);
-        router.push('/dashboard');
+        router.replace('/dashboard');
       } else {
         clearTimeout(timeout);
-        router.push('/login');
+        router.replace('/login');
       }
     } catch (error) {
       console.error('Auth check failed:', error);
       // Fallback to login on any error
-      router.push('/login');
+      router.replace('/login');
     }
   }, [router]);
 
