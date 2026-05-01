@@ -9,6 +9,8 @@ import {
   Banknote,
   BarChart3,
   Settings,
+  AlertCircle,
+  Calendar,
 } from 'lucide-react';
 import { useChamaStore } from '@/store/useChamaStore';
 import { cn } from '@/lib/utils';
@@ -18,6 +20,8 @@ const navItems = [
   { name: 'Members', href: '/members', icon: Users },
   { name: 'Contributions', href: '/contributions', icon: DollarSign },
   { name: 'Loans', href: '/loans', icon: Banknote },
+  { name: 'Fines', href: '/fines', icon: AlertCircle },
+  { name: 'Meetings', href: '/meetings', icon: Calendar },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
