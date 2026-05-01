@@ -109,6 +109,7 @@ export async function getUserMemberId(userId: string): Promise<string | null> {
  */
 
 const MEMBER_ALLOWED_PAGES = [
+  '/member',
   '/dashboard',
   '/contributions',
   '/loans',

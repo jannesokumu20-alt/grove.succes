@@ -101,7 +101,7 @@ export default function LoginPage() {
       if (memberData) {
         toast_service.success('Logged in successfully!');
         toast.dismiss(loadingToastId);
-        router.replace('/dashboard');
+        router.replace('/member');
         return;
       }
 
@@ -137,7 +137,7 @@ export default function LoginPage() {
               await updateMember(matchingMember.id, { user_id: session.user.id });
               toast_service.success('Logged in successfully!');
               toast.dismiss(loadingToastId);
-              router.replace('/dashboard');
+              router.replace('/member');
               return;
             }
           }

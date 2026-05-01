@@ -175,7 +175,7 @@ export async function updateChama(chamaId: string, updates: Partial<Chama>) {
 export async function addMember(
   chamaId: string,
   fullName: string,
-  phone: string,
+  phone?: string,
   userId?: string
 ) {
   // Validate required fields BEFORE any database operation
@@ -185,9 +185,6 @@ export async function addMember(
   if (!trimmedName) {
     throw new Error('Full name is required and cannot be empty');
   }
-  if (!trimmedPhone) {
-    throw new Error('Phone number is required and cannot be empty');
-  }
 
   const { data, error } = await supabase
     .from('members')
@@ -195,7 +192,7 @@ export async function addMember(
       {
         chama_id: chamaId,
         name: trimmedName,
-        phone: trimmedPhone,
+        phone: trimmedPhone || null,
         user_id: userId || null,
         status: 'active',
         credit_score: 50,

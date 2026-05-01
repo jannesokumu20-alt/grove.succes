@@ -18,7 +18,8 @@ import { useRBAC } from '@/hooks/useRBAC';
 import { cn } from '@/lib/utils';
 
 const allNavItems = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home, roles: ['owner', 'member'] },
+  { name: 'Dashboard', href: '/dashboard', icon: Home, roles: ['owner'] },
+  { name: 'My Dashboard', href: '/member', icon: Home, roles: ['member'] },
   { name: 'Members', href: '/members', icon: Users, roles: ['owner'] },
   { name: 'Contributions', href: '/contributions', icon: DollarSign, roles: ['owner', 'member'] },
   { name: 'Loans', href: '/loans', icon: Banknote, roles: ['owner', 'member'] },
