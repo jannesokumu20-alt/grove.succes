@@ -148,7 +148,7 @@ export function getRedirectForRole(role: UserRole): string {
     return '/dashboard';
   }
   if (role === 'member') {
-    return '/dashboard';
+    return '/member';
   }
   return '/login';
 }
