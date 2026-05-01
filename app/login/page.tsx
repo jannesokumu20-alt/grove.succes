@@ -108,24 +108,33 @@ export default function LoginPage() {
       // If no member found with user_id, check if this user should link to an existing member
       // (someone who joined via invite code before creating an account)
       try {
-        // Get the user's email
-        const userEmail = session.user.email;
-        if (userEmail) {
-          // Get the phone number from the user's metadata if available
-          const phoneMetadata = session.user.user_metadata?.phone;
+        // Get the phone number from the user's metadata if available
+        const phoneMetadata = session.user.user_metadata?.phone;
+        
+        if (phoneMetadata) {
+          // Normalize both phone formats for comparison
+          const normalizePhone = (phone: string) => {
+            return phone.replace(/\D/g, '').replace(/^0/, '').replace(/^254/, '');
+          };
           
-          // Try to find a member with matching phone that has no user_id
-          if (phoneMetadata) {
-            const { data: unlinkedMember, error: unlinkedError } = await supabase
-              .from('members')
-              .select('*')
-              .eq('phone', phoneMetadata)
-              .eq('user_id', null)
-              .single();
+          const normalizedAuthPhone = normalizePhone(phoneMetadata);
+          
+          // Get all unlinked members
+          const { data: unlinkedMembers, error: unlinkedError } = await supabase
+            .from('members')
+            .select('*')
+            .is('user_id', null);
 
-            if (unlinkedMember) {
+          if (unlinkedMembers && unlinkedMembers.length > 0) {
+            // Find a member with matching normalized phone
+            const matchingMember = unlinkedMembers.find((member: any) => {
+              const normalizedMemberPhone = normalizePhone(member.phone || '');
+              return normalizedMemberPhone === normalizedAuthPhone;
+            });
+
+            if (matchingMember) {
               // Link this member to the user
-              await updateMember(unlinkedMember.id, { user_id: session.user.id });
+              await updateMember(matchingMember.id, { user_id: session.user.id });
               toast_service.success('Logged in successfully!');
               toast.dismiss(loadingToastId);
               router.replace('/dashboard');
