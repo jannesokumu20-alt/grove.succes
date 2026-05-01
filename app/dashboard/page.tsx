@@ -122,7 +122,7 @@ export default function DashboardPage() {
       <Sidebar />
       <BottomNav />
 
-      <main className="flex-1 lg:ml-64 min-h-screen bg-slate-900 p-6 pt-[70px] lg:pt-6 pb-20 lg:pb-0 relative z-10">
+      <main className="flex-1 md:ml-64 min-h-screen bg-slate-900 p-6 pt-[70px] md:pt-6 pb-20 md:pb-0 relative z-10">
         <div className="w-full">
           {/* Header */}
           <div className="mb-8">
@@ -190,7 +190,7 @@ export default function DashboardPage() {
               <h2 className="text-lg font-semibold text-white mb-4">Recent Contributions</h2>
               <Table
                 columns={[
-                  { key: 'members', label: 'Member', render: (_, row) => row.members?.full_name },
+                  { key: 'members', label: 'Member', render: (_, row) => row.members?.name },
                   { key: 'amount', label: 'Amount', render: (val) => formatCurrency(val) },
                   { key: 'created_at', label: 'Date', render: (val) => formatDate(val) },
                 ]}
@@ -205,7 +205,7 @@ export default function DashboardPage() {
               <h2 className="text-lg font-semibold text-white mb-4">Recent Loans</h2>
               <Table
                 columns={[
-                  { key: 'members', label: 'Member', render: (_, row) => row.members?.full_name },
+                  { key: 'members', label: 'Member', render: (_, row) => row.members?.name },
                   { key: 'amount', label: 'Amount', render: (val) => formatCurrency(val) },
                   { key: 'status', label: 'Status', render: (val) => (
                     <span className={`px-2 py-1 rounded text-xs font-medium ${

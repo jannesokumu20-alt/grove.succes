@@ -247,14 +247,18 @@ CREATE POLICY announcements_chama_access ON announcements
 CREATE TABLE reminders (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   chama_id UUID NOT NULL REFERENCES chamas(id) ON DELETE CASCADE,
+  title VARCHAR(255) NOT NULL,
   message TEXT NOT NULL,
-  sent_to_count INTEGER DEFAULT 0,
-  sent_by UUID NOT NULL,
+  reminder_date TIMESTAMP NOT NULL,
+  sent BOOLEAN DEFAULT FALSE,
   sent_at TIMESTAMP,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_reminders_chama_id ON reminders(chama_id);
+CREATE INDEX idx_reminders_reminder_date ON reminders(reminder_date);
+CREATE INDEX idx_reminders_sent ON reminders(sent);
 
 ALTER TABLE reminders ENABLE ROW LEVEL SECURITY;
 CREATE POLICY reminders_chama_access ON reminders

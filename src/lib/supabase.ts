@@ -175,16 +175,25 @@ export async function updateChama(chamaId: string, updates: Partial<Chama>) {
 export async function addMember(
   chamaId: string,
   fullName: string,
-  phone: string,
+  phone?: string,
   userId?: string
 ) {
+  // Validate required fields BEFORE any database operation
+  const trimmedName = (fullName || '')?.trim() || '';
+  const trimmedPhone = (phone || '')?.trim() || '';
+  
+  // CRITICAL: Name must never be empty
+  if (!trimmedName || trimmedName.length === 0) {
+    throw new Error('Full name is required and cannot be empty');
+  }
+
   const { data, error } = await supabase
     .from('members')
     .insert([
       {
         chama_id: chamaId,
-        full_name: fullName,
-        phone,
+        name: trimmedName,
+        phone: trimmedPhone || null,
         user_id: userId || null,
         status: 'active',
         credit_score: 50,
@@ -229,6 +238,31 @@ export async function updateMember(memberId: string, updates: Partial<Member>) {
 
   if (error) throw error;
   return data as Member;
+}
+
+export async function getMemberByEmailAndPhone(email: string, phone: string) {
+  const { data, error } = await supabase
+    .from('members')
+    .select('*')
+    .eq('phone', phone)
+    .single();
+
+  if (error) return null;
+  return data as Member | null;
+}
+
+export async function getUserMemberId(userId: string): Promise<string | null> {
+  try {
+    const { data } = await supabase
+      .from('members')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
+    return data?.id || null;
+  } catch (error) {
+    console.error('Error getting user member_id:', error);
+    return null;
+  }
 }
 
 // ============================================
@@ -301,7 +335,7 @@ export async function useInviteCode(
       .insert([
         {
           chama_id: chamaId,
-          full_name: fullName,
+          name: fullName,
           phone,
           user_id: userId || null,
           status: 'active',
@@ -356,7 +390,7 @@ function generateRandomCode(): string {
 export async function getContributions(chamaId: string) {
   const { data, error } = await supabase
     .from('contributions')
-    .select(`*, members(full_name, phone)`)
+    .select(`*, members(name, phone)`)
     .eq('chama_id', chamaId)
     .order('created_at', { ascending: false });
 
@@ -432,7 +466,7 @@ export async function createLoan(
 export async function getLoans(chamaId: string) {
   const { data, error } = await supabase
     .from('loans')
-    .select(`*, members(full_name, phone)`)
+    .select(`*, members(name, phone)`)
     .eq('chama_id', chamaId)
     .order('created_at', { ascending: false });
 
@@ -637,7 +671,7 @@ export async function createFine(
 export async function getFines(chamaId: string) {
   const { data, error } = await supabase
     .from('fines')
-    .select(`*, members(full_name, phone)`)
+    .select(`*, members(name, phone)`)
     .eq('chama_id', chamaId)
     .order('created_at', { ascending: false });
 
@@ -741,7 +775,7 @@ export async function recordAttendance(
 export async function getAttendance(meetingId: string) {
   const { data, error } = await supabase
     .from('meeting_attendance')
-    .select(`*, members(full_name, phone)`)
+    .select(`*, members(name, phone)`)
     .eq('meeting_id', meetingId);
 
   if (error) throw error;

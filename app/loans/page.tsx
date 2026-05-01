@@ -253,7 +253,7 @@ export default function LoansPage() {
           <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
             <Table
               columns={[
-                { key: 'members', label: 'Member', render: (_, row) => row.members?.full_name },
+                { key: 'members', label: 'Member', render: (_, row) => row.members?.name },
                 { key: 'amount', label: 'Amount', render: (val) => formatCurrency(val) },
                 { key: 'balance', label: 'Balance', render: (val) => formatCurrency(val) },
                 {

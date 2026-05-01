@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
-import { getChamaByInviteCode, addMember } from '@/lib/supabase';
+import { getChamaByInviteCode, signUp, addMember } from '@/lib/supabase';
 import { useToast } from '@/hooks/useToast';
-import { isValidPhoneNumber } from '@/lib/utils';
+import { isValidEmail, isValidPhoneNumber } from '@/lib/utils';
 import type { Chama } from '@/types';
 
 export default function JoinPage({
@@ -20,8 +20,10 @@ export default function JoinPage({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [chama, setChama] = useState<Chama | null>(null);
   const [formData, setFormData] = useState({
-    fullName: '',
-    phone: '',
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -49,14 +51,26 @@ export default function JoinPage({
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
+    if (!formData.name.trim()) {
+      newErrors.name = 'Full name is required';
     }
 
-    if (!formData.phone) {
-      newErrors.phone = 'Phone number is required';
-    } else if (!isValidPhoneNumber(formData.phone)) {
-      newErrors.phone = 'Invalid Kenyan phone number';
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!isValidEmail(formData.email)) {
+      newErrors.email = 'Invalid email address';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
     }
 
     setErrors(newErrors);
@@ -70,17 +84,37 @@ export default function JoinPage({
       return;
     }
 
+    // Extra safety check: ensure name is not empty before proceeding
+    const trimmedName = formData.name.trim();
+    if (!trimmedName) {
+      setErrors({ name: 'Full name is required' });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await addMember(
-        chama.id,
-        formData.fullName,
-        formData.phone
+      // Step 1: Create auth user
+      const authData = await signUp(
+        formData.email,
+        formData.password,
+        trimmedName
       );
 
-      toast.success('Successfully joined the chama! Redirecting to login...');
-      setTimeout(() => router.push('/login'), 2000);
+      if (!authData.user) {
+        throw new Error('Failed to create account');
+      }
+
+      // Step 2: Add user as member to the chama
+      await addMember(
+        chama.id,
+        trimmedName,
+        '', // phone optional for invite signup
+        authData.user.id // link user immediately
+      );
+
+      toast.success('Account created! Redirecting to your dashboard...');
+      setTimeout(() => router.push('/member'), 2000);
     } catch (error: any) {
       toast.error(error.message || 'Failed to join chama');
     } finally {
@@ -128,21 +162,44 @@ export default function JoinPage({
             <Input
               label="Full Name"
               placeholder="John Doe"
-              value={formData.fullName}
+              value={formData.name}
               onChange={(e) =>
-                setFormData({ ...formData, fullName: e.target.value })
+                setFormData({ ...formData, name: e.target.value })
               }
-              error={errors.fullName}
+              error={errors.name}
             />
 
             <Input
-              label="Phone Number"
-              placeholder="+254712345678 or 0712345678"
-              value={formData.phone}
+              label="Email Address"
+              type="email"
+              placeholder="your@email.com"
+              value={formData.email}
               onChange={(e) =>
-                setFormData({ ...formData, phone: e.target.value })
+                setFormData({ ...formData, email: e.target.value })
               }
-              error={errors.phone}
+              error={errors.email}
+            />
+
+            <Input
+              label="Password"
+              type="password"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+              error={errors.password}
+            />
+
+            <Input
+              label="Confirm Password"
+              type="password"
+              placeholder="••••••••"
+              value={formData.confirmPassword}
+              onChange={(e) =>
+                setFormData({ ...formData, confirmPassword: e.target.value })
+              }
+              error={errors.confirmPassword}
             />
 
             <Button
@@ -151,7 +208,7 @@ export default function JoinPage({
               className="w-full"
               isLoading={isSubmitting}
             >
-              Join Chama
+              Join Chama & Create Account
             </Button>
           </form>
         </div>
