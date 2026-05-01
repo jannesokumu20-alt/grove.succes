@@ -8,16 +8,14 @@ import BottomNav from '@/components/BottomNav';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import Modal from '@/components/Modal';
-import Table from '@/components/Table';
 import Badge from '@/components/Badge';
-import BulkImportModal from '@/components/BulkImportModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useRBAC } from '@/hooks/useRBAC';
 import { useToast } from '@/hooks/useToast';
 import { useChamaStore } from '@/store/useChamaStore';
-import { getMembers, addMember, generateInviteLink, recordContribution } from '@/lib/supabase';
-import { formatDate, isValidPhoneNumber, generateInviteCode } from '@/lib/utils';
-import { Plus, Copy, Share2, Upload } from 'lucide-react';
+import { getMembers, addMember } from '@/lib/supabase';
+import { formatDate, isValidPhoneNumber } from '@/lib/utils';
+import { Plus, Search, Phone, Calendar, MoreVertical } from 'lucide-react';
 
 export default function MembersPage() {
   const router = useRouter();
@@ -28,11 +26,9 @@ export default function MembersPage() {
   const [members, setMembers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isBulkImportModalOpen, setIsBulkImportModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isBulkImporting, setIsBulkImporting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState('all');
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
@@ -40,10 +36,7 @@ export default function MembersPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    // Show loading while RBAC checks
-    if (rbacLoading) {
-      return;
-    }
+    if (rbacLoading) return;
 
     const loadMembers = async () => {
       if (!chama) {
@@ -62,7 +55,7 @@ export default function MembersPage() {
     };
 
     loadMembers();
-  }, [chama, router, toast]);
+  }, [chama, router, toast, rbacLoading]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -101,260 +94,144 @@ export default function MembersPage() {
     }
   };
 
-  const handleCopyInviteCode = () => {
-    if (chama) {
-      navigator.clipboard.writeText(chama.invite_code);
-      toast.success('Invite code copied!');
-    }
-  };
+  const filteredMembers = members.filter((member) => {
+    const matchesSearch = (member?.name || '').toLowerCase().includes((searchTerm || '').toLowerCase());
+    const matchesStatus = statusFilter === 'all' || member?.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
-  const handleShareInviteCode = () => {
-    if (chama) {
-      const url = `${window.location.origin}/join/${chama.invite_code}`;
-      const message = `Join ${chama.name} on Grove! Use this code: ${chama.invite_code}\n${url}`;
-
-      if (navigator.share) {
-        navigator.share({
-          title: 'Join Chama',
-          text: message,
-        });
-      } else {
-        navigator.clipboard.writeText(message);
-        toast.success('Message copied to clipboard!');
-      }
-    }
-  };
-
-  const handleGenerateInviteLink = async () => {
-    if (!chama || !user) return;
-
-    try {
-      setIsSubmitting(true);
-      const newInvite = await generateInviteLink(chama.id, user.id);
-      setInviteLink(newInvite.link);
-      toast.success('Invite link generated!');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to generate invite link');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleCopyInviteLink = () => {
-    if (inviteLink) {
-      navigator.clipboard.writeText(inviteLink);
-      toast.success('Invite link copied!');
-    }
-  };
-
-  const handleBulkImport = async (data: any[]) => {
-    if (!chama || !user) return;
-
-    setIsBulkImporting(true);
-
-    try {
-      let addedCount = 0;
-      let contributedCount = 0;
-      const errors: string[] = [];
-
-      for (const row of data) {
-        try {
-          // Validate name before attempting to add member
-          if (!row.name || !row.name.trim()) {
-            errors.push(`Row skipped: Name is required`);
-            continue;
-          }
-          
-          // Add member
-          const newMember = await addMember(chama.id, row.name, row.phone);
-          addedCount++;
-
-          // Record contribution if amount is provided
-          if (row.amount && row.month) {
-            try {
-              await recordContribution(
-                chama.id,
-                newMember.id,
-                parseFloat(row.amount),
-                parseInt(row.month),
-                new Date().getFullYear(),
-                user.id,
-                row.note || ''
-              );
-              contributedCount++;
-            } catch (err: any) {
-              // Contribution might fail due to duplicate, but member was added
-              console.error('Contribution error:', err);
-            }
-          }
-        } catch (err: any) {
-          errors.push(`${row.name}: ${err.message}`);
-        }
-      }
-
-      // Reload members
-      const updatedMembers = await getMembers(chama.id);
-      setMembers(updatedMembers);
-
-      let message = `Imported ${addedCount} member${addedCount !== 1 ? 's' : ''}`;
-      if (contributedCount > 0) {
-        message += ` and ${contributedCount} contribution${contributedCount !== 1 ? 's' : ''}`;
-      }
-      if (errors.length > 0) {
-        message += `. ${errors.length} error${errors.length !== 1 ? 's' : ''}`;
-      }
-
-      toast.success(message);
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to import data');
-    } finally {
-      setIsBulkImporting(false);
-    }
-  };
-
-  const filteredMembers = members.filter((member) =>
-    (member?.name || '').toLowerCase().includes((searchTerm || '').toLowerCase())
-  );
+  const activeCount = members.filter(m => m.status === 'active').length;
+  const inactiveCount = members.filter(m => m.status !== 'active').length;
 
   return (
-    <div className="min-h-screen bg-grove-dark">
+    <div className="min-h-screen bg-slate-950">
       <Navbar />
       <Sidebar />
       <BottomNav />
 
-      <main className="ml-64 md:pt-20 pt-0 pb-20 md:pb-0 px-4 md:px-6 py-6">
-        <div className="max-w-7xl mx-auto">
+      <main className="flex-1 md:ml-64 min-h-screen bg-slate-950 pt-[70px] md:pt-6 pb-24 md:pb-6">
+        <div className="w-full max-w-7xl mx-auto px-4 md:px-6 py-6">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Members</h1>
-              <p className="text-slate-400">Manage your chama members</p>
+          <div className="mb-8">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Members</h1>
+                <p className="text-slate-400">Manage and track your chama members</p>
+              </div>
+              <Button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2"
+              >
+                <Plus size={20} />
+                <span className="hidden md:inline">Add Member</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Member Count Badges */}
+          <div className="grid grid-cols-3 md:grid-cols-3 gap-3 mb-8">
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
+              <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Total Members</p>
+              <p className="text-2xl font-bold text-white">{members.length}</p>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
+              <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Active</p>
+              <p className="text-2xl font-bold text-emerald-400">{activeCount}</p>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
+              <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Inactive</p>
+              <p className="text-2xl font-bold text-orange-400">{inactiveCount}</p>
+            </div>
+          </div>
+
+          {/* Search and Filters */}
+          <div className="mb-8 space-y-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 text-slate-400" size={20} />
+              <input
+                type="text"
+                placeholder="Search members..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-10 pr-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-600"
+              />
             </div>
             <div className="flex gap-2">
-              <Button
-                variant="secondary"
-                onClick={() => setIsBulkImportModalOpen(true)}
-                icon={<Upload size={16} />}
-              >
-                Bulk Import
-              </Button>
-              <Button
-                variant="primary"
-                onClick={() => setIsModalOpen(true)}
-                icon={<Plus size={16} />}
-              >
-                Add Member
-              </Button>
+              {['all', 'active'].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setStatusFilter(status)}
+                  className={`px-4 py-2 rounded-lg font-medium transition ${
+                    statusFilter === status
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-slate-900 text-slate-400 border border-slate-800 hover:border-emerald-600'
+                  }`}
+                >
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Invite Section */}
-          {chama && (
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 mb-8">
-              <h2 className="text-lg font-semibold text-white mb-4">Invite Members</h2>
-              
-              {/* Old Invite Code Method */}
-              <div className="mb-6 pb-6 border-b border-slate-800">
-                <p className="text-sm text-slate-400 mb-3">Using invite code:</p>
-                <div className="flex gap-2 flex-col sm:flex-row">
-                  <Input
-                    value={chama.invite_code}
-                    readOnly
-                    label="Invite Code"
-                    className="bg-slate-800 cursor-not-allowed"
-                  />
-                  <Button
-                    variant="secondary"
-                    onClick={handleCopyInviteCode}
-                    icon={<Copy size={16} />}
-                    className="sm:mt-6"
-                  >
-                    Copy
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={handleShareInviteCode}
-                    icon={<Share2 size={16} />}
-                    className="sm:mt-6"
-                  >
-                    Share
-                  </Button>
-                </div>
-              </div>
-
-              {/* New Invite Link Method */}
-              <div>
-                <p className="text-sm text-slate-400 mb-3">Or generate a one-time invite link:</p>
-                {inviteLink ? (
-                  <div className="flex gap-2 flex-col sm:flex-row">
-                    <Input
-                      value={inviteLink}
-                      readOnly
-                      label="Invite Link"
-                      className="bg-slate-800 cursor-not-allowed text-xs"
-                    />
-                    <Button
-                      variant="secondary"
-                      onClick={handleCopyInviteLink}
-                      icon={<Copy size={16} />}
-                      className="sm:mt-6"
-                    >
-                      Copy Link
-                    </Button>
+          {/* Members Grid */}
+          {isLoading ? (
+            <div className="text-center py-12">
+              <p className="text-slate-400">Loading members...</p>
+            </div>
+          ) : filteredMembers.length === 0 ? (
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-12 text-center">
+              <p className="text-slate-400 mb-4">No members found</p>
+              <Button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg"
+              >
+                Add First Member
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredMembers.map((member) => (
+                <div
+                  key={member.id}
+                  className="bg-slate-900 border border-slate-800 rounded-lg p-6 hover:border-slate-700 transition"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center text-white font-bold text-lg">
+                      {member.name?.charAt(0).toUpperCase() || '?'}
+                    </div>
+                    <button className="text-slate-400 hover:text-white">
+                      <MoreVertical size={20} />
+                    </button>
                   </div>
-                ) : (
-                  <Button
-                    variant="primary"
-                    onClick={handleGenerateInviteLink}
-                    isLoading={isSubmitting}
-                    className="w-full sm:w-auto"
-                  >
-                    Generate Link
-                  </Button>
-                )}
-              </div>
+                  <h3 className="text-lg font-bold text-white mb-1">{member.name}</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <Phone size={16} />
+                      <span>{member.phone || 'N/A'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <Calendar size={16} />
+                      <span>{formatDate(member.joined_at || member.created_at)}</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex items-center justify-between">
+                    <Badge
+                      variant={member.status === 'active' ? 'green' : 'yellow'}
+                    >
+                      {member.status || 'active'}
+                    </Badge>
+                    {member.credit_score !== undefined && (
+                      <Badge
+                        variant={member.credit_score >= 75 ? 'green' : member.credit_score >= 50 ? 'yellow' : 'red'}
+                      >
+                        {member.credit_score}/100
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
-
-          {/* Search */}
-          <div className="mb-6">
-            <Input
-              placeholder="Search members..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          {/* Members Table */}
-          <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-            <Table
-              columns={[
-                { key: 'name', label: 'Name' },
-                { key: 'phone', label: 'Phone' },
-                {
-                  key: 'status',
-                  label: 'Status',
-                  render: (val) => <Badge variant="green">{val}</Badge>,
-                },
-                {
-                  key: 'credit_score',
-                  label: 'Credit Score',
-                  render: (val) => (
-                    <Badge
-                      variant={val >= 75 ? 'green' : val >= 50 ? 'yellow' : 'red'}
-                    >
-                      {val}/100
-                    </Badge>
-                  ),
-                },
-                { key: 'joined_at', label: 'Joined', render: (val) => formatDate(val) },
-              ]}
-              data={filteredMembers}
-              isLoading={isLoading}
-              isEmpty={filteredMembers.length === 0}
-              emptyMessage="No members found"
-            />
-          </div>
         </div>
 
         {/* Add Member Modal */}
@@ -386,22 +263,13 @@ export default function MembersPage() {
 
             <Button
               type="submit"
-              variant="primary"
-              className="w-full"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-lg"
               isLoading={isSubmitting}
             >
               Add Member
             </Button>
           </form>
         </Modal>
-
-        {/* Bulk Import Modal */}
-        <BulkImportModal
-          isOpen={isBulkImportModalOpen}
-          onClose={() => setIsBulkImportModalOpen(false)}
-          onImport={handleBulkImport}
-          isLoading={isBulkImporting}
-        />
       </main>
     </div>
   );

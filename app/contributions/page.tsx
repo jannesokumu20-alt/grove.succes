@@ -8,7 +8,6 @@ import BottomNav from '@/components/BottomNav';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import Modal from '@/components/Modal';
-import Table from '@/components/Table';
 import { useAuth } from '@/hooks/useAuth';
 import { useRBAC } from '@/hooks/useRBAC';
 import { useToast } from '@/hooks/useToast';
@@ -18,16 +17,7 @@ import {
   getContributions,
   recordContribution,
   getContributionsByMonthYear,
-  getUserMemberId,
 } from '@/lib/supabase';
-import {
-  getAllMemberWallets,
-  getTopContributors,
-  getDefaulters,
-  getMonthlyStats,
-  formatCurrency,
-  getStatusColor,
-} from '@/lib/walletFunctions';
 import { formatCurrency as formatCur, formatDate, getMonthName } from '@/lib/utils';
 import { Plus, TrendingUp, AlertCircle, Wallet } from 'lucide-react';
 
@@ -37,24 +27,16 @@ export default function ContributionsPage() {
   const { role, isLoading: rbacLoading } = useRBAC();
   const toast = useToast();
   const chama = useChamaStore((state) => state.chama);
-  
-  // Main data states
+
   const [contributions, setContributions] = useState<any[]>([]);
   const [members, setMembers] = useState<any[]>([]);
-  const [wallets, setWallets] = useState<any[]>([]);
-  const [topContributors, setTopContributors] = useState<any[]>([]);
-  const [defaulters, setDefaulters] = useState<any[]>([]);
-  const [monthlyStats, setMonthlyStats] = useState<any[]>([]);
-  const [currentMemberId, setCurrentMemberId] = useState<string | null>(null);
-  
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [monthlyTotal, setMonthlyTotal] = useState(0);
-  const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'insights'>('overview');
-  
+  const [activeTab, setActiveTab] = useState<'all' | 'this-month' | 'this-year'>('all');
+
   const [formData, setFormData] = useState({
     memberId: '',
     amount: '',
@@ -65,9 +47,7 @@ export default function ContributionsPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (rbacLoading) {
-      return;
-    }
+    if (rbacLoading) return;
 
     const loadData = async () => {
       if (!chama || !user) {
@@ -76,70 +56,11 @@ export default function ContributionsPage() {
       }
 
       try {
-        // If user is a member, get their member ID
-        // If user is a member, get their member ID
-        if (role === 'member') {
-          const memberId = await getUserMemberId(user.id);
-          setCurrentMemberId(memberId);
-        }
-
-        // Load core data
         const membersData = await getMembers(chama.id);
         const contributionsData = await getContributions(chama.id);
-        
+
         setMembers(membersData);
-        
-        // Filter contributions based on user role
-        let filteredContributions = contributionsData;
-        if (role === 'member' && currentMemberId) {
-          filteredContributions = contributionsData.filter(
-            (c: any) => c.member_id === currentMemberId
-          );
-        }
-        
-        setContributions(filteredContributions);
-
-        // Load optional wallet and stats data (may not exist in all databases)
-        try {
-          const walletsData = await getAllMemberWallets(chama.id);
-          setWallets(walletsData || []);
-        } catch (err) {
-          console.warn('Could not load wallets:', err);
-          setWallets([]);
-        }
-
-        try {
-          const topContribsData = await getTopContributors(chama.id, 5);
-          setTopContributors(topContribsData || []);
-        } catch (err) {
-          console.warn('Could not load top contributors:', err);
-          setTopContributors([]);
-        }
-
-        try {
-          const defaultersData = await getDefaulters(chama.id);
-          setDefaulters(defaultersData || []);
-        } catch (err) {
-          console.warn('Could not load defaulters:', err);
-          setDefaulters([]);
-        }
-
-        try {
-          const monthlyStatsData = await getMonthlyStats(chama.id, 12);
-          setMonthlyStats(monthlyStatsData || []);
-        } catch (err) {
-          console.warn('Could not load monthly stats:', err);
-          setMonthlyStats([]);
-        }
-
-        // Calculate monthly total
-        const monthlyData = await getContributionsByMonthYear(
-          chama.id,
-          selectedMonth,
-          selectedYear
-        );
-        const total = monthlyData.reduce((sum, c) => sum + (c.amount || 0), 0);
-        setMonthlyTotal(total);
+        setContributions(contributionsData);
       } catch (error: any) {
         console.error('Error loading data:', error);
         toast.error(error.message || 'Failed to load data');
@@ -149,7 +70,7 @@ export default function ContributionsPage() {
     };
 
     loadData();
-  }, [chama, user, router, toast, role, currentMemberId, selectedMonth, selectedYear, rbacLoading]);
+  }, [chama, user, router, toast, rbacLoading]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -199,36 +120,6 @@ export default function ContributionsPage() {
       // Reload data
       const contributionsData = await getContributions(chama.id);
       setContributions(contributionsData);
-
-      try {
-        const walletsData = await getAllMemberWallets(chama.id);
-        setWallets(walletsData || []);
-      } catch (err) {
-        console.warn('Could not reload wallets:', err);
-      }
-
-      try {
-        const topContribsData = await getTopContributors(chama.id, 5);
-        setTopContributors(topContribsData || []);
-      } catch (err) {
-        console.warn('Could not reload top contributors:', err);
-      }
-
-      try {
-        const defaultersData = await getDefaulters(chama.id);
-        setDefaulters(defaultersData || []);
-      } catch (err) {
-        console.warn('Could not reload defaulters:', err);
-      }
-
-      // Reload monthly total
-      const monthlyData = await getContributionsByMonthYear(
-        chama.id,
-        selectedMonth,
-        selectedYear
-      );
-      const total = monthlyData.reduce((sum, c) => sum + (c.amount || 0), 0);
-      setMonthlyTotal(total);
     } catch (error: any) {
       toast.error(error.message || 'Failed to record contribution');
     } finally {
@@ -236,325 +127,121 @@ export default function ContributionsPage() {
     }
   };
 
-  const filteredContributions = contributions.filter(
-    (c) => c.month === selectedMonth && c.year === selectedYear
-  );
+  const now = new Date();
+  const filteredContributions = contributions.filter((c) => {
+    if (activeTab === 'this-month') {
+      return c.month === now.getMonth() + 1 && c.year === now.getFullYear();
+    }
+    if (activeTab === 'this-year') {
+      return c.year === now.getFullYear();
+    }
+    return true;
+  });
 
-  const totalWalletBalance = wallets.reduce((sum, w: any) => sum + (w.balance || 0), 0);
-  const totalContributed = wallets.reduce((sum, w: any) => sum + (w.total_contributed || 0), 0);
-  const totalBorrowed = wallets.reduce((sum, w: any) => sum + (w.total_borrowed || 0), 0);
+  const allTimeTotal = contributions.reduce((sum, c) => sum + (c.amount || 0), 0);
+  const thisMonthContribs = contributions.filter(
+    (c) => c.month === now.getMonth() + 1 && c.year === now.getFullYear()
+  );
+  const thisMonthTotal = thisMonthContribs.reduce((sum, c) => sum + (c.amount || 0), 0);
+  const thisYearContribs = contributions.filter((c) => c.year === now.getFullYear());
+  const thisYearTotal = thisYearContribs.reduce((sum, c) => sum + (c.amount || 0), 0);
 
   return (
-    <div className="min-h-screen bg-grove-dark">
+    <div className="min-h-screen bg-slate-950">
       <Navbar />
       <Sidebar />
       <BottomNav />
 
-      <main className="flex-1 md:ml-64 min-h-screen bg-slate-900 p-6 pt-[70px] md:pt-6 pb-20 md:pb-0">
-        <div className="w-full max-w-7xl mx-auto">
+      <main className="flex-1 md:ml-64 min-h-screen bg-slate-950 pt-[70px] md:pt-6 pb-24 md:pb-6">
+        <div className="w-full max-w-7xl mx-auto px-4 md:px-6 py-6">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Contributions</h1>
-              <p className="text-slate-400">Track member contributions and wallet balances</p>
+          <div className="mb-8">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Contributions</h1>
+                <p className="text-slate-400">Track and record member contributions</p>
+              </div>
+              {role !== 'member' && (
+                <Button
+                  onClick={() => setIsModalOpen(true)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2"
+                >
+                  <Plus size={20} />
+                  <span className="hidden md:inline">Record</span>
+                </Button>
+              )}
             </div>
-            <Button
-              variant="primary"
-              onClick={() => setIsModalOpen(true)}
-              icon={<Plus size={16} />}
-              className={role === 'member' ? 'hidden' : ''}
-            >
-              Record Contribution
-            </Button>
           </div>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
-              <p className="text-slate-400 text-sm mb-1">Total Wallet Balance</p>
-              <p className="text-xl font-bold text-green-400">{formatCurrency(totalWalletBalance)}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+              <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Total All Time</p>
+              <p className="text-3xl font-bold text-emerald-400 mt-2">{formatCur(allTimeTotal)}</p>
             </div>
-            <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
-              <p className="text-slate-400 text-sm mb-1">Total Contributed</p>
-              <p className="text-xl font-bold text-blue-400">{formatCurrency(totalContributed)}</p>
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+              <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">This Month</p>
+              <p className="text-3xl font-bold text-blue-400 mt-2">{formatCur(thisMonthTotal)}</p>
             </div>
-            <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
-              <p className="text-slate-400 text-sm mb-1">Total Borrowed</p>
-              <p className="text-xl font-bold text-orange-400">{formatCurrency(totalBorrowed)}</p>
-            </div>
-            <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
-              <p className="text-slate-400 text-sm mb-1">Active Members</p>
-              <p className="text-xl font-bold text-white">{members.length}</p>
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+              <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">This Year</p>
+              <p className="text-3xl font-bold text-orange-400 mt-2">{formatCur(thisYearTotal)}</p>
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-4 mb-8 border-b border-slate-700">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`px-4 py-2 font-medium transition ${
-                activeTab === 'overview'
-                  ? 'text-grove-accent border-b-2 border-grove-accent'
-                  : 'text-slate-400 hover:text-slate-300'
-              }`}
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => setActiveTab('members')}
-              className={`px-4 py-2 font-medium transition ${
-                activeTab === 'members'
-                  ? 'text-grove-accent border-b-2 border-grove-accent'
-                  : 'text-slate-400 hover:text-slate-300'
-              }`}
-            >
-              Member Wallets
-            </button>
-            <button
-              onClick={() => setActiveTab('insights')}
-              className={`px-4 py-2 font-medium transition ${
-                activeTab === 'insights'
-                  ? 'text-grove-accent border-b-2 border-grove-accent'
-                  : 'text-slate-400 hover:text-slate-300'
-              }`}
-            >
-              Insights
-            </button>
+          <div className="mb-8 flex gap-2">
+            {['all', 'this-month', 'this-year'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab as typeof activeTab)}
+                className={`px-4 py-2 rounded-lg font-medium transition ${
+                  activeTab === tab
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-slate-900 text-slate-400 border border-slate-800 hover:border-emerald-600'
+                }`}
+              >
+                {tab === 'all' && 'All Time'}
+                {tab === 'this-month' && 'This Month'}
+                {tab === 'this-year' && 'This Year'}
+              </button>
+            ))}
           </div>
 
-          {/* Overview Tab */}
-          {activeTab === 'overview' && (
-            <>
-              {/* Month Selector */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Month</label>
-                  <select
-                    value={selectedMonth}
-                    onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-grove-accent"
-                  >
-                    {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-                      <option key={month} value={month}>
-                        {getMonthName(month)}
-                      </option>
+          {/* Contributions List */}
+          {isLoading ? (
+            <div className="text-center py-12">
+              <p className="text-slate-400">Loading contributions...</p>
+            </div>
+          ) : filteredContributions.length === 0 ? (
+            <div className="bg-slate-900 border border-slate-800 rounded-lg p-12 text-center">
+              <p className="text-slate-400 mb-4">No contributions found</p>
+            </div>
+          ) : (
+            <div className="bg-slate-900 border border-slate-800 rounded-lg overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-slate-800 bg-slate-800/50">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Member</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Amount</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Month/Year</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800">
+                    {filteredContributions.map((contrib) => (
+                      <tr key={contrib.id} className="hover:bg-slate-800/50 transition">
+                        <td className="px-6 py-4 text-white font-medium">{contrib.members?.name || 'Unknown'}</td>
+                        <td className="px-6 py-4 text-emerald-400 font-semibold">{formatCur(contrib.amount)}</td>
+                        <td className="px-6 py-4 text-slate-400">{getMonthName(contrib.month)} {contrib.year}</td>
+                        <td className="px-6 py-4 text-slate-400 text-sm">{formatDate(contrib.created_at)}</td>
+                      </tr>
                     ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Year</label>
-                  <select
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-grove-accent"
-                  >
-                    {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i).map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  </tbody>
+                </table>
               </div>
-
-              {/* Monthly Summary */}
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 mb-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-slate-400 text-sm">Selected Month</p>
-                    <p className="text-white font-semibold text-lg">
-                      {getMonthName(selectedMonth)} {selectedYear}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-sm">This Month Total</p>
-                    <p className="text-green-400 font-semibold text-lg">
-                      {formatCur(monthlyTotal)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-sm">Total Records</p>
-                    <p className="text-blue-400 font-semibold text-lg">
-                      {filteredContributions.length}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Contributions Table */}
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
-                <h2 className="text-lg font-semibold text-white mb-4">Contributions</h2>
-                <Table
-                  columns={[
-                    { key: 'members', label: 'Member', render: (_, row) => row.members?.name },
-                    { key: 'amount', label: 'Amount', render: (val) => formatCur(val) },
-                    { key: 'month', label: 'Month', render: (val) => getMonthName(val) },
-                    { key: 'year', label: 'Year' },
-                    { key: 'created_at', label: 'Date', render: (val) => formatDate(val) },
-                  ]}
-                  data={filteredContributions}
-                  isLoading={isLoading}
-                  isEmpty={filteredContributions.length === 0}
-                  emptyMessage="No contributions for this month"
-                />
-              </div>
-            </>
-          )}
-
-          {/* Member Wallets Tab */}
-          {activeTab === 'members' && (
-            <>
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
-                <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <Wallet size={20} />
-                  Member Wallets
-                </h2>
-                <Table
-                  columns={[
-                    { 
-                      key: 'members', 
-                      label: 'Member', 
-                      render: (_, row) => row.members?.name 
-                    },
-                    { 
-                      key: 'balance', 
-                      label: 'Balance', 
-                      render: (val) => (
-                        <span className={val >= 0 ? 'text-green-400' : 'text-red-400'}>
-                          {formatCurrency(val)}
-                        </span>
-                      )
-                    },
-                    { 
-                      key: 'total_contributed', 
-                      label: 'Contributed', 
-                      render: (val) => formatCurrency(val) 
-                    },
-                    { 
-                      key: 'total_borrowed', 
-                      label: 'Borrowed', 
-                      render: (val) => formatCurrency(val) 
-                    },
-                    { 
-                      key: 'missed_contributions', 
-                      label: 'Missed', 
-                      render: (val) => (
-                        <span className={val > 0 ? 'text-red-400' : 'text-green-400'}>
-                          {val}
-                        </span>
-                      )
-                    },
-                    { 
-                      key: 'last_contribution_date', 
-                      label: 'Last Contribution', 
-                      render: (val) => (val ? formatDate(val) : 'Never')
-                    },
-                  ]}
-                  data={wallets}
-                  isLoading={isLoading}
-                  isEmpty={wallets.length === 0}
-                  emptyMessage="No wallet records"
-                />
-              </div>
-            </>
-          )}
-
-          {/* Insights Tab */}
-          {activeTab === 'insights' && (
-            <>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Top Contributors */}
-                <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
-                  <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <TrendingUp size={20} className="text-green-400" />
-                    Top Contributors
-                  </h2>
-                  <div className="space-y-4">
-                    {topContributors.length > 0 ? (
-                      topContributors.map((contributor, idx) => (
-                        <div key={contributor.member_id} className="flex items-center justify-between pb-4 border-b border-slate-700">
-                          <div>
-                            <p className="text-white font-medium">#{idx + 1} {contributor.member_name}</p>
-                            <p className="text-sm text-slate-400">{contributor.contribution_count} contributions</p>
-                          </div>
-                          <p className="text-green-400 font-semibold text-lg">
-                            {formatCurrency(contributor.total_amount)}
-                          </p>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-slate-400">No contributions yet</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Defaulters */}
-                <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
-                  <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <AlertCircle size={20} className="text-red-400" />
-                    Defaulters
-                  </h2>
-                  <div className="space-y-4">
-                    {defaulters.length > 0 ? (
-                      defaulters.map((defaulter) => (
-                        <div key={defaulter.member_id} className="flex items-center justify-between pb-4 border-b border-slate-700">
-                          <div>
-                            <p className="text-white font-medium">{defaulter.member_name}</p>
-                            <p className="text-sm text-red-400">{defaulter.missed_count} missed contributions</p>
-                          </div>
-                          <p className={`font-semibold text-lg ${defaulter.balance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {formatCurrency(defaulter.balance)}
-                          </p>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-slate-400 text-center py-4">No defaulters - Great! 🎉</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Monthly Trends */}
-                <div className="lg:col-span-2 bg-slate-800 border border-slate-700 rounded-lg p-6">
-                  <h2 className="text-lg font-semibold text-white mb-4">Monthly Trends</h2>
-                  <Table
-                    columns={[
-                      { 
-                        key: 'month', 
-                        label: 'Month',
-                        render: (val, row) => `${getMonthName(val)} ${row.year}`
-                      },
-                      { 
-                        key: 'total_expected', 
-                        label: 'Expected', 
-                        render: (val) => formatCurrency(val) 
-                      },
-                      { 
-                        key: 'total_collected', 
-                        label: 'Collected', 
-                        render: (val) => formatCurrency(val) 
-                      },
-                      { 
-                        key: 'completion_rate', 
-                        label: 'Rate',
-                        render: (val) => (
-                          <span className={val >= 80 ? 'text-green-400' : val >= 50 ? 'text-yellow-400' : 'text-red-400'}>
-                            {val}%
-                          </span>
-                        )
-                      },
-                      { 
-                        key: 'member_paid_count', 
-                        label: 'Members Paid' 
-                      },
-                    ]}
-                    data={monthlyStats}
-                    isLoading={isLoading}
-                    isEmpty={monthlyStats.length === 0}
-                    emptyMessage="No monthly data"
-                  />
-                </div>
-              </div>
-            </>
+            </div>
           )}
         </div>
 
@@ -566,13 +253,13 @@ export default function ContributionsPage() {
         >
           <form onSubmit={handleRecordContribution} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Member</label>
+              <label className="block text-sm font-medium text-white mb-2">Member</label>
               <select
                 value={formData.memberId}
                 onChange={(e) =>
                   setFormData({ ...formData, memberId: e.target.value })
                 }
-                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-grove-accent"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-600"
               >
                 <option value="">Select a member</option>
                 {members.map((member) => (
@@ -599,13 +286,13 @@ export default function ContributionsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Month</label>
+                <label className="block text-sm font-medium text-white mb-2">Month</label>
                 <select
                   value={formData.month}
                   onChange={(e) =>
                     setFormData({ ...formData, month: parseInt(e.target.value) })
                   }
-                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-grove-accent"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-600"
                 >
                   {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
                     <option key={month} value={month}>
@@ -615,13 +302,13 @@ export default function ContributionsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Year</label>
+                <label className="block text-sm font-medium text-white mb-2">Year</label>
                 <select
                   value={formData.year}
                   onChange={(e) =>
                     setFormData({ ...formData, year: parseInt(e.target.value) })
                   }
-                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-grove-accent"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-600"
                 >
                   {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i).map((year) => (
                     <option key={year} value={year}>
@@ -633,8 +320,8 @@ export default function ContributionsPage() {
             </div>
 
             <Input
-              label="Note (Optional)"
-              placeholder="Any notes..."
+              label="Note (optional)"
+              placeholder="Add a note..."
               value={formData.note}
               onChange={(e) =>
                 setFormData({ ...formData, note: e.target.value })
@@ -643,8 +330,7 @@ export default function ContributionsPage() {
 
             <Button
               type="submit"
-              variant="primary"
-              className="w-full"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-lg"
               isLoading={isSubmitting}
             >
               Record Contribution
@@ -655,3 +341,4 @@ export default function ContributionsPage() {
     </div>
   );
 }
+
