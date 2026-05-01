@@ -77,21 +77,16 @@ export default function ContributionsPage() {
 
       try {
         // If user is a member, get their member ID
+        // If user is a member, get their member ID
         if (role === 'member') {
           const memberId = await getUserMemberId(user.id);
           setCurrentMemberId(memberId);
         }
 
-        // Load all data in parallel
-        const [membersData, contributionsData, walletsData, topContribsData, defaultersData, monthlyStatsData] = await Promise.all([
-          getMembers(chama.id),
-          getContributions(chama.id),
-          getAllMemberWallets(chama.id),
-          getTopContributors(chama.id, 5),
-          getDefaulters(chama.id),
-          getMonthlyStats(chama.id, 12),
-        ]);
-
+        // Load core data
+        const membersData = await getMembers(chama.id);
+        const contributionsData = await getContributions(chama.id);
+        
         setMembers(membersData);
         
         // Filter contributions based on user role
@@ -103,10 +98,39 @@ export default function ContributionsPage() {
         }
         
         setContributions(filteredContributions);
-        setWallets(walletsData || []);
-        setTopContributors(topContribsData || []);
-        setDefaulters(defaultersData || []);
-        setMonthlyStats(monthlyStatsData || []);
+
+        // Load optional wallet and stats data (may not exist in all databases)
+        try {
+          const walletsData = await getAllMemberWallets(chama.id);
+          setWallets(walletsData || []);
+        } catch (err) {
+          console.warn('Could not load wallets:', err);
+          setWallets([]);
+        }
+
+        try {
+          const topContribsData = await getTopContributors(chama.id, 5);
+          setTopContributors(topContribsData || []);
+        } catch (err) {
+          console.warn('Could not load top contributors:', err);
+          setTopContributors([]);
+        }
+
+        try {
+          const defaultersData = await getDefaulters(chama.id);
+          setDefaulters(defaultersData || []);
+        } catch (err) {
+          console.warn('Could not load defaulters:', err);
+          setDefaulters([]);
+        }
+
+        try {
+          const monthlyStatsData = await getMonthlyStats(chama.id, 12);
+          setMonthlyStats(monthlyStatsData || []);
+        } catch (err) {
+          console.warn('Could not load monthly stats:', err);
+          setMonthlyStats([]);
+        }
 
         // Calculate monthly total
         const monthlyData = await getContributionsByMonthYear(
@@ -173,17 +197,29 @@ export default function ContributionsPage() {
       toast.success('Contribution recorded successfully!');
 
       // Reload data
-      const [contributionsData, walletsData, topContribsData, defaultersData] = await Promise.all([
-        getContributions(chama.id),
-        getAllMemberWallets(chama.id),
-        getTopContributors(chama.id, 5),
-        getDefaulters(chama.id),
-      ]);
-
+      const contributionsData = await getContributions(chama.id);
       setContributions(contributionsData);
-      setWallets(walletsData || []);
-      setTopContributors(topContribsData || []);
-      setDefaulters(defaultersData || []);
+
+      try {
+        const walletsData = await getAllMemberWallets(chama.id);
+        setWallets(walletsData || []);
+      } catch (err) {
+        console.warn('Could not reload wallets:', err);
+      }
+
+      try {
+        const topContribsData = await getTopContributors(chama.id, 5);
+        setTopContributors(topContribsData || []);
+      } catch (err) {
+        console.warn('Could not reload top contributors:', err);
+      }
+
+      try {
+        const defaultersData = await getDefaulters(chama.id);
+        setDefaulters(defaultersData || []);
+      } catch (err) {
+        console.warn('Could not reload defaulters:', err);
+      }
 
       // Reload monthly total
       const monthlyData = await getContributionsByMonthYear(
