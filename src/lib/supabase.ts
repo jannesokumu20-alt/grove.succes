@@ -757,3 +757,112 @@ export async function deleteMeeting(meetingId: string) {
 
   if (error) throw error;
 }
+
+// ============================================
+// ANNOUNCEMENTS OPERATIONS
+// ============================================
+
+export async function createAnnouncement(
+  chamaId: string,
+  title: string,
+  content: string
+) {
+  const { data, error } = await supabase
+    .from('announcements')
+    .insert([
+      {
+        chama_id: chamaId,
+        title,
+        content,
+      },
+    ])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as any;
+}
+
+export async function getAnnouncements(chamaId: string) {
+  const { data, error } = await supabase
+    .from('announcements')
+    .select('*')
+    .eq('chama_id', chamaId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data as any[];
+}
+
+export async function deleteAnnouncement(announcementId: string) {
+  const { error } = await supabase
+    .from('announcements')
+    .delete()
+    .eq('id', announcementId);
+
+  if (error) throw error;
+}
+
+// ============================================
+// REMINDERS OPERATIONS
+// ============================================
+
+export async function createReminder(
+  chamaId: string,
+  title: string,
+  message: string,
+  reminderDate: string
+) {
+  const { data, error } = await supabase
+    .from('reminders')
+    .insert([
+      {
+        chama_id: chamaId,
+        title,
+        message,
+        reminder_date: reminderDate,
+        sent: false,
+      },
+    ])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as any;
+}
+
+export async function getReminders(chamaId: string) {
+  const { data, error } = await supabase
+    .from('reminders')
+    .select('*')
+    .eq('chama_id', chamaId)
+    .order('reminder_date', { ascending: true });
+
+  if (error) throw error;
+  return data as any[];
+}
+
+export async function deleteReminder(reminderId: string) {
+  const { error } = await supabase
+    .from('reminders')
+    .delete()
+    .eq('id', reminderId);
+
+  if (error) throw error;
+}
+
+export async function sendReminder(reminderId: string) {
+  const { data, error } = await supabase
+    .from('reminders')
+    .update({
+      sent: true,
+      sent_at: new Date().toISOString(),
+    })
+    .eq('id', reminderId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as any;
+}
+
