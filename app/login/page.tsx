@@ -62,12 +62,52 @@ export default function LoginPage() {
       if (error) {
         toast_service.error(error.message);
         toast.dismiss(loadingToastId);
+        setIsLoading(false);
         return;
       }
 
+      // Verify session exists before redirecting
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        toast_service.error('Session verification failed. Please try again.');
+        toast.dismiss(loadingToastId);
+        setIsLoading(false);
+        return;
+      }
+
+      // Check if user is a chama owner
+      const { data: chamaData, error: chamaError } = await supabase
+        .from('chamas')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (chamaData) {
+        toast_service.success('Logged in successfully!');
+        toast.dismiss(loadingToastId);
+        router.replace('/dashboard');
+        return;
+      }
+
+      // Check if user is a member
+      const { data: memberData, error: memberError } = await supabase
+        .from('members')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (memberData) {
+        toast_service.success('Logged in successfully!');
+        toast.dismiss(loadingToastId);
+        router.replace('/member/dashboard');
+        return;
+      }
+
+      // No chama or member found
       toast_service.success('Logged in successfully!');
       toast.dismiss(loadingToastId);
-      router.push('/dashboard');
+      router.replace('/dashboard');
     } catch (error: any) {
       toast_service.error(error.message || 'An error occurred during login');
       toast.dismiss(loadingToastId);
