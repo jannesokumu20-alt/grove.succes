@@ -1,35 +1,39 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 
 export default function Page() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      // Safe auth check with timeout
-      const timeout = setTimeout(() => {
-        // Fallback to login after 2 seconds
-        router.replace('/login');
-      }, 2000);
+    const checkAuth = async () => {
+      try {
+        // Get the current session from Supabase
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Auth check error:', error);
+          router.replace('/login');
+          return;
+        }
 
-      // Check localStorage for auth token
-      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
-      
-      if (token) {
-        clearTimeout(timeout);
-        router.replace('/dashboard');
-      } else {
-        clearTimeout(timeout);
+        // If session exists, redirect to dashboard
+        if (session?.user) {
+          router.replace('/dashboard');
+        } else {
+          // No session, go to login
+          router.replace('/login');
+        }
+      } catch (err) {
+        console.error('Auth check failed:', err);
+        // Fallback to login on any error
         router.replace('/login');
       }
-    } catch (error) {
-      console.error('Auth check failed:', error);
-      // Fallback to login on any error
-      router.replace('/login');
-    }
+    };
+
+    checkAuth();
   }, [router]);
 
   return (
