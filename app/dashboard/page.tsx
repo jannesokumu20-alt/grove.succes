@@ -125,29 +125,33 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-            <Link href="/contributions">
-              <button className="w-full bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
-                <Plus size={20} />
-                <span className="hidden md:inline">Contribution</span>
-              </button>
+            <Link
+              href="/contributions"
+              className="w-full bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 block"
+            >
+              <Plus size={20} />
+              <span className="hidden md:inline">Contribution</span>
             </Link>
-            <Link href="/members">
-              <button className="w-full bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
-                <Plus size={20} />
-                <span className="hidden md:inline">Member</span>
-              </button>
+            <Link
+              href="/members"
+              className="w-full bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 block"
+            >
+              <Plus size={20} />
+              <span className="hidden md:inline">Member</span>
             </Link>
-            <Link href="/loans">
-              <button className="w-full bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
-                <Plus size={20} />
-                <span className="hidden md:inline">Loan</span>
-              </button>
+            <Link
+              href="/loans"
+              className="w-full bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 block"
+            >
+              <Plus size={20} />
+              <span className="hidden md:inline">Loan</span>
             </Link>
-            <Link href="/meetings">
-              <button className="w-full bg-gradient-to-br from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
-                <Plus size={20} />
-                <span className="hidden md:inline">Meeting</span>
-              </button>
+            <Link
+              href="/meetings"
+              className="w-full bg-gradient-to-br from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 block"
+            >
+              <Plus size={20} />
+              <span className="hidden md:inline">Meeting</span>
             </Link>
           </div>
 
