@@ -183,7 +183,7 @@ export async function addMember(
     .insert([
       {
         chama_id: chamaId,
-        name: fullName,
+        full_name: fullName,
         phone,
         user_id: userId || null,
         status: 'active',
@@ -301,7 +301,7 @@ export async function useInviteCode(
       .insert([
         {
           chama_id: chamaId,
-          name: fullName,
+          full_name: fullName,
           phone,
           user_id: userId || null,
           status: 'active',
