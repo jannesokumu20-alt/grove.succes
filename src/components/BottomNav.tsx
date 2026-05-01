@@ -11,6 +11,8 @@ import {
   Settings,
   AlertCircle,
   Calendar,
+  Megaphone,
+  Clock,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -18,8 +20,8 @@ const navItems = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Contributions', href: '/contributions', icon: DollarSign },
   { name: 'Loans', href: '/loans', icon: Banknote },
-  { name: 'Fines', href: '/fines', icon: AlertCircle },
-  { name: 'Meetings', href: '/meetings', icon: Calendar },
+  { name: 'Announcements', href: '/announcements', icon: Megaphone },
+  { name: 'Reminders', href: '/reminders', icon: Clock },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
