@@ -28,6 +28,7 @@ export default function DashboardPage() {
     totalSavings: 0,
     activeLoanBalance: 0,
     activeLoanCount: 0,
+    totalLoansCount: 0,
     memberCount: 0,
     thisMonthTotal: 0,
   });
@@ -121,8 +122,8 @@ export default function DashboardPage() {
       <Sidebar />
       <BottomNav />
 
-      <main className="md:ml-64 md:pt-20 pt-0 pb-20 md:pb-0 px-4 md:px-6 py-6">
-        <div className="max-w-7xl mx-auto">
+      <main className="ml-[240px] md:pt-[70px] pt-0 pb-20 md:pb-0 px-5 md:px-7 py-6 relative z-10">
+        <div className="w-full">
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
@@ -130,7 +131,27 @@ export default function DashboardPage() {
           </div>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div 
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(5, 1fr)',
+              gap: '16px',
+              marginBottom: '32px'
+            }}
+            className="responsive-grid"
+          >
+            <style>{`
+              @media (max-width: 1024px) {
+                .responsive-grid {
+                  grid-template-columns: repeat(2, 1fr) !important;
+                }
+              }
+              @media (max-width: 600px) {
+                .responsive-grid {
+                  grid-template-columns: 1fr !important;
+                }
+              }
+            `}</style>
             <SummaryCard
               title="Total Savings"
               value={formatCurrency(stats.totalSavings)}
@@ -148,6 +169,12 @@ export default function DashboardPage() {
               value={stats.memberCount}
               icon="👥"
               color="blue"
+            />
+            <SummaryCard
+              title="Total Loans"
+              value={stats.totalLoansCount}
+              icon="📋"
+              color="indigo"
             />
             <SummaryCard
               title="This Month"

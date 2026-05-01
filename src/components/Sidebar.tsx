@@ -27,7 +27,7 @@ export default function Sidebar() {
   const chama = useChamaStore((state) => state.chama);
 
   return (
-    <aside className="hidden md:flex fixed left-0 top-0 h-screen w-64 bg-slate-900 border-r border-slate-800 flex-col">
+    <aside className="hidden md:flex fixed left-0 top-0 h-screen w-[240px] bg-slate-900 border-r border-slate-800 flex-col z-40">
       {/* Logo */}
       <div className="p-6 border-b border-slate-800">
         <h1 className="text-2xl font-bold text-grove-accent">🌿 Grove</h1>

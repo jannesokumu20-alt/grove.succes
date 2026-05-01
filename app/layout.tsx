@@ -19,7 +19,14 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-grove-dark">
         {children}
-        <Toaster position="top-right" />
+        <Toaster 
+          position="top-right" 
+          toastOptions={{
+            style: {
+              zIndex: 10000,
+            },
+          }}
+        />
       </body>
     </html>
   );

@@ -130,7 +130,7 @@ export default function SettingsPage() {
       <Sidebar />
       <BottomNav />
 
-      <main className="md:ml-64 md:pt-20 pt-0 pb-20 md:pb-0 px-4 md:px-6 py-6">
+      <main className="ml-64 md:pt-20 pt-0 pb-20 md:pb-0 px-4 md:px-6 py-6">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="mb-8">

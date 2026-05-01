@@ -536,6 +536,14 @@ export async function getChamaStats(chamaId: string) {
       loans?.reduce((sum: number, l: any) => sum + (l.balance || 0), 0) || 0;
     const activeLoanCount = loans?.length || 0;
 
+    // Total loans count (all loans regardless of status)
+    const { data: allLoans } = await supabase
+      .from('loans')
+      .select('id')
+      .eq('chama_id', chamaId);
+
+    const totalLoansCount = allLoans?.length || 0;
+
     // Members
     const { data: members } = await supabase
       .from('members')
@@ -560,6 +568,7 @@ export async function getChamaStats(chamaId: string) {
       totalSavings,
       activeLoanBalance,
       activeLoanCount,
+      totalLoansCount,
       memberCount,
       thisMonthTotal,
     };
@@ -569,6 +578,7 @@ export async function getChamaStats(chamaId: string) {
       totalSavings: 0,
       activeLoanBalance: 0,
       activeLoanCount: 0,
+      totalLoansCount: 0,
       memberCount: 0,
       thisMonthTotal: 0,
     };
