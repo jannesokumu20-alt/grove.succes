@@ -101,10 +101,13 @@ export interface Announcement {
 export interface Reminder {
   id: string;
   chama_id: string;
+  member_id: string | null;
+  title: string | null;
   message: string;
-  sent_to_count: number;
-  sent_by: string;
-  sent_at: string;
+  reminder_date: string;
+  reminder_type: 'upcoming' | 'due' | 'overdue';
+  sent: boolean;
+  sent_at: string | null;
   created_at: string;
 }
 

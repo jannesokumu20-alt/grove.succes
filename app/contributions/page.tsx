@@ -191,7 +191,7 @@ export default function ContributionsPage() {
       <Sidebar />
       <BottomNav />
 
-      <main className="flex-1 lg:ml-64 min-h-screen bg-slate-900 p-6 pt-[70px] lg:pt-6 pb-20 lg:pb-0">
+      <main className="flex-1 md:ml-64 min-h-screen bg-slate-900 p-6 pt-[70px] md:pt-6 pb-20 md:pb-0">
         <div className="w-full max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
