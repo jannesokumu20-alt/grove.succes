@@ -605,3 +605,155 @@ export async function getMembersNotContributedThisMonth(chamaId: string) {
   if (error) throw error;
   return data as Member[];
 }
+
+// ============================================
+// FINES OPERATIONS
+// ============================================
+
+export async function createFine(
+  chamaId: string,
+  memberId: string,
+  reason: string,
+  amount: number
+) {
+  const { data, error } = await supabase
+    .from('fines')
+    .insert([
+      {
+        chama_id: chamaId,
+        member_id: memberId,
+        reason,
+        amount,
+        paid: false,
+      },
+    ])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as any;
+}
+
+export async function getFines(chamaId: string) {
+  const { data, error } = await supabase
+    .from('fines')
+    .select(`*, members(full_name, phone)`)
+    .eq('chama_id', chamaId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data as any[];
+}
+
+export async function payFine(fineId: string) {
+  const { data, error } = await supabase
+    .from('fines')
+    .update({
+      paid: true,
+      paid_at: new Date().toISOString(),
+    })
+    .eq('id', fineId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as any;
+}
+
+export async function deleteFine(fineId: string) {
+  const { error } = await supabase.from('fines').delete().eq('id', fineId);
+
+  if (error) throw error;
+}
+
+// ============================================
+// MEETINGS OPERATIONS
+// ============================================
+
+export async function createMeeting(
+  chamaId: string,
+  date: string,
+  time?: string,
+  location?: string,
+  agenda?: string
+) {
+  const { data, error } = await supabase
+    .from('meetings')
+    .insert([
+      {
+        chama_id: chamaId,
+        date,
+        time: time || null,
+        location: location || null,
+        agenda: agenda || null,
+      },
+    ])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as any;
+}
+
+export async function getMeetings(chamaId: string) {
+  const { data, error } = await supabase
+    .from('meetings')
+    .select('*')
+    .eq('chama_id', chamaId)
+    .order('date', { ascending: false });
+
+  if (error) throw error;
+  return data as any[];
+}
+
+export async function getMeeting(meetingId: string) {
+  const { data, error } = await supabase
+    .from('meetings')
+    .select('*')
+    .eq('id', meetingId)
+    .single();
+
+  if (error) throw error;
+  return data as any;
+}
+
+export async function recordAttendance(
+  meetingId: string,
+  memberId: string,
+  attended: boolean
+) {
+  const { data, error } = await supabase
+    .from('meeting_attendance')
+    .insert([
+      {
+        meeting_id: meetingId,
+        member_id: memberId,
+        attended,
+      },
+    ])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as any;
+}
+
+export async function getAttendance(meetingId: string) {
+  const { data, error } = await supabase
+    .from('meeting_attendance')
+    .select(`*, members(full_name, phone)`)
+    .eq('meeting_id', meetingId);
+
+  if (error) throw error;
+  return data as any[];
+}
+
+export async function deleteMeeting(meetingId: string) {
+  // Delete attendance records first
+  await supabase.from('meeting_attendance').delete().eq('meeting_id', meetingId);
+  
+  // Delete meeting
+  const { error } = await supabase.from('meetings').delete().eq('id', meetingId);
+
+  if (error) throw error;
+}
