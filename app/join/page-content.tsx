@@ -121,10 +121,11 @@ export default function JoinPageContent() {
 
           <div className="bg-slate-900 border border-slate-800 rounded-lg p-8">
             <p className="text-red-400 mb-6">{error || 'Invalid invite'}</p>
-            <Link href="/login">
-              <Button variant="primary" className="w-full">
-                Back to Login
-              </Button>
+            <Link
+              href="/login"
+              className="w-full bg-grove-primary hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-lg transition inline-flex items-center justify-center block"
+            >
+              Back to Login
             </Link>
           </div>
         </div>

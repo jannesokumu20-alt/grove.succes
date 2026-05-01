@@ -27,10 +27,11 @@ export default function ErrorPage({
           >
             Try again
           </Button>
-          <Link href="/dashboard" className="flex-1">
-            <Button variant="secondary" className="w-full">
-              Go to Dashboard
-            </Button>
+          <Link
+            href="/dashboard"
+            className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 px-4 rounded-lg transition inline-flex items-center justify-center"
+          >
+            Go to Dashboard
           </Link>
         </div>
       </div>
