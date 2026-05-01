@@ -85,9 +85,8 @@ export default function LoginPage() {
         .single();
 
       if (chamaData) {
-        toast_service.success('Logged in successfully!');
         toast.dismiss(loadingToastId);
-        router.replace('/dashboard');
+        await router.push('/dashboard');
         return;
       }
 
@@ -99,9 +98,8 @@ export default function LoginPage() {
         .single();
 
       if (memberData) {
-        toast_service.success('Logged in successfully!');
         toast.dismiss(loadingToastId);
-        router.replace('/member');
+        await router.push('/member');
         return;
       }
 
@@ -135,9 +133,8 @@ export default function LoginPage() {
             if (matchingMember) {
               // Link this member to the user
               await updateMember(matchingMember.id, { user_id: session.user.id });
-              toast_service.success('Logged in successfully!');
               toast.dismiss(loadingToastId);
-              router.replace('/member');
+              await router.push('/member');
               return;
             }
           }
@@ -148,13 +145,11 @@ export default function LoginPage() {
       }
 
       // No chama or member found
-      toast_service.success('Logged in successfully!');
       toast.dismiss(loadingToastId);
-      router.replace('/dashboard');
+      await router.push('/dashboard');
     } catch (error: any) {
       toast_service.error(error.message || 'An error occurred during login');
       toast.dismiss(loadingToastId);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -170,51 +165,60 @@ export default function LoginPage() {
           <p className="text-slate-400">Tech-Powered Savings Management</p>
         </div>
 
-        {/* Form */}
+        {/* Form or Loading */}
         <div className="bg-slate-900 border border-slate-800 rounded-lg p-8">
-          <h2 className="text-2xl font-bold text-white mb-6">Welcome Back</h2>
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-8">
+              <div className="mb-4 text-4xl animate-bounce">🌿</div>
+              <p className="text-slate-300 text-center">Redirecting to your dashboard...</p>
+            </div>
+          ) : (
+            <>
+              <h2 className="text-2xl font-bold text-white mb-6">Welcome Back</h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="Email Address"
-              type="email"
-              placeholder="your@email.com"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              error={errors.email}
-            />
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <Input
+                  label="Email Address"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  error={errors.email}
+                />
 
-            <Input
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
-              }
-              error={errors.password}
-            />
+                <Input
+                  label="Password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  error={errors.password}
+                />
 
-            <Button
-              type="submit"
-              variant="primary"
-              className="w-full"
-              isLoading={isLoading}
-            >
-              Sign In
-            </Button>
-          </form>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="w-full"
+                  isLoading={isLoading}
+                >
+                  Sign In
+                </Button>
+              </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-slate-400">
-              Don't have an account?{' '}
-              <Link href="/signup" className="text-grove-accent hover:underline">
-                Sign up
-              </Link>
-            </p>
-          </div>
+              <div className="mt-6 text-center">
+                <p className="text-slate-400">
+                  Don't have an account?{' '}
+                  <Link href="/signup" className="text-grove-accent hover:underline">
+                    Sign up
+                  </Link>
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
