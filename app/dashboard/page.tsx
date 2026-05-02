@@ -319,27 +319,11 @@ export default function DashboardPage() {
               <h3 className="text-[#ffffff] font-semibold text-xs">Upcoming</h3>
               <Link href="/meetings" className="text-[#22c55e] text-xs hover:text-[#16a34a] transition-colors">View all</Link>
             </div>
-            <div className="rounded-[16px] p-3 flex items-center gap-3" style={{
+            <div className="rounded-[16px] p-4 text-center" style={{
               background: 'rgba(15, 23, 42, 0.6)',
               boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
             }}>
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200"
-                style={{
-                  background: 'rgba(34,197,94,0.2)',
-                  boxShadow: '0 0 15px rgba(34,197,94,0.3)',
-                }}>
-                <Calendar className="text-[#22c55e]" size={18} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-[#ffffff] font-medium text-xs">Next Meeting</h4>
-                <p className="text-[#94a3b8] text-xs leading-tight">Sunday, 25 May • 10:00 AM</p>
-              </div>
-              <div className="px-2 py-1 rounded-full flex-shrink-0 whitespace-nowrap" style={{
-                background: 'rgba(34,197,94,0.2)',
-                boxShadow: '0 0 10px rgba(34,197,94,0.2)',
-              }}>
-                <p className="text-[#22c55e] text-xs font-medium">In 3 days</p>
-              </div>
+              <p className="text-[#94a3b8] text-xs py-4">No upcoming meetings</p>
             </div>
           </div>
 
@@ -349,61 +333,11 @@ export default function DashboardPage() {
               <h3 className="text-[#ffffff] font-semibold text-xs">Recent Activity</h3>
               <Link href="/dashboard" className="text-[#22c55e] text-xs hover:text-[#16a34a] transition-colors">View all</Link>
             </div>
-            <div className="rounded-[16px] p-3 space-y-0" style={{
+            <div className="rounded-[16px] p-4 text-center" style={{
               background: 'rgba(15, 23, 42, 0.6)',
               boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
             }}>
-              {/* Activity Item 1 */}
-              <div className="flex items-start gap-2 pb-2">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 mt-0.5"
-                  style={{
-                    background: 'rgba(34,197,94,0.2)',
-                    boxShadow: '0 0 12px rgba(34,197,94,0.3)',
-                  }}>
-                  <ArrowDown className="text-[#22c55e]" size={14} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[#ffffff] text-xs font-medium leading-tight">Jane Wanjiku contributed</p>
-                  <p className="text-[#94a3b8] text-xs">KSh 2,500.00</p>
-                </div>
-                <p className="text-[#94a3b8] text-xs flex-shrink-0 whitespace-nowrap">Today, 8:45 AM</p>
-              </div>
-
-              <div className="border-t border-[#94a3b8]/10"></div>
-
-              {/* Activity Item 2 */}
-              <div className="flex items-start gap-2 py-2">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 mt-0.5"
-                  style={{
-                    background: 'rgba(59,130,246,0.2)',
-                    boxShadow: '0 0 12px rgba(59,130,246,0.3)',
-                  }}>
-                  <Banknote className="text-[#3b82f6]" size={14} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[#ffffff] text-xs font-medium leading-tight">Peter Mwangi requested a loan</p>
-                  <p className="text-[#94a3b8] text-xs">KSh 10,000.00</p>
-                </div>
-                <p className="text-[#94a3b8] text-xs flex-shrink-0 whitespace-nowrap">Yesterday, 4:30 PM</p>
-              </div>
-
-              <div className="border-t border-[#94a3b8]/10"></div>
-
-              {/* Activity Item 3 */}
-              <div className="flex items-start gap-2 pt-2">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 mt-0.5"
-                  style={{
-                    background: 'rgba(168,85,247,0.2)',
-                    boxShadow: '0 0 12px rgba(168,85,247,0.3)',
-                  }}>
-                  <Calendar className="text-[#a855f7]" size={14} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[#ffffff] text-xs font-medium leading-tight">May meeting scheduled</p>
-                  <p className="text-[#94a3b8] text-xs">Sunday, 25 May 2025</p>
-                </div>
-                <p className="text-[#94a3b8] text-xs flex-shrink-0 whitespace-nowrap">20 May 2025</p>
-              </div>
+              <p className="text-[#94a3b8] text-xs py-4">No activity yet</p>
             </div>
           </div>
         </div>
