@@ -138,28 +138,47 @@ export default function MembersPage() {
             </div>
           </div>
 
-          {/* STATS CARDS */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          {/* STATS CARDS - MEMBERS SUMMARY */}
+          <div className="space-y-4 mb-6">
             {[
-              { label: 'Total Members', value: totalMembers, color: '#00FFB2', icon: '👥', bgColor: 'rgba(0,255,178,0.08)', borderColor: 'rgba(0,255,178,0.2)' },
-              { label: 'Active Members', value: activeCount, color: '#3B82F6', icon: '✓', bgColor: 'rgba(59,130,246,0.08)', borderColor: 'rgba(59,130,246,0.2)' },
-              { label: 'Defaulters', value: defaulterCount, color: '#EF4444', icon: '⚠', bgColor: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.2)' },
-              { label: 'New This Month', value: newThisMonth, color: '#A855F7', icon: '✨', bgColor: 'rgba(168,85,247,0.08)', borderColor: 'rgba(168,85,247,0.2)' },
+              { label: 'Total Members', value: totalMembers, color: '#00D084', icon: '👥', bgGradient: 'linear-gradient(135deg, rgba(0,208,132,0.08) 0%, rgba(0,208,132,0.02) 100%)', borderColor: 'rgba(0,208,132,0.25)', glowColor: 'rgba(0,208,132,0.2)' },
+              { label: 'Active Members', value: activeCount, color: '#3B82F6', icon: '✓', bgGradient: 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(59,130,246,0.02) 100%)', borderColor: 'rgba(59,130,246,0.25)', glowColor: 'rgba(59,130,246,0.2)' },
+              { label: 'Defaulters', value: defaulterCount, color: '#EF4444', icon: '⚠', bgGradient: 'linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(239,68,68,0.02) 100%)', borderColor: 'rgba(239,68,68,0.25)', glowColor: 'rgba(239,68,68,0.2)' },
+              { label: 'New This Month', value: newThisMonth, color: '#A855F7', icon: '✨', bgGradient: 'linear-gradient(135deg, rgba(168,85,247,0.08) 0%, rgba(168,85,247,0.02) 100%)', borderColor: 'rgba(168,85,247,0.25)', glowColor: 'rgba(168,85,247,0.2)' },
             ].map((stat, i) => (
-              <div key={i} className="rounded-[16px] p-4 flex items-start justify-between" style={{
-                background: stat.bgColor,
-                border: `1px solid ${stat.borderColor}`,
-                boxShadow: `0 0 20px ${stat.color}15`,
-              }}>
-                <div>
-                  <p className="text-[#9CA3AF] text-xs font-semibold tracking-wide mb-1">{stat.label}</p>
-                  <p className="text-[28px] font-bold" style={{ color: stat.color }}>{stat.value}</p>
+              <div 
+                key={i} 
+                className="rounded-[18px] px-5 py-4 flex items-center justify-between transition-all hover:scale-105 hover:shadow-lg" 
+                style={{
+                  background: stat.bgGradient,
+                  border: `1px solid ${stat.borderColor}`,
+                  boxShadow: `0 8px 32px ${stat.glowColor}, inset 0 1px 1px rgba(255,255,255,0.1)`,
+                  backdropFilter: 'blur(10px)',
+                }}
+              >
+                {/* Left: Title + Value */}
+                <div className="flex flex-col">
+                  <p className="text-[#AEB6C2] text-xs font-medium tracking-wider mb-2 uppercase">{stat.label}</p>
+                  <p className="text-[32px] font-bold text-white" style={{ 
+                    textShadow: `0 2px 8px ${stat.glowColor}`
+                  }}>
+                    {stat.value}
+                  </p>
                 </div>
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{
-                  background: `${stat.color}20`,
-                  boxShadow: `0 0 15px ${stat.color}30`,
-                }}>
-                  <span className="text-lg">{stat.icon}</span>
+
+                {/* Right: Icon Circle */}
+                <div 
+                  className="flex items-center justify-center flex-shrink-0"
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '50%',
+                    background: `linear-gradient(135deg, ${stat.color}25 0%, ${stat.color}08 100%)`,
+                    boxShadow: `0 0 24px ${stat.glowColor}, inset 0 1px 2px rgba(255,255,255,0.1)`,
+                    border: `1px solid ${stat.color}30`,
+                  }}
+                >
+                  <span className="text-2xl filter drop-shadow-lg">{stat.icon}</span>
                 </div>
               </div>
             ))}
