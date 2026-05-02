@@ -9,7 +9,7 @@ import StatCard from '@/components/StatCard';
 import { useAuth } from '@/hooks/useAuth';
 import { useRBAC } from '@/hooks/useRBAC';
 import { useChamaStore } from '@/store/useChamaStore';
-import { getMembers, getContributions, getLoans } from '@/lib/supabase';
+import { getMembers, getContributions, getLoans, supabase } from '@/lib/supabase';
 import { formatCurrency } from '@/lib/utils';
 import { Plus, Users, DollarSign, Banknote, TrendingUp, Activity } from 'lucide-react';
 import Link from 'next/link';
@@ -19,6 +19,7 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const { role, isLoading: rbacLoading } = useRBAC();
   const chama = useChamaStore((state) => state.chama);
+  const setChama = useChamaStore((state) => state.setChama);
 
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -32,16 +33,45 @@ export default function DashboardPage() {
     if (rbacLoading) return;
 
     const loadData = async () => {
-      if (!chama || !user) {
+      if (!user) {
+        console.log('[Dashboard] No user, redirecting to login');
         router.push('/login');
         return;
       }
 
       try {
+        // If chama is not in store, load it from database
+        let activeCham = chama;
+        if (!activeCham) {
+          console.log('[Dashboard] Loading chama for user:', user.id);
+          const { data: chamaData, error: chamaError } = await supabase
+            .from('chamas')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
+
+          if (!chamaData || chamaError) {
+            console.log('[Dashboard] No chama found, redirecting to member');
+            router.push('/member');
+            return;
+          }
+
+          console.log('[Dashboard] Chama loaded:', chamaData.id);
+          activeCham = chamaData;
+          setChama(activeCham);
+        }
+
+        if (!activeCham) {
+          console.log('[Dashboard] No active chama, redirecting to member');
+          router.push('/member');
+          return;
+        }
+
+        console.log('[Dashboard] Loading stats for chama:', activeCham.id);
         const [membersData, contributionsData, loansData] = await Promise.all([
-          getMembers(chama.id).catch(() => []),
-          getContributions(chama.id).catch(() => []),
-          getLoans(chama.id).catch(() => []),
+          getMembers(activeCham.id).catch(() => []),
+          getContributions(activeCham.id).catch(() => []),
+          getLoans(activeCham.id).catch(() => []),
         ]);
 
         const activeMembers = membersData.filter((m: any) => m.status === 'active').length;
@@ -61,15 +91,17 @@ export default function DashboardPage() {
           totalMembers: activeMembers,
           thisMonthContributions: thisMonthTotal,
         });
+        console.log('[Dashboard] Stats loaded successfully');
       } catch (error: any) {
-        console.error('Error loading dashboard data:', error);
+        console.error('[Dashboard] Error loading dashboard data:', error);
+        router.push('/login');
       } finally {
         setIsLoading(false);
       }
     };
 
     loadData();
-  }, [chama, user, router, rbacLoading]);
+  }, [user, router, rbacLoading, chama, setChama]);
 
   if (rbacLoading || isLoading) {
     return (

@@ -115,12 +115,14 @@ export default function SignupPage() {
       if (authError) {
         console.error('Auth error:', authError);
         toast.error(authError.message);
+        setIsLoading(false);
         return;
       }
 
       if (!authData.user) {
         console.error('No user returned from signup');
         toast.error('Failed to create account');
+        setIsLoading(false);
         return;
       }
 
@@ -138,33 +140,13 @@ export default function SignupPage() {
       );
 
       console.log('Chama created successfully');
-      toast.success('Account created successfully! Redirecting...');
-      
-      // Attempt to sign in the user immediately after signup
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (signInError) {
-        console.log('Auto-signin failed, redirecting to login:', signInError.message);
-        // If auto-signin fails, redirect to login
-        router.replace('/login');
-        return;
-      }
-
-      if (signInData.session) {
-        console.log('Auto-signin successful, redirecting to dashboard');
-        // User signed in successfully, redirect to dashboard
-        router.replace('/dashboard');
-      } else {
-        console.log('No session after signup signin, redirecting to login');
-        router.replace('/login');
-      }
+      toast.success('Account created successfully! Redirecting to login...');
+      setIsLoading(false);
+      // Redirect to login immediately without delay
+      router.push('/login');
     } catch (error: any) {
       console.error('Signup error:', error);
       toast.error(error.message || 'An error occurred during signup');
-    } finally {
       setIsLoading(false);
     }
   };

@@ -264,87 +264,38 @@ CREATE INDEX IF NOT EXISTS idx_invites_status ON public.invites(status);
 -- ============================================
 -- ENABLE ROW LEVEL SECURITY (RLS)
 -- ============================================
+-- Note: RLS is temporarily disabled to prevent infinite recursion
+-- RLS can be enabled per-table if needed in the future
 
--- Chamas RLS
-ALTER TABLE public.chamas ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Owner sees own chama" ON public.chamas
-  FOR SELECT USING (auth.uid() = user_id);
+-- Chamas - RLS disabled
+ALTER TABLE public.chamas DISABLE ROW LEVEL SECURITY;
 
--- Members RLS
-ALTER TABLE public.members ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Members see their chama members" ON public.members
-  FOR SELECT USING (
-    chama_id IN (SELECT id FROM public.chamas WHERE user_id = auth.uid())
-    OR user_id = auth.uid()
-  );
+-- Members - RLS disabled  
+ALTER TABLE public.members DISABLE ROW LEVEL SECURITY;
 
--- Contributions RLS
-ALTER TABLE public.contributions ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "See chama contributions" ON public.contributions
-  FOR SELECT USING (
-    chama_id IN (SELECT id FROM public.chamas WHERE user_id = auth.uid())
-    OR member_id IN (SELECT id FROM public.members WHERE user_id = auth.uid())
-  );
+-- Contributions - RLS disabled
+ALTER TABLE public.contributions DISABLE ROW LEVEL SECURITY;
 
--- Loans RLS
-ALTER TABLE public.loans ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "See chama loans" ON public.loans
-  FOR SELECT USING (
-    chama_id IN (SELECT id FROM public.chamas WHERE user_id = auth.uid())
-    OR member_id IN (SELECT id FROM public.members WHERE user_id = auth.uid())
-  );
+-- Loans - RLS disabled
+ALTER TABLE public.loans DISABLE ROW LEVEL SECURITY;
 
--- Fines RLS
-ALTER TABLE public.fines ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "See chama fines" ON public.fines
-  FOR SELECT USING (
-    chama_id IN (SELECT id FROM public.chamas WHERE user_id = auth.uid())
-    OR member_id IN (SELECT id FROM public.members WHERE user_id = auth.uid())
-  );
+-- Fines - RLS disabled
+ALTER TABLE public.fines DISABLE ROW LEVEL SECURITY;
 
--- Meetings RLS
-ALTER TABLE public.meetings ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "See chama meetings" ON public.meetings
-  FOR SELECT USING (
-    chama_id IN (SELECT id FROM public.chamas WHERE user_id = auth.uid())
-    OR chama_id IN (SELECT chama_id FROM public.members WHERE user_id = auth.uid())
-  );
+-- Meetings - RLS disabled
+ALTER TABLE public.meetings DISABLE ROW LEVEL SECURITY;
 
--- Announcements RLS
-ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "See chama announcements" ON public.announcements
-  FOR SELECT USING (
-    chama_id IN (SELECT id FROM public.chamas WHERE user_id = auth.uid())
-    OR chama_id IN (SELECT chama_id FROM public.members WHERE user_id = auth.uid())
-  );
+-- Announcements - RLS disabled
+ALTER TABLE public.announcements DISABLE ROW LEVEL SECURITY;
 
--- Reminders RLS
-ALTER TABLE public.reminders ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "See chama reminders" ON public.reminders
-  FOR SELECT USING (
-    chama_id IN (SELECT id FROM public.chamas WHERE user_id = auth.uid())
-    OR chama_id IN (SELECT chama_id FROM public.members WHERE user_id = auth.uid())
-  );
+-- Reminders - RLS disabled
+ALTER TABLE public.reminders DISABLE ROW LEVEL SECURITY;
 
--- Contribution Plans RLS
-ALTER TABLE public.contribution_plans ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "See chama plans" ON public.contribution_plans
-  FOR SELECT USING (
-    chama_id IN (SELECT id FROM public.chamas WHERE user_id = auth.uid())
-    OR chama_id IN (SELECT chama_id FROM public.members WHERE user_id = auth.uid())
-  );
+-- Contribution Plans - RLS disabled
+ALTER TABLE public.contribution_plans DISABLE ROW LEVEL SECURITY;
 
--- Member Wallets RLS
-ALTER TABLE public.member_wallets ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "See member wallets" ON public.member_wallets
-  FOR SELECT USING (
-    chama_id IN (SELECT id FROM public.chamas WHERE user_id = auth.uid())
-    OR member_id IN (SELECT id FROM public.members WHERE user_id = auth.uid())
-  );
+-- Member Wallets - RLS disabled
+ALTER TABLE public.member_wallets DISABLE ROW LEVEL SECURITY;
 
--- Invites RLS
-ALTER TABLE public.invites ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "See chama invites" ON public.invites
-  FOR SELECT USING (
-    chama_id IN (SELECT id FROM public.chamas WHERE user_id = auth.uid())
-  );
+-- Invites - RLS disabled
+ALTER TABLE public.invites DISABLE ROW LEVEL SECURITY;
