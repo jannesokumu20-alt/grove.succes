@@ -221,13 +221,29 @@ export async function signInWithPhone(phone: string, password: string) {
 
   try {
     // First, get the member record to find the associated email (issue #18)
-    const { data: memberData, error: memberError } = await supabase
+    let { data: memberData, error: memberError } = await supabase
       .from('members')
       .select('id, user_id, email')
       .eq('phone', normalizedPhone)
       .maybeSingle();
 
-    if (memberError && memberError.code !== 'PGRST116') {
+    // If email column doesn't exist in schema, try without it
+    if (memberError && memberError.message?.includes('email')) {
+      console.log('[signInWithPhone] Email column may not exist, retrying without email select...');
+      const { data: retryData, error: retryError } = await supabase
+        .from('members')
+        .select('id, user_id, phone')
+        .eq('phone', normalizedPhone)
+        .maybeSingle();
+      
+      if (retryError && retryError.code !== 'PGRST116') {
+        console.error('[signInWithPhone] Member lookup error:', retryError);
+        throw new Error('Failed to verify account. Please try again.');
+      }
+      
+      memberData = retryData;
+      memberError = null;
+    } else if (memberError && memberError.code !== 'PGRST116') {
       console.error('[signInWithPhone] Member lookup error:', memberError);
       throw new Error('Failed to verify account. Please try again.');
     }
@@ -241,7 +257,7 @@ export async function signInWithPhone(phone: string, password: string) {
     }
 
     if (!memberData.email) {
-      throw new Error('Account email not found. Please contact support.');
+      throw new Error('Email not found. Please run the ADD_EMAIL_TO_MEMBERS migration and try signing up again.');
     }
 
     // Sign in with the email associated with this phone
