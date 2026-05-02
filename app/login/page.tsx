@@ -48,7 +48,7 @@ export default function AuthPage() {
               {/* Secure & Private */}
               <div className="flex gap-4">
                 <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center flex-shrink-0">
-                  <LockIcon className="w-5 h-5 text-orange-500" />
+                  <Lock className="w-5 h-5 text-orange-500" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-white">Secure & private</p>
