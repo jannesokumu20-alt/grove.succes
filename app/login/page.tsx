@@ -11,9 +11,9 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen bg-slate-950">
       {/* Desktop Layout */}
-      <div className="hidden md:grid md:grid-cols-5 md:gap-0 md:min-h-screen">
+      <div className="hidden lg:grid lg:grid-cols-5 lg:gap-0 lg:min-h-screen">
         {/* Left Sidebar */}
-        <div className="md:col-span-1 bg-slate-900 border-r border-slate-800 p-8 flex flex-col justify-between">
+        <div className="lg:col-span-1 bg-slate-900 border-r border-slate-800 p-8 flex flex-col justify-between">
           {/* Logo & Tagline */}
           <div>
             <h1 className="text-3xl font-bold text-green-500 mb-8">✓ Grove</h1>
@@ -71,7 +71,7 @@ export default function AuthPage() {
         </div>
 
         {/* Main Content Area - Two Column */}
-        <div className="md:col-span-4 grid md:grid-cols-2">
+        <div className="lg:col-span-4 grid lg:grid-cols-2">
           {/* Login Column */}
           <div className="bg-slate-900/50 border-r border-slate-800 p-12 flex items-center justify-center">
             <div className="w-full max-w-md">
@@ -290,7 +290,7 @@ export default function AuthPage() {
       </div>
 
       {/* Mobile Layout */}
-      <div className="md:hidden min-h-screen flex flex-col bg-slate-950">
+      <div className="lg:hidden min-h-screen flex flex-col bg-slate-950">
         {/* Mobile Header */}
         {!isSignUp ? (
           <div className="px-6 pt-4 pb-6 bg-slate-900 border-b border-slate-800">
