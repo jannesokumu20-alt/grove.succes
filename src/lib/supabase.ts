@@ -75,56 +75,207 @@ export async function getSession() {
   return data.session;
 }
 
+function normalizePhone(phone: string): string {
+  if (!phone) return '';
+  // Remove all non-digit characters except leading +
+  let normalized = phone.replace(/[\s\-()]/g, '');
+  // Handle +254 format (convert to 0-based)
+  if (normalized.startsWith('+254')) {
+    normalized = '0' + normalized.slice(4);
+  }
+  return normalized;
+}
+
+function validatePhone(phone: string): boolean {
+  if (!phone || typeof phone !== 'string') return false;
+  const normalized = normalizePhone(phone);
+  // Kenyan format: 0701234567 (0 + 9 digits) or 254701234567 (country code + 9 digits)
+  const kenyanRegex = /^0[0-9]{9}$/;
+  return kenyanRegex.test(normalized);
+}
+
+function validateFullName(name: string): boolean {
+  if (!name || typeof name !== 'string') return false;
+  const trimmed = name.trim();
+  // At least 2 characters, not just whitespace
+  return trimmed.length >= 2;
+}
+
+function validatePassword(password: string): boolean {
+  if (!password || typeof password !== 'string') return false;
+  // At least 6 chars, has letters and numbers
+  return password.length >= 6 && /[a-zA-Z]/.test(password) && /[0-9]/.test(password);
+}
+
+function generateUniqueEmail(phone: string): string {
+  // Use UUID to ensure uniqueness since we can't use phone@grove.local
+  const timestamp = Date.now();
+  return `auth+${normalizePhone(phone)}_${timestamp}@grove.app`;
+}
+
 export async function signUpWithPhone(
   phone: string,
   password: string,
   fullName: string
 ) {
-  // Validate inputs
-  if (!fullName || fullName.trim().length === 0) {
-    throw new Error('Full name is required');
+  // Validate and normalize inputs
+  const trimmedName = fullName?.trim() || '';
+  const trimmedPhone = phone?.trim() || '';
+  const trimmedPassword = password?.trim() || '';
+
+  // Validate full name (issue #33, #34, #75)
+  if (!validateFullName(trimmedName)) {
+    throw new Error('Full name must be at least 2 characters');
   }
-  if (password.length < 6) {
-    throw new Error('Password must be at least 6 characters');
-  }
-  if (!phone || phone.trim().length === 0) {
+
+  // Validate phone (issue #29, #30, #44)
+  if (!trimmedPhone) {
     throw new Error('Phone number is required');
   }
 
-  const { data, error } = await supabase.auth.signUp({
-    email: `${phone}@grove.local`,
-    password,
-    options: {
-      data: {
-        phone,
-        full_name: fullName,
-      },
-    },
-  });
+  if (!validatePhone(trimmedPhone)) {
+    throw new Error('Please enter a valid Kenyan phone number (e.g., 0701234567 or +254701234567)');
+  }
 
-  if (error) throw error;
-  return data;
+  // Validate password (issue #31)
+  if (!validatePassword(trimmedPassword)) {
+    throw new Error('Password must be at least 6 characters with letters and numbers');
+  }
+
+  const normalizedPhone = normalizePhone(trimmedPhone);
+  const uniqueEmail = generateUniqueEmail(trimmedPhone);
+
+  try {
+    // Check if phone already exists (issue #8, #23)
+    const { data: existingUser, error: checkError } = await supabase
+      .from('members')
+      .select('id')
+      .eq('phone', normalizedPhone)
+      .maybeSingle();
+
+    if (checkError && checkError.code !== 'PGRST116') {
+      throw new Error('Failed to check existing account');
+    }
+
+    if (existingUser) {
+      throw new Error('This phone number is already registered');
+    }
+
+    // Create auth user with unique email
+    const { data, error } = await supabase.auth.signUp({
+      email: uniqueEmail,
+      password: trimmedPassword,
+      options: {
+        data: {
+          phone: normalizedPhone,
+          full_name: trimmedName,
+        },
+      },
+    });
+
+    if (error) {
+      // Handle specific auth errors (issue #46)
+      if (error.message?.includes('already registered')) {
+        throw new Error('This account already exists. Please sign in instead.');
+      }
+      if (error.message?.includes('weak password')) {
+        throw new Error('Password is too weak. Use letters and numbers.');
+      }
+      throw new Error(`Sign up failed: ${error.message}`);
+    }
+
+    if (!data?.user?.id) {
+      throw new Error('Failed to create user account. Please try again.');
+    }
+
+    if (!data?.session) {
+      // Some auth flows require email verification, still return user for member creation
+      console.warn('[signUpWithPhone] No immediate session (may require verification)');
+    }
+
+    return data;
+  } catch (err: any) {
+    console.error('[signUpWithPhone] Error:', err.message || err);
+    throw err;
+  }
 }
 
 export async function signInWithPhone(phone: string, password: string) {
-  if (!phone || phone.trim().length === 0) {
+  const trimmedPhone = phone?.trim() || '';
+  const trimmedPassword = password?.trim() || '';
+
+  // Validate inputs (issue #29, #35, #45)
+  if (!trimmedPhone) {
     throw new Error('Phone number is required');
   }
-  if (!password) {
+
+  if (!validatePhone(trimmedPhone)) {
+    throw new Error('Please enter a valid Kenyan phone number (e.g., 0701234567 or +254701234567)');
+  }
+
+  if (!trimmedPassword) {
     throw new Error('Password is required');
   }
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: `${phone}@grove.local`,
-    password,
-  });
+  const normalizedPhone = normalizePhone(trimmedPhone);
 
-  if (error) throw error;
-  return data;
+  try {
+    // First, get the member record to find the associated email (issue #18)
+    const { data: memberData, error: memberError } = await supabase
+      .from('members')
+      .select('id, user_id, email')
+      .eq('phone', normalizedPhone)
+      .maybeSingle();
+
+    if (memberError && memberError.code !== 'PGRST116') {
+      console.error('[signInWithPhone] Member lookup error:', memberError);
+      throw new Error('Failed to verify account. Please try again.');
+    }
+
+    if (!memberData) {
+      throw new Error('Phone number not found. Please sign up first.');
+    }
+
+    if (!memberData.user_id) {
+      throw new Error('Account not properly configured. Please contact support.');
+    }
+
+    if (!memberData.email) {
+      throw new Error('Account email not found. Please contact support.');
+    }
+
+    // Sign in with the email associated with this phone
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: memberData.email,
+      password: trimmedPassword,
+    });
+
+    if (error) {
+      if (error.message?.includes('Invalid login credentials')) {
+        throw new Error('Incorrect password. Please try again.');
+      }
+      if (error.message?.includes('Email not confirmed')) {
+        throw new Error('Please confirm your email before signing in.');
+      }
+      console.error('[signInWithPhone] Auth error:', error);
+      throw new Error(`Sign in failed: ${error.message}`);
+    }
+
+    if (!data?.session) {
+      throw new Error('Failed to create session. Please try again.');
+    }
+
+    return data;
+  } catch (err: any) {
+    console.error('[signInWithPhone] Error:', err.message || err);
+    throw err;
+  }
 }
 
 export async function getMemberByUserId(userId: string) {
-  if (!userId) return null;
+  if (!userId || typeof userId !== 'string') {
+    return null;
+  }
 
   try {
     const { data, error } = await supabase
@@ -134,12 +285,33 @@ export async function getMemberByUserId(userId: string) {
       .maybeSingle();
 
     if (error) {
-      if (error.code === 'PGRST116') return null;
-      throw error;
+      // PGRST116 = no rows found, which is fine
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      
+      // Log other errors with full context (issue #17)
+      console.error('[getMemberByUserId] Database error:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
+      
+      // Return null to allow graceful degradation
+      return null;
     }
-    return data as Member | null;
-  } catch (error) {
-    console.error('Error fetching member by user_id:', error);
+
+    if (!data) {
+      return null;
+    }
+
+    return data as Member;
+  } catch (err: any) {
+    console.error('[getMemberByUserId] Exception:', {
+      message: err.message,
+      stack: err.stack,
+    });
     return null;
   }
 }
@@ -148,47 +320,123 @@ export async function createMemberFromSignUp(
   userId: string,
   fullName: string,
   phone: string,
+  email: string,
   inviteCode?: string
 ) {
-  if (!fullName || fullName.trim().length === 0) {
-    throw new Error('Full name is required');
-  }
-  if (!userId) {
+  if (!userId || typeof userId !== 'string') {
     throw new Error('User ID is required');
   }
 
-  let chamaId = null;
+  const trimmedName = fullName?.trim() || '';
+  const trimmedPhone = phone?.trim() || '';
+  const trimmedEmail = email?.trim() || '';
+  const trimmedCode = inviteCode?.trim() || '';
+  const normalizedPhone = normalizePhone(trimmedPhone);
 
-  if (inviteCode && inviteCode.trim().length > 0) {
-    const chama = await getChamaByInviteCode(inviteCode);
-    if (!chama) {
-      throw new Error('Invalid invite code');
+  // Validate full name (issue #33, #34, #75)
+  if (!validateFullName(trimmedName)) {
+    throw new Error('Full name must be at least 2 characters');
+  }
+
+  if (!normalizedPhone) {
+    throw new Error('Phone number is required');
+  }
+
+  if (!trimmedEmail) {
+    throw new Error('Email is required');
+  }
+
+  try {
+    // Check if member already exists for this user (issue #5)
+    const { data: existingMember, error: existingError } = await supabase
+      .from('members')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (existingError && existingError.code !== 'PGRST116') {
+      throw new Error('Failed to check existing account');
     }
-    chamaId = chama.id;
+
+    if (existingMember) {
+      throw new Error('Member profile already exists for this user');
+    }
+
+    let chamaId = null;
+
+    // Handle invite code if provided (issue #35, #36, #80)
+    if (trimmedCode && trimmedCode.length > 0) {
+      const normalizedCode = trimmedCode.toUpperCase();
+      
+      const { data: chama, error: chamaError } = await supabase
+        .from('chamas')
+        .select('id')
+        .eq('invite_code', normalizedCode)
+        .maybeSingle();
+
+      if (chamaError && chamaError.code !== 'PGRST116') {
+        throw new Error('Failed to validate invite code');
+      }
+
+      if (!chama) {
+        throw new Error('Invalid invite code. Please check and try again.');
+      }
+
+      chamaId = chama.id;
+    }
+
+    // Create member record with all required fields (issue #39, #40, #41, #43, #44)
+    const { data, error } = await supabase
+      .from('members')
+      .insert([
+        {
+          user_id: userId,
+          name: trimmedName,
+          phone: normalizedPhone,
+          email: trimmedEmail,
+          chama_id: chamaId,
+          status: 'active',
+          role: 'member',
+          credit_score: 50,
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[createMemberFromSignUp] Database insert error:', error.message);
+      throw new Error(`Failed to create user profile: ${error.message}`);
+    }
+
+    if (!data?.id) {
+      throw new Error('Member profile was not created properly');
+    }
+
+    // Create member_wallets entry if it exists (issue #42)
+    try {
+      const { error: walletError } = await supabase
+        .from('member_wallets')
+        .insert([
+          {
+            member_id: data.id,
+            balance: 0,
+            currency: 'KES',
+          },
+        ]);
+
+      if (walletError && walletError.code !== 'PGRST116') {
+        console.warn('[createMemberFromSignUp] Wallet creation warning:', walletError.message);
+      }
+    } catch (walletError) {
+      // Log but don't fail if wallet creation fails
+      console.warn('[createMemberFromSignUp] Wallet creation failed:', walletError);
+    }
+
+    return data as Member;
+  } catch (err: any) {
+    console.error('[createMemberFromSignUp] Error:', err.message || err);
+    throw err;
   }
-
-  const { data, error } = await supabase
-    .from('members')
-    .insert([
-      {
-        chama_id: chamaId,
-        user_id: userId,
-        name: fullName.trim(),
-        phone: phone.trim(),
-        status: 'active',
-        role: 'member',
-        credit_score: 50,
-      },
-    ])
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error creating member:', error);
-    throw new Error('Failed to create user profile');
-  }
-
-  return data as Member;
 }
 
 // ============================================

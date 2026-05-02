@@ -49,7 +49,7 @@ export default function AuthPage() {
     setIsLoading(true);
 
     try {
-      // Validate inputs
+      // Validate inputs (issue #38 - clear old errors)
       if (!signInPhone.trim()) {
         throw new Error('Phone number is required');
       }
@@ -70,13 +70,15 @@ export default function AuthPage() {
         throw new Error('User profile not found. Please sign up first.');
       }
 
-      // Wait a bit for session to propagate
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Use longer delay or event-based approach (issue #19)
+      // Wait for session to propagate (especially on slow networks)
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       // Redirect to dashboard
       router.push('/dashboard');
     } catch (err: any) {
-      console.error('Sign in error:', err);
+      console.error('Sign in error:', err.message || err);
+      // Show specific error to user (issue #46)
       setError(err.message || 'Failed to sign in. Please check your credentials.');
     } finally {
       setIsLoading(false);
@@ -89,7 +91,7 @@ export default function AuthPage() {
     setIsLoading(true);
 
     try {
-      // Validate inputs
+      // Validate inputs (issue #38 - clear old errors)
       if (!fullName.trim()) {
         throw new Error('Full name is required');
       }
@@ -102,7 +104,8 @@ export default function AuthPage() {
       if (password.length < 6) {
         throw new Error('Password must be at least 6 characters');
       }
-      if (password !== confirmPassword) {
+      // Trim both before comparing (issue #32)
+      if (password.trim() !== confirmPassword.trim()) {
         throw new Error('Passwords do not match');
       }
 
@@ -113,16 +116,22 @@ export default function AuthPage() {
         throw new Error('Sign up failed. Please try again.');
       }
 
-      // Create member record
-      await createMemberFromSignUp(user.id, fullName, signUpPhone, inviteCode);
+      if (!user.email) {
+        throw new Error('Failed to create user account. Please try again.');
+      }
 
+      // Create member record with email
+      await createMemberFromSignUp(user.id, fullName, signUpPhone, user.email, inviteCode);
+
+      // Use longer delay or event-based approach (issue #19)
       // Wait for session to propagate
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       // Redirect to dashboard
       router.push('/dashboard');
     } catch (err: any) {
-      console.error('Sign up error:', err);
+      console.error('Sign up error:', err.message || err);
+      // Show specific error to user (issue #46)
       setError(err.message || 'Failed to create account. Please try again.');
     } finally {
       setIsLoading(false);
