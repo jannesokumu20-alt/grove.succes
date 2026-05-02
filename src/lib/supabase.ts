@@ -403,7 +403,8 @@ export async function createMemberFromSignUp(
       const personalChamaName = `${trimmedName}'s Personal Chama`;
       const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
       
-      const chamaPayload = {
+      // Start with full payload including optional fields
+      const chamaPayload: any = {
         user_id: userId,
         name: personalChamaName,
         invite_code: randomCode,
@@ -418,11 +419,48 @@ export async function createMemberFromSignUp(
         invite_code: randomCode,
       });
       
-      const { data: newChama, error: chamaCreateError } = await supabase
+      let newChama: any = null;
+      let chamaCreateError: any = null;
+      
+      // Try with full payload first
+      const result1 = await supabase
         .from('chamas')
         .insert([chamaPayload])
         .select('id')
         .single();
+      
+      newChama = result1.data;
+      chamaCreateError = result1.error;
+      
+      // If schema cache error on optional fields, retry with minimal required fields
+      if (chamaCreateError && (
+        chamaCreateError.message?.includes('schema cache') || 
+        chamaCreateError.message?.includes('status') ||
+        chamaCreateError.message?.includes('contribution_amount') ||
+        chamaCreateError.message?.includes('savings_goal')
+      )) {
+        console.log('[createMemberFromSignUp] Schema cache delay detected, retrying with minimal fields...');
+        
+        // Retry with only absolutely required fields
+        const minimalPayload = {
+          user_id: userId,
+          name: personalChamaName,
+          invite_code: randomCode,
+        };
+        
+        const result2 = await supabase
+          .from('chamas')
+          .insert([minimalPayload])
+          .select('id')
+          .single();
+        
+        newChama = result2.data;
+        chamaCreateError = result2.error;
+        
+        if (!chamaCreateError) {
+          console.log('[createMemberFromSignUp] Retry succeeded - chama created with defaults');
+        }
+      }
       
       if (chamaCreateError) {
         console.error('[createMemberFromSignUp] Chama creation failed:', {
@@ -432,10 +470,9 @@ export async function createMemberFromSignUp(
           hint: chamaCreateError.hint,
         });
         
-        // If RLS policy blocks creation, it might be a temporary issue
-        // Try one more time with explicit error handling
+        // If RLS policy blocks creation
         if (chamaCreateError.message?.includes('policy') || chamaCreateError.code === 'PGRST301') {
-          console.log('[createMemberFromSignUp] RLS policy may be blocking chama creation, checking permissions...');
+          console.log('[createMemberFromSignUp] RLS policy may be blocking chama creation...');
           throw new Error('Permission denied: Unable to create chama. Please try again or contact support.');
         }
         
