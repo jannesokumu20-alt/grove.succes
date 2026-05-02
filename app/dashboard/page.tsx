@@ -149,6 +149,53 @@ export default function DashboardPage() {
             </div>
           </div>
 
+          {/* STAT CARDS - 4 COLUMN GRID */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+            {[
+              { label: 'Total Members', value: stats.totalMembers, icon: '👥', color: '#00D084', bgColor: '#0C1A14', glowColor: '#00D084' },
+              { label: 'Total Contributions', value: formatCurrency(stats.totalSavings), icon: '📊', color: '#3B82F6', bgColor: '#0C1620', glowColor: '#3B82F6' },
+              { label: 'Active Loans', value: formatCurrency(stats.activeLoans), icon: '💰', color: '#F59E0B', bgColor: '#1A1109', glowColor: '#F59E0B' },
+              { label: 'This Month', value: formatCurrency(stats.thisMonthContributions), icon: '📈', color: '#A855F7', bgColor: '#140A1F', glowColor: '#A855F7' },
+            ].map((stat, i) => (
+              <div
+                key={i}
+                className="rounded-[14px] px-4 py-5 flex flex-col justify-between h-[110px] transition-all hover:scale-105 cursor-pointer group"
+                style={{
+                  background: stat.bgColor,
+                  border: `2px solid ${stat.color}`,
+                  boxShadow: `0 0 50px ${stat.glowColor}70, 0 0 100px ${stat.glowColor}30, inset 0 1px 2px rgba(255,255,255,0.1)`,
+                }}
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-[#AEB6C2] text-xs font-bold tracking-widest uppercase leading-tight">{stat.label}</p>
+                    <p className="text-[24px] font-bold text-white mt-2 leading-none" style={{
+                      textShadow: `0 0 20px ${stat.glowColor}c0`
+                    }}>
+                      {typeof stat.value === 'number' ? stat.value : stat.value}
+                    </p>
+                  </div>
+                  <div
+                    className="flex items-center justify-center flex-shrink-0 transition-all group-hover:scale-120"
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      background: stat.color,
+                      boxShadow: `0 0 40px ${stat.color}a0, 0 0 80px ${stat.color}60`,
+                    }}
+                  >
+                    <span className="text-lg" style={{
+                      filter: `drop-shadow(0 0 8px ${stat.glowColor}ff)`
+                    }}>
+                      {stat.icon}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
           {/* Glass Balance Card */}
           <div className="relative rounded-[20px] p-4 overflow-hidden" style={{
             background: 'linear-gradient(135deg, rgba(34,197,94,0.15), rgba(2,6,23,0.6))',

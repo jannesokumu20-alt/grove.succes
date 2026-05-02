@@ -146,19 +146,19 @@ export default function FinesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-grove-dark">
+    <div className="min-h-screen bg-gradient-to-b from-[#0B1220] to-[#05070D]">
       <Navbar />
       <Sidebar />
       <BottomNav />
 
-      <main className="flex-1 md:ml-64 min-h-screen bg-slate-900 p-6 pt-[70px] md:pt-6 pb-20 md:pb-0 relative z-10">
-        <div className="w-full max-w-6xl mx-auto">
+      <main className="flex-1 md:ml-64 min-h-screen bg-gradient-to-b from-[#0B1220] to-[#05070D] pt-[70px] md:pt-6 pb-24 md:pb-6 relative z-10">
+        <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-6">
           {/* Header */}
           <div className="mb-8">
             <div className="flex justify-between items-center">
               <div>
                 <h1 className="text-3xl font-bold text-white mb-2">Fines Management</h1>
-                <p className="text-slate-400">Track and manage member fines</p>
+                <p className="text-[#AEB6C2]">Track and manage member fines</p>
               </div>
               <Button
                 variant="primary"
@@ -172,22 +172,36 @@ export default function FinesPage() {
 
           {/* Summary Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-              <p className="text-slate-400 text-sm mb-1">Total Fines</p>
-              <p className="text-2xl font-bold text-white">{formatCurrency(totalFines)}</p>
-            </div>
-            <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-              <p className="text-slate-400 text-sm mb-1">Paid</p>
-              <p className="text-2xl font-bold text-green-400">{formatCurrency(totalPaid)}</p>
-            </div>
-            <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-              <p className="text-slate-400 text-sm mb-1">Outstanding</p>
-              <p className="text-2xl font-bold text-red-400">{formatCurrency(totalUnpaid)}</p>
-            </div>
+            {[
+              { label: 'Total Fines', value: totalFines, color: '#EF4444', bgColor: '#1F0F0F', glowColor: '#EF4444' },
+              { label: 'Paid', value: totalPaid, color: '#00D084', bgColor: '#0C1A14', glowColor: '#00D084' },
+              { label: 'Outstanding', value: totalUnpaid, color: '#F59E0B', bgColor: '#1A1109', glowColor: '#F59E0B' },
+            ].map((stat, i) => (
+              <div
+                key={i}
+                className="rounded-[14px] px-4 py-5 transition-all hover:scale-105"
+                style={{
+                  background: stat.bgColor,
+                  border: `2px solid ${stat.color}`,
+                  boxShadow: `0 0 40px ${stat.glowColor}70, 0 0 80px ${stat.glowColor}30, inset 0 1px 2px rgba(255,255,255,0.1)`,
+                }}
+              >
+                <p className="text-xs text-[#AEB6C2] uppercase tracking-widest font-bold mb-2">{stat.label}</p>
+                <p className="text-2xl font-bold text-white" style={{
+                  textShadow: `0 0 20px ${stat.glowColor}c0`
+                }}>
+                  {formatCurrency(stat.value)}
+                </p>
+              </div>
+            ))}
           </div>
 
           {/* Fines Table */}
-          <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
+          <div className="rounded-[16px] p-6" style={{
+            background: 'rgba(255, 255, 255, 0.03)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+          }}>
             <h2 className="text-lg font-semibold text-white mb-4">All Fines</h2>
             <Table
               columns={[

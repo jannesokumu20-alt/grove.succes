@@ -147,24 +147,24 @@ export default function ContributionsPage() {
   const thisYearTotal = thisYearContribs.reduce((sum, c) => sum + (c.amount || 0), 0);
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-gradient-to-b from-[#0B1220] to-[#05070D]">
       <Navbar />
       <Sidebar />
       <BottomNav />
 
-      <main className="flex-1 md:ml-64 min-h-screen bg-slate-950 pt-[70px] md:pt-6 pb-24 md:pb-6">
+      <main className="flex-1 md:ml-64 min-h-screen bg-gradient-to-b from-[#0B1220] to-[#05070D] pt-[70px] md:pt-6 pb-24 md:pb-6 relative z-10">
         <div className="w-full max-w-7xl mx-auto px-4 md:px-6 py-6">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex items-start justify-between mb-4">
+            <div className="flex items-start justify-between">
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Contributions</h1>
-                <p className="text-slate-400">Track and record member contributions</p>
+                <p className="text-[#AEB6C2]">Track and record member contributions</p>
               </div>
               {role !== 'member' && (
                 <Button
                   onClick={() => setIsModalOpen(true)}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2"
+                  className="bg-gradient-to-r from-[#00D084] to-[#00B869] hover:shadow-lg text-black font-semibold py-2 px-4 rounded-lg flex items-center gap-2 transition"
                 >
                   <Plus size={20} />
                   <span className="hidden md:inline">Record</span>
@@ -175,18 +175,28 @@ export default function ContributionsPage() {
 
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-              <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Total All Time</p>
-              <p className="text-3xl font-bold text-emerald-400 mt-2">{formatCur(allTimeTotal)}</p>
-            </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-              <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">This Month</p>
-              <p className="text-3xl font-bold text-blue-400 mt-2">{formatCur(thisMonthTotal)}</p>
-            </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-              <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">This Year</p>
-              <p className="text-3xl font-bold text-orange-400 mt-2">{formatCur(thisYearTotal)}</p>
-            </div>
+            {[
+              { label: 'Total All Time', value: allTimeTotal, color: '#00D084', bgColor: '#0C1A14', glowColor: '#00D084' },
+              { label: 'This Month', value: thisMonthTotal, color: '#3B82F6', bgColor: '#0C1620', glowColor: '#3B82F6' },
+              { label: 'This Year', value: thisYearTotal, color: '#F59E0B', bgColor: '#1A1109', glowColor: '#F59E0B' },
+            ].map((card, i) => (
+              <div
+                key={i}
+                className="rounded-[16px] px-6 py-6 transition-all hover:scale-105"
+                style={{
+                  background: card.bgColor,
+                  border: `2px solid ${card.color}`,
+                  boxShadow: `0 0 40px ${card.glowColor}70, 0 0 80px ${card.glowColor}30, inset 0 1px 2px rgba(255,255,255,0.1)`,
+                }}
+              >
+                <p className="text-xs text-[#AEB6C2] uppercase tracking-widest font-bold mb-2">{card.label}</p>
+                <p className="text-3xl font-bold text-white" style={{
+                  textShadow: `0 0 20px ${card.glowColor}c0`
+                }}>
+                  {formatCur(card.value)}
+                </p>
+              </div>
+            ))}
           </div>
 
           {/* Tabs */}
@@ -195,10 +205,10 @@ export default function ContributionsPage() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab as typeof activeTab)}
-                className={`px-4 py-2 rounded-lg font-medium transition ${
+                className={`px-4 py-2 rounded-full font-bold text-xs transition ${
                   activeTab === tab
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-slate-900 text-slate-400 border border-slate-800 hover:border-emerald-600'
+                    ? 'bg-gradient-to-r from-[#00D084] to-[#00B869] text-black shadow-lg'
+                    : 'bg-transparent text-[#AEB6C2] border border-white/20 hover:border-white/40'
                 }`}
               >
                 {tab === 'all' && 'All Time'}
@@ -211,36 +221,37 @@ export default function ContributionsPage() {
           {/* Contributions List */}
           {isLoading ? (
             <div className="text-center py-12">
-              <p className="text-slate-400">Loading contributions...</p>
+              <p className="text-[#AEB6C2]">Loading contributions...</p>
             </div>
           ) : filteredContributions.length === 0 ? (
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-12 text-center">
-              <p className="text-slate-400 mb-4">No contributions found</p>
+            <div className="rounded-[16px] p-12 text-center" style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}>
+              <p className="text-[#AEB6C2] mb-4">No contributions found</p>
             </div>
           ) : (
-            <div className="bg-slate-900 border border-slate-800 rounded-lg overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-slate-800 bg-slate-800/50">
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Member</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Amount</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Month/Year</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800">
-                    {filteredContributions.map((contrib) => (
-                      <tr key={contrib.id} className="hover:bg-slate-800/50 transition">
-                        <td className="px-6 py-4 text-white font-medium">{contrib.members?.name || 'Unknown'}</td>
-                        <td className="px-6 py-4 text-emerald-400 font-semibold">{formatCur(contrib.amount)}</td>
-                        <td className="px-6 py-4 text-slate-400">{getMonthName(contrib.month)} {contrib.year}</td>
-                        <td className="px-6 py-4 text-slate-400 text-sm">{formatDate(contrib.created_at)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            <div className="space-y-3">
+              {filteredContributions.map((contrib) => (
+                <div
+                  key={contrib.id}
+                  className="rounded-[14px] px-6 py-4 flex items-center justify-between transition-all hover:bg-white/8"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1.5px solid rgba(255, 255, 255, 0.12)',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+                  }}
+                >
+                  <div className="flex-1">
+                    <p className="text-white font-bold text-sm">{contrib.members?.name || 'Unknown'}</p>
+                    <p className="text-[#6B7280] text-xs mt-1">{getMonthName(contrib.month)} {contrib.year}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[#00D084] font-bold text-sm">{formatCur(contrib.amount)}</p>
+                    <p className="text-[#6B7280] text-xs mt-1">{formatDate(contrib.created_at)}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>

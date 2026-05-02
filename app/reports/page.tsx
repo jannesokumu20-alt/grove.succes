@@ -88,18 +88,18 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-grove-dark">
+    <div className="min-h-screen bg-gradient-to-b from-[#0B1220] to-[#05070D]">
       <Navbar />
       <Sidebar />
       <BottomNav />
 
-      <main className="ml-64 md:pt-20 pt-0 pb-20 md:pb-0 px-4 md:px-6 py-6">
-        <div className="max-w-7xl mx-auto">
+      <main className="flex-1 md:ml-64 min-h-screen bg-gradient-to-b from-[#0B1220] to-[#05070D] pt-[70px] md:pt-6 pb-24 md:pb-6 relative z-10">
+        <div className="w-full max-w-7xl mx-auto px-4 md:px-6 py-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">Reports</h1>
-              <p className="text-slate-400">Monthly summary and analytics</p>
+              <p className="text-[#AEB6C2]">Monthly summary and analytics</p>
             </div>
             <div className="flex gap-2">
               <Button
@@ -121,55 +121,60 @@ export default function ReportsPage() {
 
           {/* Main Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <SummaryCard
-              title="Total Savings"
-              value={formatCurrency(stats.totalSavings)}
-              icon="💰"
-              color="green"
-            />
-            <SummaryCard
-              title="Outstanding Loans"
-              value={formatCurrency(stats.activeLoanBalance)}
-              icon="🏦"
-              color="red"
-            />
-            <SummaryCard
-              title="Total Members"
-              value={stats.memberCount}
-              icon="👥"
-              color="blue"
-            />
-            <SummaryCard
-              title="This Month"
-              value={formatCurrency(stats.thisMonthTotal)}
-              icon="📊"
-              color="purple"
-            />
+            {[
+              { label: 'Total Savings', value: stats.totalSavings, icon: '💰', color: '#00D084', bgColor: '#0C1A14', glowColor: '#00D084' },
+              { label: 'Outstanding Loans', value: stats.activeLoanBalance, icon: '🏦', color: '#EF4444', bgColor: '#1F0F0F', glowColor: '#EF4444' },
+              { label: 'Total Members', value: stats.memberCount, icon: '👥', color: '#3B82F6', bgColor: '#0C1620', glowColor: '#3B82F6' },
+              { label: 'This Month', value: stats.thisMonthTotal, icon: '📊', color: '#A855F7', bgColor: '#140A1F', glowColor: '#A855F7' },
+            ].map((stat, i) => (
+              <div
+                key={i}
+                className="rounded-[14px] px-4 py-5 flex flex-col justify-between h-[110px] transition-all hover:scale-105"
+                style={{
+                  background: stat.bgColor,
+                  border: `2px solid ${stat.color}`,
+                  boxShadow: `0 0 50px ${stat.glowColor}70, 0 0 100px ${stat.glowColor}30, inset 0 1px 2px rgba(255,255,255,0.1)`,
+                }}
+              >
+                <div>
+                  <p className="text-[#AEB6C2] text-xs font-bold tracking-widest uppercase">{stat.label}</p>
+                  <p className="text-2xl font-bold text-white mt-2" style={{
+                    textShadow: `0 0 20px ${stat.glowColor}c0`
+                  }}>
+                    {typeof stat.value === 'number' && stat.value > 100 ? formatCurrency(stat.value) : stat.value}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Report Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {/* Contribution Report */}
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+            <div className="rounded-[16px] p-6" style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+            }}>
               <h2 className="text-lg font-semibold text-white mb-4">
                 Contribution Summary
               </h2>
               <div className="space-y-4">
-                <div className="flex justify-between items-center pb-4 border-b border-slate-700">
-                  <span className="text-slate-400">Total Contributions</span>
-                  <span className="text-white font-semibold">
+                <div className="flex justify-between items-center pb-4 border-b border-white/10">
+                  <span className="text-[#6B7280]">Total Contributions</span>
+                  <span className="text-white font-bold">
                     {reportData.contributions}
                   </span>
                 </div>
-                <div className="flex justify-between items-center pb-4 border-b border-slate-700">
-                  <span className="text-slate-400">Total Saved</span>
-                  <span className="text-green-400 font-semibold">
+                <div className="flex justify-between items-center pb-4 border-b border-white/10">
+                  <span className="text-[#6B7280]">Total Saved</span>
+                  <span className="text-[#00D084] font-bold">
                     {formatCurrency(stats.totalSavings)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-400">Members Not Contributed</span>
-                  <span className="text-red-400 font-semibold">
+                  <span className="text-[#6B7280]">Members Not Contributed</span>
+                  <span className="text-[#EF4444] font-bold">
                     {reportData.membersNotContributed}
                   </span>
                 </div>
@@ -177,7 +182,11 @@ export default function ReportsPage() {
             </div>
 
             {/* Loan Report */}
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+            <div className="rounded-[16px] p-6" style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+            }}>
               <h2 className="text-lg font-semibold text-white mb-4">Loan Summary</h2>
               <div className="space-y-4">
                 <div className="flex justify-between items-center pb-4 border-b border-slate-700">

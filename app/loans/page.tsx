@@ -201,18 +201,18 @@ export default function LoansPage() {
   };
 
   return (
-    <div className="min-h-screen bg-grove-dark">
+    <div className="min-h-screen bg-gradient-to-b from-[#0B1220] to-[#05070D]">
       <Navbar />
       <Sidebar />
       <BottomNav />
 
-      <main className="ml-64 md:pt-20 pt-0 pb-20 md:pb-0 px-4 md:px-6 py-6">
-        <div className="max-w-7xl mx-auto">
+      <main className="flex-1 md:ml-64 min-h-screen bg-gradient-to-b from-[#0B1220] to-[#05070D] pt-[70px] md:pt-6 pb-24 md:pb-6 relative z-10">
+        <div className="w-full max-w-7xl mx-auto px-4 md:px-6 py-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">Loans</h1>
-              <p className="text-slate-400">Manage member loans</p>
+              <p className="text-[#AEB6C2]">Manage member loans</p>
             </div>
             <Button
               variant="primary"
@@ -225,32 +225,36 @@ export default function LoansPage() {
 
           {/* Summary Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-              <p className="text-slate-400 text-sm">Total Active Loans</p>
-              <p className="text-white font-semibold text-lg">
-                {loans.filter((l) => l.status === 'approved').length}
-              </p>
-            </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-              <p className="text-slate-400 text-sm">Total Outstanding</p>
-              <p className="text-red-400 font-semibold text-lg">
-                {formatCurrency(
-                  loans
-                    .filter((l) => l.status === 'approved')
-                    .reduce((sum, l) => sum + (l.balance || 0), 0)
-                )}
-              </p>
-            </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-              <p className="text-slate-400 text-sm">Overdue Loans</p>
-              <p className="text-yellow-400 font-semibold text-lg">
-                {loans.filter((l) => l.status === 'overdue').length}
-              </p>
-            </div>
+            {[
+              { label: 'Total Active Loans', value: loans.filter((l) => l.status === 'approved').length, color: '#00D084', bgColor: '#0C1A14', glowColor: '#00D084' },
+              { label: 'Total Outstanding', value: formatCurrency(loans.filter((l) => l.status === 'approved').reduce((sum, l) => sum + (l.balance || 0), 0)), color: '#3B82F6', bgColor: '#0C1620', glowColor: '#3B82F6' },
+              { label: 'Overdue Loans', value: loans.filter((l) => l.status === 'overdue').length, color: '#EF4444', bgColor: '#1F0F0F', glowColor: '#EF4444' },
+            ].map((stat, i) => (
+              <div
+                key={i}
+                className="rounded-[16px] px-6 py-6 transition-all hover:scale-105"
+                style={{
+                  background: stat.bgColor,
+                  border: `2px solid ${stat.color}`,
+                  boxShadow: `0 0 40px ${stat.glowColor}70, 0 0 80px ${stat.glowColor}30, inset 0 1px 2px rgba(255,255,255,0.1)`,
+                }}
+              >
+                <p className="text-xs text-[#AEB6C2] uppercase tracking-widest font-bold mb-2">{stat.label}</p>
+                <p className="text-3xl font-bold text-white" style={{
+                  textShadow: `0 0 20px ${stat.glowColor}c0`
+                }}>
+                  {stat.value}
+                </p>
+              </div>
+            ))}
           </div>
 
           {/* Loans Table */}
-          <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+          <div className="rounded-[16px] p-6" style={{
+            background: 'rgba(255, 255, 255, 0.03)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+          }}>
             <Table
               columns={[
                 { key: 'members', label: 'Member', render: (_, row) => row.members?.name },

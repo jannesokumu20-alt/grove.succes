@@ -161,24 +161,28 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-grove-dark">
+    <div className="min-h-screen bg-gradient-to-b from-[#0B1220] to-[#05070D]">
       <Navbar />
       <Sidebar />
       <BottomNav />
 
-      <main className="flex-1 md:ml-64 min-h-screen bg-slate-900 p-6 pt-[70px] md:pt-6 pb-20 md:pb-0">
-        <div className="w-full max-w-3xl mx-auto">
+      <main className="flex-1 md:ml-64 min-h-screen bg-gradient-to-b from-[#0B1220] to-[#05070D] pt-[70px] md:pt-6 pb-24 md:pb-6 relative z-10">
+        <div className="w-full max-w-3xl mx-auto px-4 md:px-6 py-6">
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-2">
-              <SettingsIcon size={32} className="text-grove-accent" />
+              <SettingsIcon size={32} className="text-[#00D084]" />
               Settings
             </h1>
-            <p className="text-slate-400">Manage your chama settings</p>
+            <p className="text-[#AEB6C2]">Manage your chama settings</p>
           </div>
 
           {/* Chama Information Section */}
-          <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 mb-8">
+          <div className="rounded-[16px] p-6 mb-8" style={{
+            background: 'rgba(255, 255, 255, 0.03)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+          }}>
             <h2 className="text-xl font-semibold text-white mb-6">Chama Information</h2>
             <form onSubmit={handleSaveSettings} className="space-y-6">
               {/* Chama Name */}
@@ -206,7 +210,7 @@ export default function SettingsPage() {
 
               {/* Meeting Day */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-[#AEB6C2] mb-2">
                   Meeting Day
                 </label>
                 <select
@@ -214,7 +218,7 @@ export default function SettingsPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, meetingDay: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-grove-accent"
+                  className="w-full px-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00D084]"
                 >
                   <option>Monday</option>
                   <option>Tuesday</option>
