@@ -25,7 +25,7 @@ Route (app)                              Size     First Load JS
 Γö£ ╞Æ /api/reminders/check                 0 B                0 B
 Γö£ ╞Æ /api/reminders/send                  0 B                0 B
 Γö£ Γùï /contributions                       3.07 kB         174 kB
-Γö£ Γùï /dashboard                           5.71 kB         169 kB
+Γö£ Γùï /dashboard                           6.03 kB         169 kB
 Γö£ Γùï /fines                               3.21 kB         174 kB
 Γö£ Γùï /join                                2.86 kB         168 kB
 Γö£ ╞Æ /join/[code]                         2.87 kB         159 kB
