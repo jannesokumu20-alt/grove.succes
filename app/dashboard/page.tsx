@@ -126,7 +126,7 @@ export default function DashboardPage() {
       <BottomNav />
 
       <main className="flex-1 md:ml-64 min-h-screen bg-gradient-to-b from-[#020617] via-[#071a2f] to-[#0a2540] pt-[70px] md:pt-6 pb-24 md:pb-6">
-        <div className="mx-auto px-4 md:max-w-md lg:max-w-4xl py-4 space-y-6">
+        <div className="mx-auto px-4 md:max-w-md lg:max-w-4xl py-3 space-y-4">
           
           {/* Header Section */}
           <div className="flex items-start justify-between">
@@ -150,144 +150,155 @@ export default function DashboardPage() {
           </div>
 
           {/* Glass Balance Card */}
-          <div className="relative rounded-[20px] p-5 overflow-hidden" style={{
+          <div className="relative rounded-[20px] p-4 overflow-hidden" style={{
             background: 'linear-gradient(135deg, rgba(34,197,94,0.15), rgba(2,6,23,0.6))',
             backdropFilter: 'blur(12px)',
             boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
           }}>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-[#94a3b8] text-sm font-medium">Total Chama Balance</h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[#94a3b8] text-xs font-medium">Total Chama Balance</h3>
               <button 
                 onClick={() => setShowBalance(!showBalance)}
-                className="p-2 hover:bg-white/10 rounded-lg transition-all duration-200 hover:scale-105"
+                className="p-1 hover:bg-white/10 rounded-lg transition-all duration-200 hover:scale-105"
               >
-                <Eye size={20} className="text-[#94a3b8]" />
+                <Eye size={18} className="text-[#94a3b8]" />
               </button>
             </div>
 
-            <div className="mb-4">
-              <h2 className="font-bold text-3xl text-[#ffffff]">
+            <div className="mb-2">
+              <h2 className="font-bold text-2xl text-[#ffffff]">
                 {showBalance ? formatCurrency(stats.totalSavings) : '••••••'}
               </h2>
             </div>
 
-            <div className="flex items-center gap-1 text-[#22c55e] text-sm font-medium mb-6">
-              <ArrowUp size={16} />
+            <div className="flex items-center gap-1 text-[#22c55e] text-xs font-medium mb-3">
+              <ArrowUp size={14} />
               <span>+12.5% from last month</span>
             </div>
 
-            {/* Stats Row */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-lg mb-2 flex items-center justify-center transition-all duration-200"
-                  style={{
-                    background: 'rgba(34,197,94,0.2)',
-                    boxShadow: '0 0 15px rgba(34,197,94,0.3)',
-                  }}>
-                  <ArrowDown size={18} className="text-[#22c55e]" />
+            {/* Stats Row - Horizontal with dividers */}
+            <div className="border-t border-[#94a3b8]/20 pt-4 mt-4">
+              <div className="flex items-stretch">
+                {/* Stat 1 */}
+                <div className="flex-1 flex flex-col items-center py-2 px-2">
+                  <div className="w-8 h-8 rounded-full mb-1 flex items-center justify-center"
+                    style={{
+                      background: 'rgba(34,197,94,0.2)',
+                      boxShadow: '0 0 12px rgba(34,197,94,0.25)',
+                    }}>
+                    <ArrowDown size={16} className="text-[#22c55e]" />
+                  </div>
+                  <p className="text-[#ffffff] font-semibold text-xs mt-1 text-center">{formatCurrency(stats.totalSavings)}</p>
+                  <p className="text-[#94a3b8] text-xs text-center mt-0.5">Contributions</p>
                 </div>
-                <p className="text-[#94a3b8] text-xs text-center">Total Contributions</p>
-                <p className="font-bold text-[#ffffff] text-xs mt-1 text-center">{formatCurrency(stats.totalSavings)}</p>
-              </div>
 
-              <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-lg mb-2 flex items-center justify-center transition-all duration-200"
-                  style={{
-                    background: 'rgba(251,146,60,0.2)',
-                    boxShadow: '0 0 15px rgba(251,146,60,0.3)',
-                  }}>
-                  <Banknote size={18} className="text-[#fb923c]" />
-                </div>
-                <p className="text-[#94a3b8] text-xs text-center">Total Loans</p>
-                <p className="font-bold text-[#ffffff] text-xs mt-1 text-center">{formatCurrency(stats.activeLoans)}</p>
-              </div>
+                {/* Divider 1 */}
+                <div className="w-px bg-[#94a3b8]/20"></div>
 
-              <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-lg mb-2 flex items-center justify-center transition-all duration-200"
-                  style={{
-                    background: 'rgba(239,68,68,0.2)',
-                    boxShadow: '0 0 15px rgba(239,68,68,0.3)',
-                  }}>
-                  <Gift size={18} className="text-[#ef4444]" />
+                {/* Stat 2 */}
+                <div className="flex-1 flex flex-col items-center py-2 px-2">
+                  <div className="w-8 h-8 rounded-full mb-1 flex items-center justify-center"
+                    style={{
+                      background: 'rgba(251,146,60,0.2)',
+                      boxShadow: '0 0 12px rgba(251,146,60,0.25)',
+                    }}>
+                    <Banknote size={16} className="text-[#fb923c]" />
+                  </div>
+                  <p className="text-[#ffffff] font-semibold text-xs mt-1 text-center">{formatCurrency(stats.activeLoans)}</p>
+                  <p className="text-[#94a3b8] text-xs text-center mt-0.5">Loans</p>
                 </div>
-                <p className="text-[#94a3b8] text-xs text-center">Total Fines</p>
-                <p className="font-bold text-[#ffffff] text-xs mt-1 text-center">KSh 0.00</p>
+
+                {/* Divider 2 */}
+                <div className="w-px bg-[#94a3b8]/20"></div>
+
+                {/* Stat 3 */}
+                <div className="flex-1 flex flex-col items-center py-2 px-2">
+                  <div className="w-8 h-8 rounded-full mb-1 flex items-center justify-center"
+                    style={{
+                      background: 'rgba(239,68,68,0.2)',
+                      boxShadow: '0 0 12px rgba(239,68,68,0.25)',
+                    }}>
+                    <Gift size={16} className="text-[#ef4444]" />
+                  </div>
+                  <p className="text-[#ffffff] font-semibold text-xs mt-1 text-center">KSh 0.00</p>
+                  <p className="text-[#94a3b8] text-xs text-center mt-0.5">Fines</p>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Quick Actions */}
-          <div>
-            <h3 className="text-[#ffffff] font-semibold mb-4 text-sm">Quick Actions</h3>
-            <div className="grid grid-cols-2 gap-3">
+          <div className="mt-2">
+            <h3 className="text-[#ffffff] font-semibold mb-2 text-xs">Quick Actions</h3>
+            <div className="grid grid-cols-2 gap-2">
               <Link
                 href="/contributions"
-                className="rounded-[16px] p-5 text-center transition-all duration-200 hover:scale-[1.03] flex flex-col items-center justify-center gap-3 min-h-[100px]"
+                className="rounded-[16px] p-3 text-center transition-all duration-200 hover:scale-[1.03] flex flex-col items-center justify-center gap-2 min-h-[80px]"
                 style={{
                   background: 'rgba(15, 23, 42, 0.6)',
                   boxShadow: '0 4px 12px rgba(34,197,94,0.15)',
                 }}
               >
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200"
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200"
                   style={{
                     background: 'rgba(34,197,94,0.2)',
                     boxShadow: '0 0 15px rgba(34,197,94,0.3)',
                   }}>
-                  <ArrowDown className="text-[#22c55e]" size={22} />
+                  <ArrowDown className="text-[#22c55e]" size={20} />
                 </div>
                 <span className="text-[#ffffff] text-xs font-medium">Contribute</span>
               </Link>
 
               <Link
                 href="/loans"
-                className="rounded-[16px] p-5 text-center transition-all duration-200 hover:scale-[1.03] flex flex-col items-center justify-center gap-3 min-h-[100px]"
+                className="rounded-[16px] p-3 text-center transition-all duration-200 hover:scale-[1.03] flex flex-col items-center justify-center gap-2 min-h-[80px]"
                 style={{
                   background: 'rgba(15, 23, 42, 0.6)',
                   boxShadow: '0 4px 12px rgba(59,130,246,0.15)',
                 }}
               >
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200"
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200"
                   style={{
                     background: 'rgba(59,130,246,0.2)',
                     boxShadow: '0 0 15px rgba(59,130,246,0.3)',
                   }}>
-                  <Banknote className="text-[#3b82f6]" size={22} />
+                  <Banknote className="text-[#3b82f6]" size={20} />
                 </div>
                 <span className="text-[#ffffff] text-xs font-medium">Request Loan</span>
               </Link>
 
               <Link
                 href="/members"
-                className="rounded-[16px] p-5 text-center transition-all duration-200 hover:scale-[1.03] flex flex-col items-center justify-center gap-3 min-h-[100px]"
+                className="rounded-[16px] p-3 text-center transition-all duration-200 hover:scale-[1.03] flex flex-col items-center justify-center gap-2 min-h-[80px]"
                 style={{
                   background: 'rgba(15, 23, 42, 0.6)',
                   boxShadow: '0 4px 12px rgba(168,85,247,0.15)',
                 }}
               >
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200"
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200"
                   style={{
                     background: 'rgba(168,85,247,0.2)',
                     boxShadow: '0 0 15px rgba(168,85,247,0.3)',
                   }}>
-                  <Users className="text-[#a855f7]" size={22} />
+                  <Users className="text-[#a855f7]" size={20} />
                 </div>
                 <span className="text-[#ffffff] text-xs font-medium">View Members</span>
               </Link>
 
               <Link
                 href="/meetings"
-                className="rounded-[16px] p-5 text-center transition-all duration-200 hover:scale-[1.03] flex flex-col items-center justify-center gap-3 min-h-[100px]"
+                className="rounded-[16px] p-3 text-center transition-all duration-200 hover:scale-[1.03] flex flex-col items-center justify-center gap-2 min-h-[80px]"
                 style={{
                   background: 'rgba(15, 23, 42, 0.6)',
                   boxShadow: '0 4px 12px rgba(251,146,60,0.15)',
                 }}
               >
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200"
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200"
                   style={{
                     background: 'rgba(251,146,60,0.2)',
                     boxShadow: '0 0 15px rgba(251,146,60,0.3)',
                   }}>
-                  <Calendar className="text-[#fb923c]" size={22} />
+                  <Calendar className="text-[#fb923c]" size={20} />
                 </div>
                 <span className="text-[#ffffff] text-xs font-medium">Schedule Meeting</span>
               </Link>
@@ -295,28 +306,27 @@ export default function DashboardPage() {
           </div>
 
           {/* Upcoming Section */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[#ffffff] font-semibold text-sm">Upcoming</h3>
+          <div className="mt-1">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-[#ffffff] font-semibold text-xs">Upcoming</h3>
               <Link href="/meetings" className="text-[#22c55e] text-xs hover:text-[#16a34a] transition-colors">View all</Link>
             </div>
-            <div className="rounded-[16px] p-4 flex items-center gap-4" style={{
+            <div className="rounded-[16px] p-3 flex items-center gap-3" style={{
               background: 'rgba(15, 23, 42, 0.6)',
               boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
             }}>
-              <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200"
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200"
                 style={{
                   background: 'rgba(34,197,94,0.2)',
                   boxShadow: '0 0 15px rgba(34,197,94,0.3)',
                 }}>
-                <Calendar className="text-[#22c55e]" size={20} />
+                <Calendar className="text-[#22c55e]" size={18} />
               </div>
-              <div className="flex-1">
-                <h4 className="text-[#ffffff] font-medium text-sm">Next Meeting</h4>
-                <p className="text-[#94a3b8] text-xs">Sunday, 25 May 2025 • 10:00 AM</p>
-                <p className="text-[#94a3b8] text-xs">At Chama Office</p>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-[#ffffff] font-medium text-xs">Next Meeting</h4>
+                <p className="text-[#94a3b8] text-xs leading-tight">Sunday, 25 May • 10:00 AM</p>
               </div>
-              <div className="px-3 py-1.5 rounded-full flex-shrink-0" style={{
+              <div className="px-2 py-1 rounded-full flex-shrink-0 whitespace-nowrap" style={{
                 background: 'rgba(34,197,94,0.2)',
                 boxShadow: '0 0 10px rgba(34,197,94,0.2)',
               }}>
@@ -326,65 +336,65 @@ export default function DashboardPage() {
           </div>
 
           {/* Recent Activity */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[#ffffff] font-semibold text-sm">Recent Activity</h3>
+          <div className="mt-1">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-[#ffffff] font-semibold text-xs">Recent Activity</h3>
               <Link href="/dashboard" className="text-[#22c55e] text-xs hover:text-[#16a34a] transition-colors">View all</Link>
             </div>
-            <div className="rounded-[16px] p-4 space-y-1" style={{
+            <div className="rounded-[16px] p-3 space-y-0" style={{
               background: 'rgba(15, 23, 42, 0.6)',
               boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
             }}>
               {/* Activity Item 1 */}
-              <div className="flex items-start gap-3 pb-4">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200"
+              <div className="flex items-start gap-2 pb-2">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 mt-0.5"
                   style={{
                     background: 'rgba(34,197,94,0.2)',
                     boxShadow: '0 0 12px rgba(34,197,94,0.3)',
                   }}>
-                  <ArrowDown className="text-[#22c55e]" size={16} />
+                  <ArrowDown className="text-[#22c55e]" size={14} />
                 </div>
-                <div className="flex-1">
-                  <p className="text-[#ffffff] text-xs font-medium">Jane Wanjiku contributed</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[#ffffff] text-xs font-medium leading-tight">Jane Wanjiku contributed</p>
                   <p className="text-[#94a3b8] text-xs">KSh 2,500.00</p>
                 </div>
-                <p className="text-[#22c55e] text-xs flex-shrink-0">Today, 8:45 AM</p>
+                <p className="text-[#94a3b8] text-xs flex-shrink-0 whitespace-nowrap">Today, 8:45 AM</p>
               </div>
 
               <div className="border-t border-[#94a3b8]/10"></div>
 
               {/* Activity Item 2 */}
-              <div className="flex items-start gap-3 py-4">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200"
+              <div className="flex items-start gap-2 py-2">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 mt-0.5"
                   style={{
                     background: 'rgba(59,130,246,0.2)',
                     boxShadow: '0 0 12px rgba(59,130,246,0.3)',
                   }}>
-                  <Banknote className="text-[#3b82f6]" size={16} />
+                  <Banknote className="text-[#3b82f6]" size={14} />
                 </div>
-                <div className="flex-1">
-                  <p className="text-[#ffffff] text-xs font-medium">Peter Mwangi requested a loan</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[#ffffff] text-xs font-medium leading-tight">Peter Mwangi requested a loan</p>
                   <p className="text-[#94a3b8] text-xs">KSh 10,000.00</p>
                 </div>
-                <p className="text-[#94a3b8] text-xs flex-shrink-0">Yesterday, 4:30 PM</p>
+                <p className="text-[#94a3b8] text-xs flex-shrink-0 whitespace-nowrap">Yesterday, 4:30 PM</p>
               </div>
 
               <div className="border-t border-[#94a3b8]/10"></div>
 
               {/* Activity Item 3 */}
-              <div className="flex items-start gap-3 pt-4">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200"
+              <div className="flex items-start gap-2 pt-2">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 mt-0.5"
                   style={{
                     background: 'rgba(168,85,247,0.2)',
                     boxShadow: '0 0 12px rgba(168,85,247,0.3)',
                   }}>
-                  <Calendar className="text-[#a855f7]" size={16} />
+                  <Calendar className="text-[#a855f7]" size={14} />
                 </div>
-                <div className="flex-1">
-                  <p className="text-[#ffffff] text-xs font-medium">May meeting scheduled</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[#ffffff] text-xs font-medium leading-tight">May meeting scheduled</p>
                   <p className="text-[#94a3b8] text-xs">Sunday, 25 May 2025</p>
                 </div>
-                <p className="text-[#94a3b8] text-xs flex-shrink-0">20 May 2025</p>
+                <p className="text-[#94a3b8] text-xs flex-shrink-0 whitespace-nowrap">20 May 2025</p>
               </div>
             </div>
           </div>
