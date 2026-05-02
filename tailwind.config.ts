@@ -16,6 +16,9 @@ const config: Config = {
           accent: '#22c55e',
         },
       },
+      backgroundImage: {
+        'grove-gradient': 'linear-gradient(to bottom, #0B1220, #05070D)',
+      },
     },
   },
   plugins: [],
