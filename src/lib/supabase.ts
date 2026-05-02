@@ -75,6 +75,122 @@ export async function getSession() {
   return data.session;
 }
 
+export async function signUpWithPhone(
+  phone: string,
+  password: string,
+  fullName: string
+) {
+  // Validate inputs
+  if (!fullName || fullName.trim().length === 0) {
+    throw new Error('Full name is required');
+  }
+  if (password.length < 6) {
+    throw new Error('Password must be at least 6 characters');
+  }
+  if (!phone || phone.trim().length === 0) {
+    throw new Error('Phone number is required');
+  }
+
+  const { data, error } = await supabase.auth.signUp({
+    email: `${phone}@grove.local`,
+    password,
+    options: {
+      data: {
+        phone,
+        full_name: fullName,
+      },
+    },
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function signInWithPhone(phone: string, password: string) {
+  if (!phone || phone.trim().length === 0) {
+    throw new Error('Phone number is required');
+  }
+  if (!password) {
+    throw new Error('Password is required');
+  }
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: `${phone}@grove.local`,
+    password,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getMemberByUserId(userId: string) {
+  if (!userId) return null;
+
+  try {
+    const { data, error } = await supabase
+      .from('members')
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null;
+      throw error;
+    }
+    return data as Member | null;
+  } catch (error) {
+    console.error('Error fetching member by user_id:', error);
+    return null;
+  }
+}
+
+export async function createMemberFromSignUp(
+  userId: string,
+  fullName: string,
+  phone: string,
+  inviteCode?: string
+) {
+  if (!fullName || fullName.trim().length === 0) {
+    throw new Error('Full name is required');
+  }
+  if (!userId) {
+    throw new Error('User ID is required');
+  }
+
+  let chamaId = null;
+
+  if (inviteCode && inviteCode.trim().length > 0) {
+    const chama = await getChamaByInviteCode(inviteCode);
+    if (!chama) {
+      throw new Error('Invalid invite code');
+    }
+    chamaId = chama.id;
+  }
+
+  const { data, error } = await supabase
+    .from('members')
+    .insert([
+      {
+        chama_id: chamaId,
+        user_id: userId,
+        name: fullName.trim(),
+        phone: phone.trim(),
+        status: 'active',
+        role: 'member',
+        credit_score: 50,
+      },
+    ])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating member:', error);
+    throw new Error('Failed to create user profile');
+  }
+
+  return data as Member;
+}
+
 // ============================================
 // CHAMA OPERATIONS
 // ============================================

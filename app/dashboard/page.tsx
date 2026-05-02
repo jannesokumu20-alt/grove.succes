@@ -9,7 +9,7 @@ import StatCard from '@/components/StatCard';
 import { useAuth } from '@/hooks/useAuth';
 import { useRBAC } from '@/hooks/useRBAC';
 import { useChamaStore } from '@/store/useChamaStore';
-import { getMembers, getContributions, getLoans, supabase } from '@/lib/supabase';
+import { getMembers, getContributions, getLoans, getMemberByUserId, supabase } from '@/lib/supabase';
 import { formatCurrency } from '@/lib/utils';
 import { Plus, Users, DollarSign, Banknote, TrendingUp, Activity } from 'lucide-react';
 import Link from 'next/link';
@@ -35,6 +35,14 @@ export default function DashboardPage() {
     const loadData = async () => {
       if (!user) {
         console.log('[Dashboard] No user, redirecting to login');
+        router.push('/login');
+        return;
+      }
+
+      // Check if member exists
+      const member = await getMemberByUserId(user.id);
+      if (!member) {
+        console.log('[Dashboard] No member record for user, redirecting to login');
         router.push('/login');
         return;
       }
