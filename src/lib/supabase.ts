@@ -422,13 +422,28 @@ export async function createMemberFromSignUp(
 
     if (error) {
       console.error('[createMemberFromSignUp] Database insert error:', error.message);
-      // If error mentions email column doesn't exist, retry without email
-      if (error.message?.includes('email') && trimmedEmail) {
-        console.log('[createMemberFromSignUp] Email column may not exist, retrying without email...');
-        delete memberData.email;
+      
+      // Handle missing schema cache columns (email, role, status)
+      // Supabase schema cache may not be immediately updated
+      const errorMsg = error.message?.toLowerCase() || '';
+      const hasMissingColumn = errorMsg.includes('email') || 
+                                errorMsg.includes('role') || 
+                                errorMsg.includes('status');
+      
+      if (hasMissingColumn) {
+        console.log('[createMemberFromSignUp] Schema cache delay detected, retrying with minimal fields...');
+        
+        // Try with only absolutely required fields
+        const minimalData = {
+          user_id: userId,
+          name: trimmedName,
+          phone: normalizedPhone,
+          chama_id: chamaId,
+        };
+        
         const { data: retryData, error: retryError } = await supabase
           .from('members')
-          .insert([memberData])
+          .insert([minimalData])
           .select()
           .single();
         
@@ -440,7 +455,9 @@ export async function createMemberFromSignUp(
           throw new Error('Member profile was not created properly');
         }
 
-        console.warn('[createMemberFromSignUp] Email column not available. Run ADD_EMAIL_TO_MEMBERS.sql migration to enable email-based signin.');
+        console.warn('[createMemberFromSignUp] Schema cache delay handled. Some fields may need migration.');
+        console.warn('  - Run ADD_EMAIL_TO_MEMBERS.sql to enable email storage');
+        console.warn('  - Role and status will use database defaults');
         return retryData as Member;
       }
       
