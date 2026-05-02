@@ -1,0 +1,49 @@
+
+> grove@1.0.0 build
+> next build
+
+  Γû▓ Next.js 14.2.35
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/21) ...
+   Generating static pages (5/21) 
+   Generating static pages (10/21) 
+   Generating static pages (15/21) 
+ Γ£ô Generating static pages (21/21)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+Γöî Γùï /                                    787 B           152 kB
+Γö£ Γùï /_not-found                          138 B          87.5 kB
+Γö£ Γùï /announcements                       2.44 kB         173 kB
+Γö£ ╞Æ /api/payments/callback               0 B                0 B
+Γö£ ╞Æ /api/payments/initiate               0 B                0 B
+Γö£ ╞Æ /api/reminders/check                 0 B                0 B
+Γö£ ╞Æ /api/reminders/send                  0 B                0 B
+Γö£ Γùï /contributions                       3.08 kB         174 kB
+Γö£ Γùï /dashboard                           2.39 kB         168 kB
+Γö£ Γùï /fines                               3.21 kB         174 kB
+Γö£ Γùï /join                                2.86 kB         168 kB
+Γö£ ╞Æ /join/[code]                         2.87 kB         159 kB
+Γö£ Γùï /loans                               3.42 kB         174 kB
+Γö£ Γùï /login                               4.13 kB         155 kB
+Γö£ Γùï /meetings                            3.37 kB         174 kB
+Γö£ Γùï /member                              2.07 kB         173 kB
+Γö£ Γùï /members                             3.28 kB         174 kB
+Γö£ Γùï /reminders                           3.15 kB         174 kB
+Γö£ Γùï /reports                             2.5 kB          173 kB
+Γö£ Γùï /settings                            7.05 kB         175 kB
+Γöö Γùï /signup                              3.32 kB         168 kB
++ First Load JS shared by all            87.3 kB
+  Γö£ chunks/117-3fd4d5d7049ab693.js       31.7 kB
+  Γö£ chunks/fd9d1056-cd74f6cc4428ee37.js  53.6 kB
+  Γöö other shared chunks (total)          1.95 kB
+
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+

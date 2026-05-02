@@ -374,7 +374,7 @@ export async function createMemberFromSignUp(
       throw new Error('Member profile already exists for this user');
     }
 
-    let chamaId = null;
+    let chamaId: string | null = null;
 
     // Handle invite code if provided (issue #35, #36, #80)
     if (trimmedCode && trimmedCode.length > 0) {
@@ -395,6 +395,40 @@ export async function createMemberFromSignUp(
       }
 
       chamaId = chama.id;
+    } else {
+      // If no invite code, create a default personal chama for the user
+      // chama_id is NOT NULL in schema, so we must provide one
+      console.log('[createMemberFromSignUp] No invite code provided, creating personal chama...');
+      
+      const personalChamaName = `${trimmedName}'s Personal Chama`;
+      const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      
+      const { data: newChama, error: chamaCreateError } = await supabase
+        .from('chamas')
+        .insert([
+          {
+            user_id: userId,
+            name: personalChamaName,
+            invite_code: randomCode,
+            contribution_amount: 0,
+            savings_goal: 0,
+            status: 'active',
+          },
+        ])
+        .select('id')
+        .single();
+      
+      if (chamaCreateError) {
+        console.error('[createMemberFromSignUp] Failed to create personal chama:', chamaCreateError.message);
+        throw new Error('Failed to create user profile - could not initialize chama');
+      }
+      
+      if (!newChama?.id) {
+        throw new Error('Personal chama was not created properly');
+      }
+      
+      chamaId = newChama.id;
+      console.log('[createMemberFromSignUp] Personal chama created:', chamaId);
     }
 
     // Prepare member record - email is optional (will be added via migration)
