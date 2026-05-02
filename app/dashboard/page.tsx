@@ -229,76 +229,84 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <div className="mt-2">
-            <h3 className="text-[#ffffff] font-semibold mb-2 text-xs">Quick Actions</h3>
-            <div className="grid grid-cols-2 gap-2">
+            <h3 className="text-[#ffffff] font-semibold mb-3 text-xs">Quick Actions</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
               <Link
                 href="/contributions"
-                className="rounded-[16px] p-3 text-center transition-all duration-200 hover:scale-[1.03] flex flex-col items-center justify-center gap-2 min-h-[80px]"
+                className="rounded-[16px] text-center transition-all duration-200 hover:scale-[1.03] flex flex-col items-center justify-center gap-3"
                 style={{
+                  padding: '16px',
+                  minHeight: '100px',
                   background: 'rgba(15, 23, 42, 0.6)',
                   boxShadow: '0 4px 12px rgba(34,197,94,0.15)',
                 }}
               >
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200"
+                <div className="w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200"
                   style={{
                     background: 'rgba(34,197,94,0.2)',
                     boxShadow: '0 0 15px rgba(34,197,94,0.3)',
                   }}>
-                  <ArrowDown className="text-[#22c55e]" size={20} />
+                  <ArrowDown className="text-[#22c55e]" size={24} />
                 </div>
                 <span className="text-[#ffffff] text-xs font-medium">Contribute</span>
               </Link>
 
               <Link
                 href="/loans"
-                className="rounded-[16px] p-3 text-center transition-all duration-200 hover:scale-[1.03] flex flex-col items-center justify-center gap-2 min-h-[80px]"
+                className="rounded-[16px] text-center transition-all duration-200 hover:scale-[1.03] flex flex-col items-center justify-center gap-3"
                 style={{
+                  padding: '16px',
+                  minHeight: '100px',
                   background: 'rgba(15, 23, 42, 0.6)',
                   boxShadow: '0 4px 12px rgba(59,130,246,0.15)',
                 }}
               >
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200"
+                <div className="w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200"
                   style={{
                     background: 'rgba(59,130,246,0.2)',
                     boxShadow: '0 0 15px rgba(59,130,246,0.3)',
                   }}>
-                  <Banknote className="text-[#3b82f6]" size={20} />
+                  <Banknote className="text-[#3b82f6]" size={24} />
                 </div>
                 <span className="text-[#ffffff] text-xs font-medium">Request Loan</span>
               </Link>
 
               <Link
                 href="/members"
-                className="rounded-[16px] p-3 text-center transition-all duration-200 hover:scale-[1.03] flex flex-col items-center justify-center gap-2 min-h-[80px]"
+                className="rounded-[16px] text-center transition-all duration-200 hover:scale-[1.03] flex flex-col items-center justify-center gap-3"
                 style={{
+                  padding: '16px',
+                  minHeight: '100px',
                   background: 'rgba(15, 23, 42, 0.6)',
                   boxShadow: '0 4px 12px rgba(168,85,247,0.15)',
                 }}
               >
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200"
+                <div className="w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200"
                   style={{
                     background: 'rgba(168,85,247,0.2)',
                     boxShadow: '0 0 15px rgba(168,85,247,0.3)',
                   }}>
-                  <Users className="text-[#a855f7]" size={20} />
+                  <Users className="text-[#a855f7]" size={24} />
                 </div>
                 <span className="text-[#ffffff] text-xs font-medium">View Members</span>
               </Link>
 
               <Link
                 href="/meetings"
-                className="rounded-[16px] p-3 text-center transition-all duration-200 hover:scale-[1.03] flex flex-col items-center justify-center gap-2 min-h-[80px]"
+                className="rounded-[16px] text-center transition-all duration-200 hover:scale-[1.03] flex flex-col items-center justify-center gap-3"
                 style={{
+                  padding: '16px',
+                  minHeight: '100px',
                   background: 'rgba(15, 23, 42, 0.6)',
                   boxShadow: '0 4px 12px rgba(251,146,60,0.15)',
                 }}
               >
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200"
+                <div className="w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200"
                   style={{
                     background: 'rgba(251,146,60,0.2)',
                     boxShadow: '0 0 15px rgba(251,146,60,0.3)',
                   }}>
-                  <Calendar className="text-[#fb923c]" size={20} />
+                  <Calendar className="text-[#fb923c]" size={24} />
                 </div>
                 <span className="text-[#ffffff] text-xs font-medium">Schedule Meeting</span>
               </Link>
