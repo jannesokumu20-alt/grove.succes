@@ -138,79 +138,90 @@ export default function MembersPage() {
             </div>
           </div>
 
-          {/* STATS CARDS - MEMBERS SUMMARY */}
-          <div className="space-y-4 mb-6">
+          {/* STATS CARDS - MEMBERS SUMMARY (ULTRA BOLD & VIBRANT) */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
             {[
-              { label: 'Total Members', value: totalMembers, color: '#00D084', icon: '👥', bgGradient: 'linear-gradient(135deg, rgba(0,208,132,0.08) 0%, rgba(0,208,132,0.02) 100%)', borderColor: 'rgba(0,208,132,0.25)', glowColor: 'rgba(0,208,132,0.2)' },
-              { label: 'Active Members', value: activeCount, color: '#3B82F6', icon: '✓', bgGradient: 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(59,130,246,0.02) 100%)', borderColor: 'rgba(59,130,246,0.25)', glowColor: 'rgba(59,130,246,0.2)' },
-              { label: 'Defaulters', value: defaulterCount, color: '#EF4444', icon: '⚠', bgGradient: 'linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(239,68,68,0.02) 100%)', borderColor: 'rgba(239,68,68,0.25)', glowColor: 'rgba(239,68,68,0.2)' },
-              { label: 'New This Month', value: newThisMonth, color: '#A855F7', icon: '✨', bgGradient: 'linear-gradient(135deg, rgba(168,85,247,0.08) 0%, rgba(168,85,247,0.02) 100%)', borderColor: 'rgba(168,85,247,0.25)', glowColor: 'rgba(168,85,247,0.2)' },
+              { label: 'Total Members', value: totalMembers, color: '#00D084', borderColor: '#00D084', icon: '👥', bgColor: '#0C1A14', glowColor: '#00D084' },
+              { label: 'Active Members', value: activeCount, color: '#3B82F6', borderColor: '#3B82F6', icon: '✓', bgColor: '#0C1620', glowColor: '#3B82F6' },
+              { label: 'Defaulters', value: defaulterCount, color: '#EF4444', borderColor: '#EF4444', icon: '⚠', bgColor: '#1A0C0C', glowColor: '#EF4444' },
+              { label: 'New This Month', value: newThisMonth, color: '#A855F7', borderColor: '#A855F7', icon: '✨', bgColor: '#140A1F', glowColor: '#A855F7' },
             ].map((stat, i) => (
               <div 
                 key={i} 
-                className="rounded-[18px] px-5 py-4 flex items-center justify-between transition-all hover:scale-105 hover:shadow-lg" 
+                className="rounded-[14px] px-4 py-5 flex flex-col items-start justify-between transition-all hover:scale-105 cursor-pointer group h-[120px]" 
                 style={{
-                  background: stat.bgGradient,
-                  border: `1px solid ${stat.borderColor}`,
-                  boxShadow: `0 8px 32px ${stat.glowColor}, inset 0 1px 1px rgba(255,255,255,0.1)`,
-                  backdropFilter: 'blur(10px)',
+                  background: stat.bgColor,
+                  border: `2.5px solid ${stat.borderColor}`,
+                  boxShadow: `0 0 50px ${stat.glowColor}70, 0 0 100px ${stat.glowColor}30, inset 0 1px 2px rgba(255,255,255,0.1)`,
                 }}
               >
-                {/* Left: Title + Value */}
-                <div className="flex flex-col">
-                  <p className="text-[#AEB6C2] text-xs font-medium tracking-wider mb-2 uppercase">{stat.label}</p>
-                  <p className="text-[32px] font-bold text-white" style={{ 
-                    textShadow: `0 2px 8px ${stat.glowColor}`
-                  }}>
-                    {stat.value}
-                  </p>
+                {/* Top: Title + Icon */}
+                <div className="w-full flex items-start justify-between">
+                  <p className="text-[#AEB6C2] text-xs font-bold tracking-widest uppercase leading-tight">{stat.label}</p>
+                  
+                  {/* Icon Circle - ULTRA BOLD */}
+                  <div 
+                    className="flex items-center justify-center flex-shrink-0 transition-all group-hover:scale-120"
+                    style={{
+                      width: '42px',
+                      height: '42px',
+                      borderRadius: '50%',
+                      background: stat.color,
+                      boxShadow: `0 0 40px ${stat.color}a0, 0 0 80px ${stat.color}60, inset 0 1px 3px rgba(255,255,255,0.2)`,
+                      border: `2px solid ${stat.color}`,
+                    }}
+                  >
+                    <span className="text-xl text-white" style={{
+                      filter: `drop-shadow(0 0 8px ${stat.glowColor}ff)`,
+                      textShadow: `0 0 8px ${stat.glowColor}ff`
+                    }}>
+                      {stat.icon}
+                    </span>
+                  </div>
                 </div>
 
-                {/* Right: Icon Circle */}
-                <div 
-                  className="flex items-center justify-center flex-shrink-0"
-                  style={{
-                    width: '48px',
-                    height: '48px',
-                    borderRadius: '50%',
-                    background: `linear-gradient(135deg, ${stat.color}25 0%, ${stat.color}08 100%)`,
-                    boxShadow: `0 0 24px ${stat.glowColor}, inset 0 1px 2px rgba(255,255,255,0.1)`,
-                    border: `1px solid ${stat.color}30`,
-                  }}
-                >
-                  <span className="text-2xl filter drop-shadow-lg">{stat.icon}</span>
-                </div>
+                {/* Bottom: Value */}
+                <p className="text-[32px] font-bold text-white leading-none mt-1" style={{ 
+                  textShadow: `0 0 20px ${stat.glowColor}c0, 0 0 40px ${stat.glowColor}60`
+                }}>
+                  {stat.value}
+                </p>
               </div>
             ))}
           </div>
 
-          {/* SEARCH & FILTER */}
+          {/* SEARCH & FILTER BAR */}
           <div className="mb-6">
-            <div className="flex gap-2 mb-3">
+            {/* Search Input */}
+            <div className="flex gap-3 mb-4">
               <div className="flex-1 relative">
-                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
+                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
                 <input
                   type="text"
                   placeholder="Search by name, phone or email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full rounded-[12px] bg-white/5 border border-white/10 pl-10 pr-4 py-2.5 text-white placeholder-[#9CA3AF] text-sm focus:outline-none focus:border-[#00FFB2] transition"
+                  className="w-full rounded-[14px] bg-white/5 border border-white/12 pl-12 pr-12 py-3 text-white placeholder-[#6B7280] text-sm focus:outline-none focus:border-[#00D084]/50 focus:bg-white/8 transition"
+                  style={{
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                  }}
                 />
+                <button className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-[10px] bg-white/8 border border-white/12 hover:bg-white/12 transition text-[#9CA3AF] hover:text-white">
+                  <Settings size={16} />
+                </button>
               </div>
-              <button className="p-2.5 rounded-[12px] bg-white/5 border border-white/10 hover:border-white/20 transition text-[#9CA3AF] hover:text-white">
-                <Settings size={18} />
-              </button>
             </div>
 
-            <div className="flex flex-wrap gap-2 mb-3">
+            {/* Filter Pills */}
+            <div className="flex flex-wrap gap-2 mb-4">
               {['all', 'active', 'inactive', 'suspended'].map((status) => (
                 <button
                   key={status}
                   onClick={() => setStatusFilter(status)}
-                  className={`px-4 py-1.5 rounded-full text-xs font-medium transition ${
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition ${
                     statusFilter === status
-                      ? 'bg-gradient-to-r from-[#00FFB2] to-[#00D4AA] text-black'
-                      : 'bg-white/5 text-[#9CA3AF] border border-white/10 hover:border-white/20'
+                      ? 'bg-gradient-to-r from-[#00D084] to-[#00B869] text-black shadow-lg'
+                      : 'bg-transparent text-[#9CA3AF] border border-white/20 hover:border-white/40'
                   }`}
                 >
                   {status === 'all' ? 'All Members' : status.charAt(0).toUpperCase() + status.slice(1)}
@@ -218,7 +229,10 @@ export default function MembersPage() {
               ))}
             </div>
 
-            <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[#9CA3AF] text-xs font-medium hover:border-white/20 transition">
+            {/* Sort Button */}
+            <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/12 text-[#9CA3AF] text-xs font-bold hover:bg-white/8 hover:border-white/20 transition" style={{
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            }}>
               <Settings size={14} />
               Newest First
               <ArrowDown size={12} />
@@ -250,49 +264,59 @@ export default function MembersPage() {
                 const isDefaulter = member.status === 'suspended' || member.credit_score < 50;
 
                 return (
-                  <div
+                   <div
                     key={member.id}
-                    className="rounded-[16px] p-4 flex items-center gap-4 hover:bg-white/5 transition"
+                    className="rounded-[14px] p-4 flex items-center gap-3 hover:bg-white/8 transition group"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.03)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      background: 'rgba(255, 255, 255, 0.04)',
+                      border: '1.5px solid rgba(255, 255, 255, 0.12)',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
                     }}
                   >
-                    {/* Avatar */}
-                    <div className="relative">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#00FFB2] to-[#00D4AA] flex items-center justify-center text-black font-bold text-lg flex-shrink-0">
+                    {/* LEFT: Colored Line + Avatar */}
+                    <div className="flex items-center gap-3">
+                      {/* Vertical Color Line */}
+                      <div className={`w-1 h-16 rounded-full flex-shrink-0 transition ${
+                        member.status === 'suspended' || member.credit_score < 50 ? 'bg-[#EF4444]' : 'bg-[#00D084]'
+                      }`} style={{
+                        boxShadow: member.status === 'suspended' || member.credit_score < 50 
+                          ? '0 0 16px rgba(239,68,68,0.6)' 
+                          : '0 0 16px rgba(0,208,132,0.6)'
+                      }}></div>
+
+                      {/* Avatar */}
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#00FFB2] to-[#00D4AA] flex items-center justify-center text-black font-bold text-base flex-shrink-0 group-hover:scale-110 transition">
                         {initials}
                       </div>
-                      <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#0A0F1C] ${
-                        isDefaulter ? 'bg-[#EF4444]' : 'bg-[#00FFB2]'
-                      }`}></div>
                     </div>
 
-                    {/* Info */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-white font-semibold text-sm">{member.name}</h3>
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                    {/* CENTER: Name, Role, Phone */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-white font-bold text-sm leading-tight">{member.name}</h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className={`text-xs font-bold px-2 py-1 rounded-md truncate ${
                           member.role === 'admin' ? 'bg-[#00FFB2]/20 text-[#00FFB2]' :
                           member.role === 'treasurer' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' :
                           'bg-[#9CA3AF]/20 text-[#9CA3AF]'
                         }`}>
-                          {member.role || 'Member'}
+                          {member.role ? member.role.charAt(0).toUpperCase() + member.role.slice(1) : 'Member'}
                         </span>
+                        {(member.status === 'suspended' || member.credit_score < 50) && (
+                          <span className="text-xs font-bold px-2 py-1 rounded-md bg-[#EF4444]/20 text-[#EF4444]">Defaulter</span>
+                        )}
                       </div>
-                      <p className="text-[#9CA3AF] text-xs">{member.phone || 'N/A'}</p>
-                      {isDefaulter && <p className="text-[#EF4444] text-xs font-semibold mt-0.5">Defaulter</p>}
+                      <p className="text-[#9CA3AF] text-xs mt-1">{member.phone || 'No phone'}</p>
                     </div>
 
-                    {/* Financial */}
-                    <div className="text-right text-xs">
-                      <p className="text-[#9CA3AF] mb-1">Contributions</p>
-                      <p className="text-white font-semibold">KES {(member.contributions_total || 0).toLocaleString()}</p>
-                      <p className="text-[#9CA3AF] mt-2 mb-1">Loan</p>
-                      <p className="text-white font-semibold">KES {(member.loan_balance || 0).toLocaleString()}</p>
+                    {/* RIGHT: Financial Stats */}
+                    <div className="text-right text-xs flex-shrink-0 mr-2">
+                      <p className="text-[#9CA3AF] text-xs mb-1">Contributions</p>
+                      <p className="text-[#00D084] font-bold text-sm">KES {(member.contributions_total || 0).toLocaleString()}</p>
+                      <p className="text-[#9CA3AF] text-xs mt-3 mb-1">Loan</p>
+                      <p className="text-[#3B82F6] font-bold text-sm">KES {(member.loan_balance || 0).toLocaleString()}</p>
                     </div>
 
-                    {/* Menu */}
+                    {/* FAR RIGHT: Menu */}
                     <button className="p-2 text-[#9CA3AF] hover:text-white hover:bg-white/10 rounded-lg transition flex-shrink-0">
                       <MoreVertical size={18} />
                     </button>
