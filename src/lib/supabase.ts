@@ -320,7 +320,7 @@ export async function createMemberFromSignUp(
   userId: string,
   fullName: string,
   phone: string,
-  email: string,
+  email?: string,
   inviteCode?: string
 ) {
   if (!userId || typeof userId !== 'string') {
@@ -340,10 +340,6 @@ export async function createMemberFromSignUp(
 
   if (!normalizedPhone) {
     throw new Error('Phone number is required');
-  }
-
-  if (!trimmedEmail) {
-    throw new Error('Email is required');
   }
 
   try {
@@ -385,26 +381,53 @@ export async function createMemberFromSignUp(
       chamaId = chama.id;
     }
 
+    // Prepare member record - email is optional (will be added via migration)
+    const memberData: any = {
+      user_id: userId,
+      name: trimmedName,
+      phone: normalizedPhone,
+      chama_id: chamaId,
+      status: 'active',
+      role: 'member',
+      credit_score: 50,
+    };
+
+    // Add email if provided
+    if (trimmedEmail) {
+      memberData.email = trimmedEmail;
+    }
+
     // Create member record with all required fields (issue #39, #40, #41, #43, #44)
     const { data, error } = await supabase
       .from('members')
-      .insert([
-        {
-          user_id: userId,
-          name: trimmedName,
-          phone: normalizedPhone,
-          email: trimmedEmail,
-          chama_id: chamaId,
-          status: 'active',
-          role: 'member',
-          credit_score: 50,
-        },
-      ])
+      .insert([memberData])
       .select()
       .single();
 
     if (error) {
       console.error('[createMemberFromSignUp] Database insert error:', error.message);
+      // If error mentions email column doesn't exist, retry without email
+      if (error.message?.includes('email') && trimmedEmail) {
+        console.log('[createMemberFromSignUp] Email column may not exist, retrying without email...');
+        delete memberData.email;
+        const { data: retryData, error: retryError } = await supabase
+          .from('members')
+          .insert([memberData])
+          .select()
+          .single();
+        
+        if (retryError) {
+          throw new Error(`Failed to create user profile: ${retryError.message}`);
+        }
+        
+        if (!retryData?.id) {
+          throw new Error('Member profile was not created properly');
+        }
+
+        console.warn('[createMemberFromSignUp] Email column not available. Run ADD_EMAIL_TO_MEMBERS.sql migration to enable email-based signin.');
+        return retryData as Member;
+      }
+      
       throw new Error(`Failed to create user profile: ${error.message}`);
     }
 
