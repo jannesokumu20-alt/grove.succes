@@ -15,7 +15,463 @@ import { useToast } from '@/hooks/useToast';
 import { useChamaStore } from '@/store/useChamaStore';
 import { getMembers, addMember } from '@/lib/supabase';
 import { formatDate, isValidPhoneNumber } from '@/lib/utils';
-import { Plus, Search, Phone, Calendar, MoreVertical, Menu, Bell, Filter, Settings, X, ArrowDown, Zap, AlertCircle, Send, Upload } from 'lucide-react';
+import { Plus, Search, Phone, Calendar, MoreVertical, Menu, Bell, Settings, X, ArrowDown, Check, AlertCircle, Zap } from 'lucide-react';
+
+export default function MembersPage() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const { role, isLoading: rbacLoading } = useRBAC();
+  const toast = useToast();
+  const chama = useChamaStore((state) => state.chama);
+  const [members, setMembers] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [isFabExpanded, setIsFabExpanded] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    phone: '',
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (rbacLoading) return;
+
+    const loadMembers = async () => {
+      if (!chama) {
+        router.push('/dashboard');
+        return;
+      }
+
+      try {
+        const data = await getMembers(chama.id);
+        setMembers(data);
+      } catch (error: any) {
+        toast.error(error.message || 'Failed to load members');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadMembers();
+  }, [chama, router, toast, rbacLoading]);
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = 'Full name is required';
+    }
+
+    if (!formData.phone) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!isValidPhoneNumber(formData.phone)) {
+      newErrors.phone = 'Invalid Kenyan phone number';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleAddMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm() || !chama) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const newMember = await addMember(chama.id, formData.fullName, formData.phone);
+      setMembers([newMember, ...members]);
+      setFormData({ fullName: '', phone: '' });
+      setIsModalOpen(false);
+      toast.success('Member added successfully!');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to add member');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const filteredMembers = members.filter((member) => {
+    const matchesSearch = (member?.name || '').toLowerCase().includes((searchTerm || '').toLowerCase());
+    const matchesStatus = statusFilter === 'all' || member?.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const totalMembers = members.length;
+  const activeCount = members.filter(m => m.status === 'active').length;
+  const defaulterCount = members.filter(m => m.status === 'suspended' || m.credit_score < 50).length;
+  const newThisMonth = members.filter(m => {
+    const joinDate = new Date(m.joined_at || m.created_at);
+    const now = new Date();
+    return joinDate.getMonth() === now.getMonth() && joinDate.getFullYear() === now.getFullYear();
+  }).length;
+
+  return (
+    <div className="min-h-screen" style={{
+      background: 'linear-gradient(180deg, #0A0F1C 0%, #05070F 100%)',
+      position: 'relative',
+    }}>
+      {/* Subtle radial glow */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: '50%',
+        width: '600px',
+        height: '600px',
+        background: 'radial-gradient(circle, rgba(0,255,178,0.05) 0%, transparent 70%)',
+        transform: 'translate(-50%, -50%)',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }}></div>
+
+      <Navbar />
+      <Sidebar />
+      <BottomNav />
+
+      <main className="flex-1 md:ml-64 min-h-screen pt-[70px] md:pt-6 pb-32 md:pb-6 relative z-10">
+        <div className="w-full px-4 md:max-w-6xl mx-auto py-6">
+          
+          {/* HEADER SECTION */}
+          <div className="flex items-start justify-between mb-8">
+            <div>
+              <h1 className="text-[32px] font-bold text-white">Members</h1>
+              <p className="text-[#9CA3AF] text-sm mt-1">Manage your chama members</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button className="relative p-2.5 rounded-lg hover:bg-white/5 transition">
+                <Bell size={20} className="text-[#9CA3AF]" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#00FFB2] rounded-full"></span>
+              </button>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="px-4 py-2 bg-gradient-to-r from-[#00FFB2] to-[#00D4AA] rounded-lg text-black text-sm font-semibold flex items-center gap-2 hover:shadow-lg transition"
+                style={{
+                  boxShadow: '0 0 20px rgba(0,255,178,0.3)',
+                }}
+              >
+                <Plus size={18} />
+                Add Member
+              </button>
+            </div>
+          </div>
+
+          {/* STATS CARDS - STACKED HORIZONTAL */}
+          <div className="space-y-4 mb-8">
+            {/* Total Members */}
+            <div className="flex items-center gap-4 px-5 py-4 rounded-[18px] h-[90px]" style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(0, 255, 178, 0.3)',
+              backdropFilter: 'blur(12px)',
+              boxShadow: '0 0 30px rgba(0, 255, 178, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+            }}>
+              <div className="flex-1">
+                <p className="text-[#9CA3AF] text-xs font-semibold tracking-wide mb-1">Total Members</p>
+                <p className="text-3xl font-bold text-white">{totalMembers}</p>
+              </div>
+              <div className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0" style={{
+                background: 'rgba(0, 255, 178, 0.1)',
+                boxShadow: '0 0 20px rgba(0, 255, 178, 0.2)',
+              }}>
+                <span className="text-2xl">👥</span>
+              </div>
+            </div>
+
+            {/* Active Members */}
+            <div className="flex items-center gap-4 px-5 py-4 rounded-[18px] h-[90px]" style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(59, 130, 246, 0.3)',
+              backdropFilter: 'blur(12px)',
+              boxShadow: '0 0 30px rgba(59, 130, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+            }}>
+              <div className="flex-1">
+                <p className="text-[#9CA3AF] text-xs font-semibold tracking-wide mb-1">Active Members</p>
+                <p className="text-3xl font-bold text-white">{activeCount}</p>
+              </div>
+              <div className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0" style={{
+                background: 'rgba(59, 130, 246, 0.1)',
+                boxShadow: '0 0 20px rgba(59, 130, 246, 0.2)',
+              }}>
+                <Check size={28} className="text-[#3B82F6]" />
+              </div>
+            </div>
+
+            {/* Defaulters */}
+            <div className="flex items-center gap-4 px-5 py-4 rounded-[18px] h-[90px]" style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              backdropFilter: 'blur(12px)',
+              boxShadow: '0 0 30px rgba(239, 68, 68, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+            }}>
+              <div className="flex-1">
+                <p className="text-[#9CA3AF] text-xs font-semibold tracking-wide mb-1">Defaulters</p>
+                <p className="text-3xl font-bold text-white">{defaulterCount}</p>
+              </div>
+              <div className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0" style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                boxShadow: '0 0 20px rgba(239, 68, 68, 0.2)',
+              }}>
+                <AlertCircle size={28} className="text-[#EF4444]" />
+              </div>
+            </div>
+
+            {/* New This Month */}
+            <div className="flex items-center gap-4 px-5 py-4 rounded-[18px] h-[90px]" style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(168, 85, 247, 0.3)',
+              backdropFilter: 'blur(12px)',
+              boxShadow: '0 0 30px rgba(168, 85, 247, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+            }}>
+              <div className="flex-1">
+                <p className="text-[#9CA3AF] text-xs font-semibold tracking-wide mb-1">New This Month</p>
+                <p className="text-3xl font-bold text-white">{newThisMonth}</p>
+              </div>
+              <div className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0" style={{
+                background: 'rgba(168, 85, 247, 0.1)',
+                boxShadow: '0 0 20px rgba(168, 85, 247, 0.2)',
+              }}>
+                <span className="text-2xl">✨</span>
+              </div>
+            </div>
+          </div>
+
+          {/* SEARCH & FILTER SECTION */}
+          <div className="mb-6 space-y-4">
+            {/* Search Bar */}
+            <div className="flex items-center gap-3 px-4 rounded-[14px] h-[48px]" style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(8px)',
+            }}>
+              <Search size={18} className="text-[#9CA3AF] flex-shrink-0" />
+              <input
+                type="text"
+                placeholder="Search by name, phone or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="flex-1 bg-transparent text-white placeholder-[#9CA3AF] text-sm focus:outline-none"
+              />
+              <button className="p-2 rounded-lg flex-shrink-0" style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}>
+                <Settings size={16} className="text-[#9CA3AF]" />
+              </button>
+            </div>
+
+            {/* Filter Tabs */}
+            <div className="flex flex-wrap gap-2">
+              {['all', 'active', 'inactive', 'suspended'].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setStatusFilter(status)}
+                  className={`h-[40px] px-4 rounded-full text-sm font-medium transition ${
+                    statusFilter === status
+                      ? 'text-black'
+                      : 'text-[#9CA3AF]'
+                  }`}
+                  style={statusFilter === status ? {
+                    background: 'linear-gradient(90deg, #00FFB2 0%, #00D4AA 100%)',
+                    boxShadow: '0 0 15px rgba(0, 255, 178, 0.4)',
+                  } : {
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                  }}
+                >
+                  {status === 'all' ? 'All Members' : status.charAt(0).toUpperCase() + status.slice(1)}
+                </button>
+              ))}
+            </div>
+
+            {/* Sort Button */}
+            <button className="flex items-center gap-2 px-4 h-[40px] rounded-full text-sm text-[#9CA3AF] font-medium" style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(8px)',
+            }}>
+              <Settings size={14} />
+              Newest First
+              <ArrowDown size={12} />
+            </button>
+          </div>
+
+          {/* MEMBERS LIST */}
+          {isLoading ? (
+            <div className="text-center py-12">
+              <p className="text-[#9CA3AF]">Loading members...</p>
+            </div>
+          ) : filteredMembers.length === 0 ? (
+            <div className="rounded-[18px] p-12 text-center" style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(12px)',
+            }}>
+              <p className="text-[#9CA3AF] mb-4">No members found</p>
+              <Button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-gradient-to-r from-[#00FFB2] to-[#00D4AA] text-black font-semibold py-2 px-4 rounded-lg"
+              >
+                Add First Member
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredMembers.map((member) => {
+                const initials = member.name?.split(' ').map((n: string) => n[0]).join('') || '?';
+                const isDefaulter = member.status === 'suspended' || member.credit_score < 50;
+                const isActive = member.status === 'active' && !isDefaulter;
+                
+                return (
+                  <div
+                    key={member.id}
+                    className="flex items-center gap-4 px-4 py-3.5 rounded-[16px] h-[85px] transition hover:bg-white/5"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      backdropFilter: 'blur(12px)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {/* Left Colored Line */}
+                    <div className="absolute left-0 top-0 bottom-0 w-1" style={{
+                      background: isDefaulter ? '#EF4444' : isActive ? '#00FFB2' : '#9CA3AF',
+                    }}></div>
+
+                    {/* Avatar */}
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-sm ml-1" style={{
+                      background: isDefaulter 
+                        ? 'rgba(239, 68, 68, 0.2)' 
+                        : 'rgba(0, 255, 178, 0.2)',
+                    }}>
+                      {initials}
+                    </div>
+
+                    {/* Center Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-white font-semibold text-sm">{member.name}</h3>
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full`} style={{
+                          background: member.role === 'admin' ? 'rgba(0, 255, 178, 0.15)' :
+                                      member.role === 'treasurer' ? 'rgba(59, 130, 246, 0.15)' :
+                                      'rgba(156, 163, 175, 0.15)',
+                          color: member.role === 'admin' ? '#00FFB2' :
+                                 member.role === 'treasurer' ? '#3B82F6' :
+                                 '#9CA3AF',
+                        }}>
+                          {member.role || 'Member'}
+                        </span>
+                      </div>
+                      <p className="text-[#9CA3AF] text-xs">{member.phone || 'N/A'}</p>
+                    </div>
+
+                    {/* Right Financials */}
+                    <div className="text-right text-xs flex-shrink-0">
+                      <p className="text-[#9CA3AF] mb-0.5 text-xs">Contributions</p>
+                      <p className="text-[#00FFB2] font-semibold">KES {(member.contributions_total || 0).toLocaleString()}</p>
+                      <p className="text-[#9CA3AF] mt-1.5 mb-0.5 text-xs">Loan</p>
+                      <p className="text-[#3B82F6] font-semibold">KES {(member.loan_balance || 0).toLocaleString()}</p>
+                    </div>
+
+                    {/* Menu */}
+                    <button className="p-2 text-[#9CA3AF] hover:text-[#00FFB2] hover:bg-white/10 rounded-lg transition flex-shrink-0">
+                      <MoreVertical size={16} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* FAB - FIXED POSITION */}
+        {isFabExpanded && (
+          <div className="fixed bottom-28 right-4 space-y-3 flex flex-col items-center animate-in fade-in slide-in-from-bottom-2 duration-200 z-50">
+            <button className="w-14 h-14 rounded-full bg-gradient-to-br from-[#00FFB2] to-[#00D4AA] flex items-center justify-center text-black shadow-lg transition hover:scale-110" style={{
+              boxShadow: '0 8px 20px rgba(0, 255, 178, 0.3)',
+            }}>
+              <ArrowDown size={22} />
+            </button>
+            <button className="w-14 h-14 rounded-full bg-gradient-to-br from-[#3B82F6] to-[#2563EB] flex items-center justify-center text-white shadow-lg transition hover:scale-110" style={{
+              boxShadow: '0 8px 20px rgba(59, 130, 246, 0.3)',
+            }}>
+              <Zap size={22} />
+            </button>
+            <button className="w-14 h-14 rounded-full bg-gradient-to-br from-[#EF4444] to-[#DC2626] flex items-center justify-center text-white shadow-lg transition hover:scale-110" style={{
+              boxShadow: '0 8px 20px rgba(239, 68, 68, 0.3)',
+            }}>
+              <AlertCircle size={22} />
+            </button>
+            <button className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A855F7] to-[#9333EA] flex items-center justify-center text-white shadow-lg transition hover:scale-110" style={{
+              boxShadow: '0 8px 20px rgba(168, 85, 247, 0.3)',
+            }}>
+              <span className="text-xl">✉️</span>
+            </button>
+            <button className="w-14 h-14 rounded-full bg-gradient-to-br from-[#FB923C] to-[#EA580C] flex items-center justify-center text-white shadow-lg transition hover:scale-110" style={{
+              boxShadow: '0 8px 20px rgba(251, 146, 60, 0.3)',
+            }}>
+              <span className="text-xl">📤</span>
+            </button>
+          </div>
+        )}
+
+        {/* Main FAB Button */}
+        <button
+          onClick={() => setIsFabExpanded(!isFabExpanded)}
+          className="fixed w-14 h-14 rounded-full flex items-center justify-center text-black font-bold transition hover:scale-105 z-50"
+          style={{
+            bottom: '80px',
+            right: '20px',
+            background: 'linear-gradient(135deg, #00FFB2 0%, #00D4AA 100%)',
+            boxShadow: '0 10px 25px rgba(0, 255, 178, 0.3)',
+          }}
+        >
+          {isFabExpanded ? <X size={24} /> : <Plus size={24} />}
+        </button>
+      </main>
+
+      {/* Add Member Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Add New Member"
+      >
+        <form onSubmit={handleAddMember} className="space-y-4">
+          <Input
+            label="Full Name"
+            placeholder="John Doe"
+            value={formData.fullName}
+            onChange={(e) =>
+              setFormData({ ...formData, fullName: e.target.value })
+            }
+            error={errors.fullName}
+          />
+
+          <Input
+            label="Phone Number"
+            placeholder="+254712345678 or 0712345678"
+            value={formData.phone}
+            onChange={(e) =>
+              setFormData({ ...formData, phone: e.target.value })
+            }
+            error={errors.phone}
+          />
+
+          <Button
+            type="submit"
+            className="w-full bg-gradient-to-r from-[#00FFB2] to-[#00D4AA] text-black font-semibold py-2 rounded-lg"
+            isLoading={isSubmitting}
+          >
+            Add Member
+          </Button>
+        </form>
+      </Modal>
+    </div>
+  );
+}
 
 export default function MembersPage() {
   const router = useRouter();
