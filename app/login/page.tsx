@@ -77,6 +77,9 @@ export default function LoginPage() {
         return;
       }
 
+      // Wait a short moment for auth state to propagate
+      await new Promise(resolve => setTimeout(resolve, 300));
+
       // Check if user is a chama owner
       const { data: chamaData, error: chamaError } = await supabase
         .from('chamas')
@@ -147,7 +150,7 @@ export default function LoginPage() {
         console.error('Member linking error:', err);
       }
 
-      // No chama or member found
+      // No chama or member found - redirect to dashboard
       toast_service.success('Logged in successfully!');
       toast.dismiss(loadingToastId);
       router.replace('/dashboard');

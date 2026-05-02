@@ -138,8 +138,29 @@ export default function SignupPage() {
       );
 
       console.log('Chama created successfully');
-      toast.success('Account created successfully! Check your email to confirm.');
-      setTimeout(() => router.push('/login'), 2000);
+      toast.success('Account created successfully! Redirecting...');
+      
+      // Attempt to sign in the user immediately after signup
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (signInError) {
+        console.log('Auto-signin failed, redirecting to login:', signInError.message);
+        // If auto-signin fails, redirect to login
+        router.replace('/login');
+        return;
+      }
+
+      if (signInData.session) {
+        console.log('Auto-signin successful, redirecting to dashboard');
+        // User signed in successfully, redirect to dashboard
+        router.replace('/dashboard');
+      } else {
+        console.log('No session after signup signin, redirecting to login');
+        router.replace('/login');
+      }
     } catch (error: any) {
       console.error('Signup error:', error);
       toast.error(error.message || 'An error occurred during signup');
