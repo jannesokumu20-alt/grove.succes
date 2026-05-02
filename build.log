@@ -19,7 +19,7 @@
 Route (app)                              Size     First Load JS
 Γöî Γùï /                                    787 B           152 kB
 Γö£ Γùï /_not-found                          138 B          87.5 kB
-Γö£ Γùï /announcements                       2.44 kB         174 kB
+Γö£ Γùï /announcements                       2.44 kB         173 kB
 Γö£ ╞Æ /api/payments/callback               0 B                0 B
 Γö£ ╞Æ /api/payments/initiate               0 B                0 B
 Γö£ ╞Æ /api/reminders/check                 0 B                0 B
