@@ -403,32 +403,52 @@ export async function createMemberFromSignUp(
       const personalChamaName = `${trimmedName}'s Personal Chama`;
       const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
       
+      const chamaPayload = {
+        user_id: userId,
+        name: personalChamaName,
+        invite_code: randomCode,
+        contribution_amount: 0,
+        savings_goal: 0,
+        status: 'active',
+      };
+      
+      console.log('[createMemberFromSignUp] Creating chama with payload:', {
+        user_id: userId,
+        name: personalChamaName,
+        invite_code: randomCode,
+      });
+      
       const { data: newChama, error: chamaCreateError } = await supabase
         .from('chamas')
-        .insert([
-          {
-            user_id: userId,
-            name: personalChamaName,
-            invite_code: randomCode,
-            contribution_amount: 0,
-            savings_goal: 0,
-            status: 'active',
-          },
-        ])
+        .insert([chamaPayload])
         .select('id')
         .single();
       
       if (chamaCreateError) {
-        console.error('[createMemberFromSignUp] Failed to create personal chama:', chamaCreateError.message);
-        throw new Error('Failed to create user profile - could not initialize chama');
+        console.error('[createMemberFromSignUp] Chama creation failed:', {
+          message: chamaCreateError.message,
+          code: chamaCreateError.code,
+          details: chamaCreateError.details,
+          hint: chamaCreateError.hint,
+        });
+        
+        // If RLS policy blocks creation, it might be a temporary issue
+        // Try one more time with explicit error handling
+        if (chamaCreateError.message?.includes('policy') || chamaCreateError.code === 'PGRST301') {
+          console.log('[createMemberFromSignUp] RLS policy may be blocking chama creation, checking permissions...');
+          throw new Error('Permission denied: Unable to create chama. Please try again or contact support.');
+        }
+        
+        throw new Error(`Failed to create user profile - could not initialize chama: ${chamaCreateError.message}`);
       }
       
       if (!newChama?.id) {
+        console.error('[createMemberFromSignUp] Chama created but no ID returned:', newChama);
         throw new Error('Personal chama was not created properly');
       }
       
       chamaId = newChama.id;
-      console.log('[createMemberFromSignUp] Personal chama created:', chamaId);
+      console.log('[createMemberFromSignUp] Personal chama created successfully:', chamaId);
     }
 
     // Prepare member record - email is optional (will be added via migration)
