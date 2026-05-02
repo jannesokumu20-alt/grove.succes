@@ -24,19 +24,19 @@ Route (app)                              Size     First Load JS
 Γö£ ╞Æ /api/payments/initiate               0 B                0 B
 Γö£ ╞Æ /api/reminders/check                 0 B                0 B
 Γö£ ╞Æ /api/reminders/send                  0 B                0 B
-Γö£ Γùï /contributions                       3.08 kB         174 kB
-Γö£ Γùï /dashboard                           2.39 kB         168 kB
+Γö£ Γùï /contributions                       3.07 kB         174 kB
+Γö£ Γùï /dashboard                           5.71 kB         169 kB
 Γö£ Γùï /fines                               3.21 kB         174 kB
 Γö£ Γùï /join                                2.86 kB         168 kB
 Γö£ ╞Æ /join/[code]                         2.87 kB         159 kB
-Γö£ Γùï /loans                               3.42 kB         174 kB
-Γö£ Γùï /login                               4.13 kB         156 kB
+Γö£ Γùï /loans                               3.41 kB         174 kB
+Γö£ Γùï /login                               4.15 kB         156 kB
 Γö£ Γùï /meetings                            3.37 kB         174 kB
 Γö£ Γùï /member                              2.07 kB         173 kB
-Γö£ Γùï /members                             3.28 kB         174 kB
+Γö£ Γùï /members                             3.29 kB         174 kB
 Γö£ Γùï /reminders                           3.15 kB         174 kB
 Γö£ Γùï /reports                             2.5 kB          174 kB
-Γö£ Γùï /settings                            7.05 kB         175 kB
+Γö£ Γùï /settings                            4.27 kB         175 kB
 Γöö Γùï /signup                              3.32 kB         169 kB
 + First Load JS shared by all            87.3 kB
   Γö£ chunks/117-3fd4d5d7049ab693.js       31.7 kB

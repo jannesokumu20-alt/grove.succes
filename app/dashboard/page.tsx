@@ -11,7 +11,7 @@ import { useRBAC } from '@/hooks/useRBAC';
 import { useChamaStore } from '@/store/useChamaStore';
 import { getMembers, getContributions, getLoans, getMemberByUserId, supabase } from '@/lib/supabase';
 import { formatCurrency } from '@/lib/utils';
-import { Plus, Users, DollarSign, Banknote, TrendingUp, Activity } from 'lucide-react';
+import { Plus, Users, DollarSign, Banknote, TrendingUp, Activity, Bell, Eye, ArrowDown, ArrowUp, Gift, Calendar } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
@@ -28,6 +28,7 @@ export default function DashboardPage() {
     totalMembers: 0,
     thisMonthContributions: 0,
   });
+  const [showBalance, setShowBalance] = useState(true);
 
   useEffect(() => {
     if (rbacLoading) return;
@@ -113,94 +114,210 @@ export default function DashboardPage() {
 
   if (rbacLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-[#0B1D2A] to-[#07111A] flex items-center justify-center">
         <p className="text-slate-400">Loading...</p>
       </div>
     );
   }
 
+  const userName = user?.email?.split('@')[0] || 'User';
+
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-gradient-to-b from-[#0B1D2A] to-[#07111A]">
       <Navbar />
       <Sidebar />
       <BottomNav />
 
-      <main className="flex-1 md:ml-64 min-h-screen bg-slate-950 pt-[70px] md:pt-6 pb-24 md:pb-6">
-        <div className="w-full max-w-7xl mx-auto px-4 md:px-6 py-6">
-          {/* Welcome Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-              Welcome back, {user?.email?.split('@')[0]}! 👋
-            </h1>
-            <p className="text-slate-400">Here's what's happening in {chama?.name}</p>
+      <main className="flex-1 md:ml-64 min-h-screen bg-gradient-to-b from-[#0B1D2A] to-[#07111A] pt-[70px] md:pt-6 pb-24 md:pb-6">
+        <div className="w-full max-w-4xl mx-auto px-4 py-4 space-y-6">
+          
+          {/* Header Section */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-white text-lg font-semibold">
+                Hello, {userName} 👋
+              </h1>
+              <p className="text-gray-400 text-sm mt-1">
+                Welcome back! Here's what's happening in your chama today.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button className="relative p-2 text-gray-300 hover:text-white">
+                <Bell size={20} />
+                <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+              </button>
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-400 to-teal-400 border-2 border-emerald-300"></div>
+            </div>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <StatCard
-              title="Total Savings"
-              value={formatCurrency(stats.totalSavings)}
-              icon={<DollarSign size={24} />}
-              color="emerald"
-            />
-            <StatCard
-              title="Active Loans"
-              value={formatCurrency(stats.activeLoans)}
-              icon={<Banknote size={24} />}
-              color="blue"
-            />
-            <StatCard
-              title="Total Members"
-              value={stats.totalMembers}
-              icon={<Users size={24} />}
-              color="cyan"
-            />
-            <StatCard
-              title="This Month"
-              value={formatCurrency(stats.thisMonthContributions)}
-              icon={<TrendingUp size={24} />}
-              color="orange"
-            />
+          {/* Main Balance Card */}
+          <div className="bg-gradient-to-br from-emerald-900/40 to-teal-900/40 border border-emerald-700/30 rounded-2xl p-5 shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-gray-400 text-sm">Total Chama Balance</h3>
+              <button 
+                onClick={() => setShowBalance(!showBalance)}
+                className="p-2 hover:bg-white/10 rounded-lg transition"
+              >
+                <Eye size={20} className="text-gray-400" />
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <h2 className="font-bold text-2xl text-white">
+                {showBalance ? formatCurrency(stats.totalSavings) : '••••••'}
+              </h2>
+            </div>
+
+            <div className="flex items-center gap-1 text-emerald-400 text-sm">
+              <ArrowUp size={16} />
+              <span>+12.5% from last month</span>
+            </div>
+
+            {/* Mini Stats Row */}
+            <div className="mt-6 pt-6 border-t border-emerald-700/20 grid grid-cols-3 gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                    <ArrowDown size={16} className="text-emerald-400" />
+                  </div>
+                </div>
+                <p className="text-gray-400 text-xs">Total Contributions</p>
+                <p className="font-bold text-white text-sm">{formatCurrency(stats.totalSavings)}</p>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center">
+                    <Banknote size={16} className="text-orange-400" />
+                  </div>
+                </div>
+                <p className="text-gray-400 text-xs">Total Loans</p>
+                <p className="font-bold text-white text-sm">{formatCurrency(stats.activeLoans)}</p>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
+                    <Gift size={16} className="text-red-400" />
+                  </div>
+                </div>
+                <p className="text-gray-400 text-xs">Total Fines</p>
+                <p className="font-bold text-white text-sm">KSh 2,550.00</p>
+              </div>
+            </div>
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-            <Link
-              href="/contributions"
-              className="w-full bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 block"
-            >
-              <Plus size={20} />
-              <span className="hidden md:inline">Contribution</span>
-            </Link>
-            <Link
-              href="/members"
-              className="w-full bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 block"
-            >
-              <Plus size={20} />
-              <span className="hidden md:inline">Member</span>
-            </Link>
-            <Link
-              href="/loans"
-              className="w-full bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 block"
-            >
-              <Plus size={20} />
-              <span className="hidden md:inline">Loan</span>
-            </Link>
-            <Link
-              href="/meetings"
-              className="w-full bg-gradient-to-br from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 block"
-            >
-              <Plus size={20} />
-              <span className="hidden md:inline">Meeting</span>
-            </Link>
+          <div>
+            <h3 className="text-white font-semibold mb-3">Quick Actions</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <Link
+                href="/contributions"
+                className="bg-[#111827] hover:bg-[#1a2332] rounded-xl p-4 text-center transition flex flex-col items-center justify-center gap-3 border border-slate-700/50"
+              >
+                <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                  <ArrowDown className="text-emerald-400" size={20} />
+                </div>
+                <span className="text-white text-sm font-medium">Contribute</span>
+              </Link>
+
+              <Link
+                href="/loans"
+                className="bg-[#111827] hover:bg-[#1a2332] rounded-xl p-4 text-center transition flex flex-col items-center justify-center gap-3 border border-slate-700/50"
+              >
+                <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                  <Banknote className="text-blue-400" size={20} />
+                </div>
+                <span className="text-white text-sm font-medium">Request Loan</span>
+              </Link>
+
+              <Link
+                href="/members"
+                className="bg-[#111827] hover:bg-[#1a2332] rounded-xl p-4 text-center transition flex flex-col items-center justify-center gap-3 border border-slate-700/50"
+              >
+                <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                  <Users className="text-purple-400" size={20} />
+                </div>
+                <span className="text-white text-sm font-medium">View Members</span>
+              </Link>
+
+              <Link
+                href="/meetings"
+                className="bg-[#111827] hover:bg-[#1a2332] rounded-xl p-4 text-center transition flex flex-col items-center justify-center gap-3 border border-slate-700/50"
+              >
+                <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center">
+                  <Calendar className="text-orange-400" size={20} />
+                </div>
+                <span className="text-white text-sm font-medium">Schedule Meeting</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Upcoming Section */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-white font-semibold">Upcoming</h3>
+              <Link href="/meetings" className="text-emerald-400 text-sm hover:text-emerald-300">View all</Link>
+            </div>
+            <div className="bg-[#111827] border border-slate-700/50 rounded-xl p-4">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                  <Calendar className="text-emerald-400" size={24} />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-white font-medium">Next Meeting</h4>
+                  <p className="text-gray-400 text-sm">Sunday, 25 May 2025 • 10:00 AM</p>
+                  <p className="text-gray-400 text-sm">At Chama Office</p>
+                </div>
+                <div className="bg-emerald-500/20 px-3 py-1 rounded-full flex-shrink-0">
+                  <p className="text-emerald-400 text-xs font-medium">In 3 days</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Recent Activity */}
-          <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-            <h2 className="text-xl font-bold text-white mb-4">Recent Activity</h2>
-            <div className="text-center py-12">
-              <Activity size={48} className="text-slate-600 mx-auto mb-4" />
-              <p className="text-slate-400">No recent activity yet</p>
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-white font-semibold">Recent Activity</h3>
+              <Link href="/dashboard" className="text-emerald-400 text-sm hover:text-emerald-300">View all</Link>
+            </div>
+            <div className="bg-[#111827] border border-slate-700/50 rounded-xl p-4 space-y-4">
+              {/* Activity Item 1 */}
+              <div className="flex items-start gap-3 pb-4 border-b border-slate-700/50">
+                <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                  <ArrowDown className="text-emerald-400" size={18} />
+                </div>
+                <div className="flex-1">
+                  <p className="text-white text-sm font-medium">Jane Wanjiku contributed</p>
+                  <p className="text-gray-400 text-sm">KSh 2,500.00</p>
+                </div>
+                <p className="text-gray-400 text-xs flex-shrink-0">Today, 8:45 AM</p>
+              </div>
+
+              {/* Activity Item 2 */}
+              <div className="flex items-start gap-3 pb-4 border-b border-slate-700/50">
+                <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                  <Banknote className="text-blue-400" size={18} />
+                </div>
+                <div className="flex-1">
+                  <p className="text-white text-sm font-medium">Peter Mwangi requested a loan</p>
+                  <p className="text-gray-400 text-sm">KSh 10,000.00</p>
+                </div>
+                <p className="text-gray-400 text-xs flex-shrink-0">Yesterday, 4:30 PM</p>
+              </div>
+
+              {/* Activity Item 3 */}
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                  <Calendar className="text-purple-400" size={18} />
+                </div>
+                <div className="flex-1">
+                  <p className="text-white text-sm font-medium">May meeting scheduled</p>
+                  <p className="text-gray-400 text-sm">Sunday, 25 May 2025</p>
+                </div>
+                <p className="text-gray-400 text-xs flex-shrink-0">20 May 2025</p>
+              </div>
             </div>
           </div>
         </div>
