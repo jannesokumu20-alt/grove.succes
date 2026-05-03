@@ -117,7 +117,7 @@ export default function DashboardPage() {
     );
   }
 
-  const userName = user?.email?.split('@')[0] || 'User';
+  const userName = chama?.name || user?.email?.split('@')[0] || 'User';
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#020617] via-[#071a2f] to-[#0a2540]">
