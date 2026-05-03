@@ -89,8 +89,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="dashboard-container min-h-screen bg-[#0B1120] text-white pb-20">
-      <div className="header px-4 pt-4 pb-2">
+    <div className="dashboard-container min-h-screen bg-[#061226] text-white">
+      <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-2">
           <div className="bg-slate-800 rounded-full p-2">
             <span className="text-green-400 text-lg">🌿</span>
@@ -105,103 +105,97 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="px-4 mt-2">
-        <h1 className="header-title text-white text-lg font-semibold">Welcome back, {user?.email?.split('@')[0]}!</h1>
-        <p className="header-sub text-gray-400 text-sm mt-1">Here's what's happening in {chama?.name}</p>
+      <div className="mb-6">
+        <h1 className="text-white text-lg font-semibold">Welcome back, {user?.email?.split('@')[0]}!</h1>
+        <p className="text-gray-400 text-sm mt-1">Here's what's happening in {chama?.name}</p>
       </div>
 
-      <div className="px-4 mt-4">
-        <div className="cards-grid">
-          <div className="card green">
-            <p className="card-title">Total Savings</p>
-            <p className="card-value">{formatCurrency(stats.totalSavings)}</p>
-            <div className="card-icon">
-              <DollarSign size={16} className="text-gray-300" />
-            </div>
+      <div className="cards-grid">
+        <div className="card stat-card">
+          <div className="card-label">Total Savings</div>
+          <div className="card-value">{formatCurrency(stats.totalSavings)}</div>
+          <div className="icon-box icon-green">
+            <DollarSign size={18} />
           </div>
+        </div>
 
-          <div className="card blue">
-            <p className="card-title">Active Loans</p>
-            <p className="card-value">{formatCurrency(stats.activeLoans)}</p>
-            <div className="card-icon">
-              <Banknote size={16} className="text-gray-300" />
-            </div>
+        <div className="card stat-card">
+          <div className="card-label">Active Loans</div>
+          <div className="card-value">{formatCurrency(stats.activeLoans)}</div>
+          <div className="icon-box icon-blue">
+            <Banknote size={18} />
           </div>
+        </div>
 
-          <div className="card purple">
-            <p className="card-title">Total Members</p>
-            <p className="card-value">{stats.totalMembers}</p>
-            <div className="card-icon">
-              <Users size={16} className="text-gray-300" />
-            </div>
+        <div className="card stat-card">
+          <div className="card-label">Total Members</div>
+          <div className="card-value">{stats.totalMembers}</div>
+          <div className="icon-box icon-purple">
+            <Users size={18} />
           </div>
+        </div>
 
-          <div className="card orange">
-            <p className="card-title">This Month</p>
-            <p className="card-value">{formatCurrency(stats.thisMonthContributions)}</p>
-            <div className="card-icon">
-              <TrendingUp size={16} className="text-gray-300" />
-            </div>
+        <div className="card stat-card">
+          <div className="card-label">This Month</div>
+          <div className="card-value">{formatCurrency(stats.thisMonthContributions)}</div>
+          <div className="icon-box icon-orange">
+            <TrendingUp size={18} />
           </div>
         </div>
       </div>
 
-      <div className="mx-4">
-        <div className="balance-card">
-          <div className="balance-title">Total Balance</div>
-          <div className="balance-amount">KES 250,000</div>
-          <div className="balance-growth">+12.5% this month</div>
-          <div className="balance-split">
-            <div className="balance-box">
-              <div className="text-gray-400 text-xs">Deposits</div>
-              <div className="text-white text-sm font-semibold">KES 45,000</div>
-            </div>
-            <div className="balance-box">
-              <div className="text-gray-400 text-xs">Withdrawals</div>
-              <div className="text-white text-sm font-semibold">KES 5,000</div>
-            </div>
+      <div className="card balance-card">
+        <div className="card-label">Total Balance</div>
+        <div className="balance-amount">KES 250,000</div>
+        <div className="balance-growth">+12.5% this month</div>
+        <div className="balance-split">
+          <div className="balance-box">
+            <div className="text-gray-400 text-xs font-medium">Deposits</div>
+            <div className="text-white text-sm font-semibold mt-2">KES 45,000</div>
+          </div>
+          <div className="balance-box">
+            <div className="text-gray-400 text-xs font-medium">Withdrawals</div>
+            <div className="text-white text-sm font-semibold mt-2">KES 5,000</div>
           </div>
         </div>
       </div>
 
-      <div className="px-4">
-        <div className="quick-actions">
-          <h2 className="quick-title">Quick Actions</h2>
-          <div className="quick-grid">
-            <div className="quick-btn">
-              <div className="quick-icon">
-                <DollarSign size={20} className="text-gray-300" />
-              </div>
-              <span className="text-white text-sm font-medium">Contribution</span>
+      <div className="mt-6 mb-6">
+        <h2 className="text-white font-semibold text-sm mb-3">Quick Actions</h2>
+        <div className="action-grid">
+          <div className="card action-card">
+            <div className="action-icon">
+              <DollarSign size={24} className="text-green-400" />
             </div>
+            <span className="text-white text-sm font-medium">Contribution</span>
+          </div>
 
-            <div className="quick-btn">
-              <div className="quick-icon">
-                <Users size={20} className="text-gray-300" />
-              </div>
-              <span className="text-white text-sm font-medium">Members</span>
+          <div className="card action-card">
+            <div className="action-icon">
+              <Users size={24} className="text-blue-400" />
             </div>
+            <span className="text-white text-sm font-medium">Members</span>
+          </div>
 
-            <div className="quick-btn">
-              <div className="quick-icon">
-                <Banknote size={20} className="text-gray-300" />
-              </div>
-              <span className="text-white text-sm font-medium">Loans</span>
+          <div className="card action-card">
+            <div className="action-icon">
+              <Banknote size={24} className="text-purple-400" />
             </div>
+            <span className="text-white text-sm font-medium">Loans</span>
+          </div>
 
-            <div className="quick-btn">
-              <div className="quick-icon">
-                <Plus size={20} className="text-gray-300" />
-              </div>
-              <span className="text-white text-sm font-medium">Meeting</span>
+          <div className="card action-card">
+            <div className="action-icon">
+              <Plus size={24} className="text-orange-400" />
             </div>
+            <span className="text-white text-sm font-medium">Meeting</span>
           </div>
         </div>
       </div>
 
-      <div className="px-4">
-        <div className="flex justify-between items-center mb-2">
-          <h2 className="quick-title">Upcoming</h2>
+      <div>
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-white font-semibold text-sm">Upcoming</h2>
           <Link href="#" className="text-green-400 text-sm">View all</Link>
         </div>
         <div className="card">

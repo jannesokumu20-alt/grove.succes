@@ -1,218 +1,145 @@
 /* =========================
-   ROOT THEME
-========================= */
+   GROOVE PREMIUM UI SYSTEM
+   ========================= */
+
 :root {
-  --bg-main: #0b1220;
-  --bg-card: rgba(20, 28, 48, 0.6);
-  --border: rgba(255,255,255,0.08);
-  --text-main: #e6edf3;
-  --text-muted: #9aa4b2;
+  --bg-main: #061226;
+  --bg-card: rgba(255, 255, 255, 0.04);
+  --bg-card-strong: rgba(255, 255, 255, 0.06);
+
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
 
   --green: #22c55e;
   --blue: #3b82f6;
   --purple: #8b5cf6;
   --orange: #f59e0b;
 
-  --radius: 16px;
-  --blur: blur(16px);
+  --radius: 18px;
 }
 
-/* =========================
-   PAGE BACKGROUND
-========================= */
-html, body {
-  background: radial-gradient(circle at top left, #0f172a, #020617);
-  color: var(--text-main);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  margin: 0;
-  padding: 0;
+/* ===== PAGE BACKGROUND ===== */
+body {
+  background: radial-gradient(circle at top, #0a1a35, #030b1c);
+  color: var(--text-primary);
+  font-family: Inter, sans-serif;
 }
 
-/* =========================
-   DASHBOARD CONTAINER
-========================= */
-.dashboard-container {
-  padding: 16px;
-}
-
-/* =========================
-   HEADER
-========================= */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.header-title {
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.header-sub {
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-/* =========================
-   CARD GRID (IMPORTANT)
-========================= */
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-  margin-bottom: 16px;
-}
-
-/* =========================
-   CARD STYLE
-========================= */
+/* ===== CARD BASE ===== */
 .card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.02)
+  );
+  border: 1px solid var(--border-soft);
   border-radius: var(--radius);
-  padding: 16px;
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
+  padding: 18px;
+  backdrop-filter: blur(14px);
 
-  transition: all 0.3s ease;
+  /* DEPTH */
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  transition: all 0.25s ease;
+}
+
+/* ===== REMOVE HEAVY GLOW ===== */
+.card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.6),
+    0 0 12px rgba(34, 197, 94, 0.15);
+}
+
+/* ===== STAT CARDS ===== */
+.stat-card {
   position: relative;
   overflow: hidden;
 }
 
-/* Glow hover */
-.card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255,255,255,0.15);
-}
-
-/* Gradient glow overlay */
-.card::before {
+/* TOP LIGHT LINE */
+.stat-card::before {
   content: "";
   position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent);
-  opacity: 0;
-  transition: 0.3s;
-  pointer-events: none;
+  top: 0;
+  left: 10%;
+  width: 80%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
 }
 
-.card:hover::before {
-  opacity: 1;
-}
-
-.card-inner {
-  position: relative;
-  z-index: 1;
-}
-
-/* =========================
-   CARD CONTENT
-========================= */
-.card-title {
+/* ===== TEXT HIERARCHY ===== */
+.card-label {
   font-size: 12px;
-  color: var(--text-muted);
-  margin-bottom: 8px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 500;
 }
 
 .card-value {
-  font-size: 18px;
+  font-size: 26px;
   font-weight: 700;
-  color: var(--text-main);
+  letter-spacing: 0.5px;
+  color: var(--text-primary);
 }
 
-/* ICON STYLE */
-.card-icon {
+/* ===== ICON CONTAINER ===== */
+.icon-box {
   position: absolute;
-  right: 12px;
   top: 12px;
-  opacity: 0.7;
+  right: 12px;
+
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+
   display: flex;
-  width: 32px;
-  height: 32px;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,0.08);
-  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.05);
 }
 
-/* =========================
-   COLOR VARIANTS
-========================= */
-.card.green {
-  box-shadow: 0 0 20px rgba(34,197,94,0.2);
-}
-.card.blue {
-  box-shadow: 0 0 20px rgba(59,130,246,0.2);
-}
-.card.purple {
-  box-shadow: 0 0 20px rgba(139,92,246,0.2);
-}
-.card.orange {
-  box-shadow: 0 0 20px rgba(245,158,11,0.2);
-}
+/* ICON COLORS */
+.icon-green { background: rgba(34, 197, 94, 0.12); color: var(--green); }
+.icon-blue { background: rgba(59, 130, 246, 0.12); color: var(--blue); }
+.icon-purple { background: rgba(139, 92, 246, 0.12); color: var(--purple); }
+.icon-orange { background: rgba(245, 158, 11, 0.12); color: var(--orange); }
 
-/* =========================
-   BIG BALANCE CARD
-========================= */
+/* ===== BALANCE CARD ===== */
 .balance-card {
-  margin-top: 16px;
-  padding: 20px;
-  border-radius: var(--radius);
-  background: linear-gradient(145deg, rgba(15, 23, 42, 0.8), rgba(2, 6, 23, 0.8));
-  border: 1px solid var(--border);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  position: relative;
-  overflow: hidden;
-}
-
-.balance-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at top right, rgba(34,197,94,0.1), transparent);
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.balance-inner {
-  position: relative;
-  z-index: 1;
-}
-
-.balance-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-main);
-  margin-bottom: 8px;
+  background: linear-gradient(
+    145deg,
+    rgba(16, 185, 129, 0.15),
+    rgba(6, 18, 38, 0.6)
+  );
+  border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
 .balance-amount {
-  font-size: 24px;
+  font-size: 32px;
+  font-weight: 800;
   color: var(--green);
-  margin: 4px 0 8px 0;
-  font-weight: 700;
+  margin: 8px 0;
 }
 
 .balance-growth {
-  font-size: 13px;
   color: var(--green);
+  font-size: 14px;
+  margin-top: 6px;
   font-weight: 500;
 }
 
-/* =========================
-   SPLIT ROW
-========================= */
 .balance-split {
   display: flex;
   justify-content: space-between;
   margin-top: 12px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border-soft);
   padding-top: 12px;
 }
 
@@ -221,90 +148,81 @@ html, body {
   flex: 1;
 }
 
-.balance-box-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-main);
-  margin-bottom: 4px;
-}
-
-.balance-box-value {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-/* =========================
-   QUICK ACTIONS
-========================= */
-.quick-actions {
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
-
-.quick-title {
-  font-size: 14px;
-  margin-bottom: 12px;
-  color: var(--text-main);
-  font-weight: 700;
-}
-
-.quick-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.quick-btn {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 18px 12px;
+/* ===== QUICK ACTIONS ===== */
+.action-card {
   text-align: center;
-  transition: all 0.3s ease;
+  padding: 20px;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-.quick-btn:hover {
-  transform: scale(1.05);
-  border-color: var(--green);
-  box-shadow: 0 0 15px rgba(34,197,94,0.3);
+.action-card:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.6),
+    0 0 10px rgba(34, 197, 94, 0.2);
 }
 
-.quick-icon {
-  font-size: 20px;
-  margin-bottom: 8px;
+.action-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  margin: 0 auto 10px;
+
   display: flex;
-  width: 40px;
-  height: 40px;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,0.08);
-  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.06);
 }
 
-.quick-label {
+/* ===== BOTTOM NAV ===== */
+.bottom-nav {
+  background: rgba(6, 18, 38, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.nav-item {
+  color: var(--text-secondary);
   font-size: 12px;
-  font-weight: 500;
-  color: var(--text-main);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
 
-/* =========================
-   RESPONSIVE (DESKTOP)
-========================= */
+.nav-item.active {
+  color: var(--green);
+  transform: translateY(-2px);
+}
+
+.nav-item.active::before {
+  content: "";
+  display: block;
+  width: 20px;
+  height: 3px;
+  background: var(--green);
+  margin: 0 auto 4px;
+  border-radius: 2px;
+}
+
+/* ===== RESPONSIVE (DESKTOP) ===== */
 @media(min-width: 768px) {
   .cards-grid {
     grid-template-columns: repeat(4, 1fr);
   }
 
-  .quick-grid {
+  .action-grid {
     grid-template-columns: repeat(4, 1fr);
   }
 
@@ -312,4 +230,23 @@ html, body {
     max-width: 1200px;
     margin: auto;
   }
+}
+
+/* ===== DASHBOARD LAYOUT ===== */
+.dashboard-container {
+  padding: 16px;
+  padding-bottom: 120px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
