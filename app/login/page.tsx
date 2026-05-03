@@ -157,7 +157,7 @@ export default function AuthPage() {
                     value={signInPhone}
                     onChange={(e) => setSignInPhone(e.target.value)}
                     disabled={isLoading}
-                    className="w-full pl-12 pr-4 py-3 bg-[#1a2535] border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50"
+                    className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50 pl-12 pr-4"
                   />
                 </div>
               </div>
@@ -173,7 +173,7 @@ export default function AuthPage() {
                     value={signInPassword}
                     onChange={(e) => setSignInPassword(e.target.value)}
                     disabled={isLoading}
-                    className="w-full pl-12 pr-12 py-3 bg-[#1a2535] border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50"
+                    className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50 pl-12 pr-12"
                   />
                   <button
                     type="button"
@@ -264,7 +264,7 @@ export default function AuthPage() {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   disabled={isLoading}
-                  className="w-full px-4 py-3 bg-[#1a2535] border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50"
+                  className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50"
                 />
               </div>
 
@@ -279,7 +279,7 @@ export default function AuthPage() {
                     value={signUpPhone}
                     onChange={(e) => setSignUpPhone(e.target.value)}
                     disabled={isLoading}
-                    className="w-full pl-12 pr-4 py-3 bg-[#1a2535] border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50"
+                    className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50 pl-12 pr-4"
                   />
                 </div>
               </div>
@@ -293,7 +293,7 @@ export default function AuthPage() {
                   value={inviteCode}
                   onChange={(e) => setInviteCode(e.target.value)}
                   disabled={isLoading}
-                  className="w-full px-4 py-3 bg-[#1a2535] border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50"
+                  className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50"
                 />
                 <p className="text-xs text-slate-500 mt-2">Get from your Chama admin</p>
               </div>
@@ -309,7 +309,7 @@ export default function AuthPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isLoading}
-                    className="w-full pl-12 pr-12 py-3 bg-[#1a2535] border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50"
+                    className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50 pl-12 pr-12"
                   />
                   <button
                     type="button"
@@ -333,7 +333,7 @@ export default function AuthPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     disabled={isLoading}
-                    className="w-full pl-12 pr-12 py-3 bg-[#1a2535] border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50"
+                    className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50 pl-12 pr-12"
                   />
                   <button
                     type="button"
@@ -407,3 +407,6 @@ export default function AuthPage() {
     </div>
   );
 }
+
+
+
