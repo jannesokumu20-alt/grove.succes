@@ -255,10 +255,27 @@ export async function signInWithPhone(phone: string, password: string) {
     let authEmail = memberData.email;
     
     if (!authEmail) {
-      // If email not in members table yet (before migration), generate it
-      // This maintains backward compatibility
-      authEmail = generateUniqueEmail(trimmedPhone);
-      console.log('[signInWithPhone] Using generated email (members.email not set):', authEmail);
+      // If email not in members table, retry once with delay (schema cache delay)
+      console.log('[signInWithPhone] Email not found in members table, retrying with delay...');
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      const { data: retryMember, error: retryError } = await supabase
+        .from('members')
+        .select('id, user_id, email')
+        .eq('phone', normalizedPhone)
+        .maybeSingle();
+      
+      if (retryError && retryError.code !== 'PGRST116') {
+        console.error('[signInWithPhone] Retry error:', retryError);
+      }
+      
+      authEmail = retryMember?.email || generateUniqueEmail(trimmedPhone);
+      
+      if (retryMember?.email) {
+        console.log('[signInWithPhone] Email found on retry from members table');
+      } else {
+        console.log('[signInWithPhone] Using generated email (schema cache delay detected)');
+      }
     } else {
       console.log('[signInWithPhone] Using stored email from members table');
     }

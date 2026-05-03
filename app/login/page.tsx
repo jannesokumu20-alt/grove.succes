@@ -26,24 +26,8 @@ export default function AuthPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const session = await getSession();
-        if (session) {
-          const member = await getMemberByUserId(session.user.id);
-          if (member) {
-            router.replace('/dashboard');
-          }
-        }
-      } catch (err) {
-        console.log('Not authenticated, showing login');
-      }
-    };
-
-    checkAuth();
-  }, [router]);
+  // Removed initial auth check from login page - let dashboard handle redirects
+  // This prevents race conditions with auth state initialization
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +53,9 @@ export default function AuthPage() {
         throw new Error('User profile not found. Please sign up first.');
       }
 
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Increased delay to 2 seconds to ensure Zustand store syncs
+      // and any pending database operations complete
+      await new Promise(resolve => setTimeout(resolve, 2000));
       router.push('/dashboard');
     } catch (err: any) {
       console.error('Sign in error:', err.message || err);
@@ -113,7 +99,9 @@ export default function AuthPage() {
 
       await createMemberFromSignUp(user.id, fullName, signUpPhone, user.email, inviteCode);
 
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Increased delay to 2.5 seconds to ensure member record is fully created
+      // and schema cache is updated before dashboard loads
+      await new Promise(resolve => setTimeout(resolve, 2500));
       router.push('/dashboard');
     } catch (err: any) {
       console.error('Sign up error:', err.message || err);

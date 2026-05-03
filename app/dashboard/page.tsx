@@ -31,13 +31,10 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (rbacLoading) return;
+    // Wait for user to be populated by useAuth hook
+    if (!user) return;
 
     const loadData = async () => {
-      if (!user) {
-        console.log('[Dashboard] No user, redirecting to login');
-        router.push('/login');
-        return;
-      }
 
       const member = await getMemberByUserId(user.id);
       if (!member) {
