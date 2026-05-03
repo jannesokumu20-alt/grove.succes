@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/useToast';
 import { useChamaStore } from '@/store/useChamaStore';
 import { getMembers, addMember } from '@/lib/supabase';
 import { formatDate, isValidPhoneNumber, formatCurrency } from '@/lib/utils';
+import { isDevMode } from '@/lib/devMode';
 import { Plus, Search, Phone, Calendar, MoreVertical } from 'lucide-react';
 
 export default function MembersPage() {
@@ -39,8 +40,15 @@ export default function MembersPage() {
     if (rbacLoading) return;
 
     const loadMembers = async () => {
-      if (!chama) {
+      // In dev mode, skip chama check
+      if (!isDevMode() && !chama) {
         router.push('/dashboard');
+        return;
+      }
+
+      // If no chama even in dev mode, exit early
+      if (!chama) {
+        setIsLoading(false);
         return;
       }
 

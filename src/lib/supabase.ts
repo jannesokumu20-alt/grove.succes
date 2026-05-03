@@ -193,6 +193,11 @@ export async function signUpWithPhone(
       console.warn('[signUpWithPhone] No immediate session (may require verification)');
     }
 
+    // Ensure email is set in user object so it gets stored in members table
+    if (data?.user && !data.user.email) {
+      data.user.email = uniqueEmail;
+    }
+
     return data;
   } catch (err: any) {
     console.error('[signUpWithPhone] Error:', err.message || err);
@@ -255,9 +260,9 @@ export async function signInWithPhone(phone: string, password: string) {
     let authEmail = memberData.email;
     
     if (!authEmail) {
-      // If email not in members table, retry once with delay (schema cache delay)
-      console.log('[signInWithPhone] Email not found in members table, retrying with delay...');
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // If email not in members table, retry with longer delay (schema cache delay)
+      console.log('[signInWithPhone] Email not found in members table, retrying with extended delay...');
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       const { data: retryMember, error: retryError } = await supabase
         .from('members')
@@ -269,12 +274,15 @@ export async function signInWithPhone(phone: string, password: string) {
         console.error('[signInWithPhone] Retry error:', retryError);
       }
       
-      authEmail = retryMember?.email || generateUniqueEmail(trimmedPhone);
+      authEmail = retryMember?.email;
       
-      if (retryMember?.email) {
+      if (authEmail) {
         console.log('[signInWithPhone] Email found on retry from members table');
       } else {
-        console.log('[signInWithPhone] Using generated email (schema cache delay detected)');
+        // CRITICAL: If email still not found, throw error instead of generating
+        // This prevents the "different email on every attempt" problem
+        console.error('[signInWithPhone] Email not found in members table for phone:', normalizedPhone);
+        throw new Error('Your account email could not be found. Please sign up again.');
       }
     } else {
       console.log('[signInWithPhone] Using stored email from members table');
@@ -289,12 +297,13 @@ export async function signInWithPhone(phone: string, password: string) {
 
     if (error) {
       if (error.message?.includes('Invalid login credentials')) {
-        throw new Error('Incorrect password. Please try again.');
+        console.error('[signInWithPhone] Auth failed with email:', authEmail);
+        throw new Error('Incorrect phone number or password. Please check and try again.');
       }
       if (error.message?.includes('Email not confirmed')) {
         throw new Error('Please confirm your email before signing in.');
       }
-      console.error('[signInWithPhone] Auth error:', error);
+      console.error('[signInWithPhone] Auth error with email:', authEmail, 'Error:', error);
       throw new Error(`Sign in failed: ${error.message}`);
     }
 
@@ -509,7 +518,7 @@ export async function createMemberFromSignUp(
       console.log('[createMemberFromSignUp] Personal chama created successfully:', chamaId);
     }
 
-    // Prepare member record - email is optional (will be added via migration)
+    // Prepare member record with email (critical for sign in)
     const memberData: any = {
       user_id: userId,
       name: trimmedName,
@@ -520,9 +529,12 @@ export async function createMemberFromSignUp(
       credit_score: 50,
     };
 
-    // Add email if provided
+    // Email MUST be stored in members table for sign in to work
     if (trimmedEmail) {
       memberData.email = trimmedEmail;
+    } else {
+      // If no email provided, generate one and store it
+      memberData.email = generateUniqueEmail(trimmedPhone);
     }
 
     // Create member record with all required fields (issue #39, #40, #41, #43, #44)

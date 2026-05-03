@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { supabase } from '@/lib/supabase';
+import { isDevMode, getMockDevUser } from '@/lib/devMode';
 
 export function useAuth() {
   const router = useRouter();
@@ -15,6 +16,17 @@ export function useAuth() {
     const initializeAuth = async () => {
       setLoading(true);
       try {
+        // Check if development mode is enabled
+        if (isDevMode()) {
+          // In dev mode, use mock user immediately
+          if (isSubscribed) {
+            setUser(getMockDevUser() as any);
+            setLoading(false);
+          }
+          return;
+        }
+
+        // Normal authentication flow
         // First, try to get the current session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
@@ -39,23 +51,30 @@ export function useAuth() {
 
     initializeAuth();
 
-    // Listen for auth state changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event: string, session: any) => {
-        if (isSubscribed) {
-          if (session?.user) {
-            setUser(session.user as any);
-          } else {
-            setUser(null);
+    // Only subscribe to auth changes if not in dev mode
+    if (!isDevMode()) {
+      // Listen for auth state changes
+      const { data: authListener } = supabase.auth.onAuthStateChange(
+        (event: string, session: any) => {
+          if (isSubscribed) {
+            if (session?.user) {
+              setUser(session.user as any);
+            } else {
+              setUser(null);
+            }
+            setLoading(false);
           }
-          setLoading(false);
         }
-      }
-    );
+      );
+
+      return () => {
+        isSubscribed = false;
+        authListener?.subscription?.unsubscribe();
+      };
+    }
 
     return () => {
       isSubscribed = false;
-      authListener?.subscription?.unsubscribe();
     };
   }, [setUser, setLoading]);
 
