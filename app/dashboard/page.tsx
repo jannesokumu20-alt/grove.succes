@@ -149,8 +149,8 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* STAT CARDS - 4 COLUMN GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+          {/* STAT CARDS - 2 COLUMN GRID ON MOBILE */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
             {[
               { label: 'Total Members', value: stats.totalMembers, icon: '👥', color: '#00D084', bgColor: '#0C1A14', glowColor: '#00D084' },
               { label: 'Total Contributions', value: formatCurrency(stats.totalSavings), icon: '📊', color: '#3B82F6', bgColor: '#0C1620', glowColor: '#3B82F6' },
@@ -159,17 +159,17 @@ export default function DashboardPage() {
             ].map((stat, i) => (
               <div
                 key={i}
-                className="rounded-[14px] px-4 py-5 flex flex-col justify-between h-[110px] transition-all hover:scale-105 cursor-pointer group"
+                className="rounded-[14px] p-3 flex flex-col justify-between h-auto transition-all hover:scale-105 cursor-pointer group"
                 style={{
                   background: stat.bgColor,
                   border: `2px solid ${stat.color}`,
                   boxShadow: `0 0 50px ${stat.glowColor}70, 0 0 100px ${stat.glowColor}30, inset 0 1px 2px rgba(255,255,255,0.1)`,
                 }}
               >
-                <div className="flex items-start justify-between">
-                  <div>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
                     <p className="text-[#AEB6C2] text-xs font-bold tracking-widest uppercase leading-tight">{stat.label}</p>
-                    <p className="text-[24px] font-bold text-white mt-2 leading-none" style={{
+                    <p className="text-lg font-bold text-white mt-1 leading-none" style={{
                       textShadow: `0 0 20px ${stat.glowColor}c0`
                     }}>
                       {typeof stat.value === 'number' ? stat.value : stat.value}
@@ -178,14 +178,14 @@ export default function DashboardPage() {
                   <div
                     className="flex items-center justify-center flex-shrink-0 transition-all group-hover:scale-120"
                     style={{
-                      width: '40px',
-                      height: '40px',
+                      width: '36px',
+                      height: '36px',
                       borderRadius: '50%',
                       background: stat.color,
                       boxShadow: `0 0 40px ${stat.color}a0, 0 0 80px ${stat.color}60`,
                     }}
                   >
-                    <span className="text-lg" style={{
+                    <span className="text-base" style={{
                       filter: `drop-shadow(0 0 8px ${stat.glowColor}ff)`
                     }}>
                       {stat.icon}
@@ -267,7 +267,7 @@ export default function DashboardPage() {
                     }}>
                     <Gift size={16} className="text-[#ef4444]" />
                   </div>
-                  <p className="text-[#ffffff] font-semibold text-xs mt-1 text-center">KSh 0.00</p>
+                  <p className="text-[#ffffff] font-semibold text-xs mt-1 text-center">KES 0.00</p>
                   <p className="text-[#94a3b8] text-xs text-center mt-0.5">Fines</p>
                 </div>
               </div>
