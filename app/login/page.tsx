@@ -72,7 +72,8 @@ export default function AuthPage() {
 
       // Use longer delay or event-based approach (issue #19)
       // Wait for session to propagate (especially on slow networks)
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Increased from 500ms to 1500ms to ensure auth listener fires before redirect
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
       // Redirect to dashboard
       router.push('/dashboard');
@@ -125,7 +126,8 @@ export default function AuthPage() {
 
       // Use longer delay or event-based approach (issue #19)
       // Wait for session to propagate
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Increased from 500ms to 1500ms to ensure auth listener fires before redirect
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
       // Redirect to dashboard
       router.push('/dashboard');
