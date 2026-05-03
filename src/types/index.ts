@@ -16,10 +16,13 @@ export interface Member {
   user_id: string | null;
   name: string;
   phone: string;
+  email?: string;
   status: 'active' | 'inactive' | 'suspended';
   credit_score: number;
+  role: 'member' | 'admin' | 'owner';
   joined_at: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface Contribution {
@@ -31,7 +34,9 @@ export interface Contribution {
   year: number;
   note: string | null;
   recorded_by: string;
+  status: 'completed' | 'pending' | 'reversed';
   created_at: string;
+  updated_at: string;
 }
 
 export interface Loan {
@@ -44,18 +49,21 @@ export interface Loan {
   repayment_months: number;
   monthly_payment: number;
   reason: string | null;
-  status: 'pending' | 'approved' | 'paid' | 'overdue';
+  status: 'pending' | 'approved' | 'active' | 'paid' | 'overdue' | 'defaulted';
   approved_by: string | null;
+  approved_at?: string;
+  disbursed_at?: string;
   due_date: string | null;
   created_at: string;
+  updated_at: string;
 }
 
 export interface LoanRepayment {
   id: string;
   loan_id: string;
-  member_id: string;
   amount: number;
-  paid_at: string;
+  payment_date: string;
+  note?: string;
   recorded_by: string;
   created_at: string;
 }
@@ -64,28 +72,34 @@ export interface Fine {
   id: string;
   chama_id: string;
   member_id: string;
-  reason: string;
   amount: number;
-  paid: boolean;
-  paid_at: string | null;
+  reason: string;
+  status: 'pending' | 'paid' | 'waived';
+  due_date?: string;
+  paid_date?: string;
+  recorded_by: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface Meeting {
   id: string;
   chama_id: string;
-  date: string;
-  time: string | null;
-  location: string | null;
-  agenda: string | null;
+  title: string;
+  description?: string;
+  scheduled_date: string;
+  location?: string;
+  status: 'scheduled' | 'completed' | 'cancelled';
+  created_by: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface MeetingAttendance {
   id: string;
   meeting_id: string;
   member_id: string;
-  attended: boolean;
+  attendance_status: 'present' | 'absent' | 'excused';
   created_at: string;
 }
 
@@ -93,22 +107,25 @@ export interface Announcement {
   id: string;
   chama_id: string;
   title: string;
-  message: string;
+  content: string;
+  category?: string;
+  priority: 'low' | 'normal' | 'high' | 'urgent';
   created_by: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface Reminder {
   id: string;
   chama_id: string;
-  member_id: string | null;
-  title: string | null;
-  message: string;
-  reminder_date: string;
-  reminder_type: 'upcoming' | 'due' | 'overdue';
-  sent: boolean;
-  sent_at: string | null;
+  title: string;
+  description?: string;
+  reminder_type: string;
+  scheduled_date: string;
+  status: 'pending' | 'sent' | 'snoozed';
+  created_by: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface MpesaTransaction {
@@ -129,6 +146,46 @@ export interface Share {
   share_count: number;
   share_value: number;
   purchased_at: string;
+  created_at: string;
+}
+
+export interface MemberWallet {
+  id: string;
+  chama_id: string;
+  member_id: string;
+  balance: number;
+  total_contributed: number;
+  total_expected: number;
+  missed_contributions: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ContributionPlan {
+  id: string;
+  chama_id: string;
+  name: string;
+  description?: string;
+  monthly_amount: number;
+  collection_frequency: string;
+  target_amount?: number;
+  status: 'active' | 'paused' | 'completed';
+  created_by: string;
+  start_date?: string;
+  end_date?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Invite {
+  id: string;
+  chama_id: string;
+  invite_code: string;
+  email?: string;
+  created_by: string;
+  expires_at?: string;
+  used: boolean;
+  used_by?: string;
   created_at: string;
 }
 

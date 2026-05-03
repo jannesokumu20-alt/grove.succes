@@ -115,12 +115,14 @@ export default function SignupPage() {
       if (authError) {
         console.error('Auth error:', authError);
         toast.error(authError.message);
+        setIsLoading(false);
         return;
       }
 
       if (!authData.user) {
         console.error('No user returned from signup');
         toast.error('Failed to create account');
+        setIsLoading(false);
         return;
       }
 
@@ -138,12 +140,13 @@ export default function SignupPage() {
       );
 
       console.log('Chama created successfully');
-      toast.success('Account created successfully! Check your email to confirm.');
-      setTimeout(() => router.push('/login'), 2000);
+      toast.success('Account created successfully! Redirecting to login...');
+      setIsLoading(false);
+      // Redirect to login immediately without delay
+      router.push('/login');
     } catch (error: any) {
       console.error('Signup error:', error);
       toast.error(error.message || 'An error occurred during signup');
-    } finally {
       setIsLoading(false);
     }
   };
