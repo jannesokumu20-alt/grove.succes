@@ -87,7 +87,9 @@ export default function LoginPage() {
       if (chamaData) {
         toast_service.success('Logged in successfully!');
         toast.dismiss(loadingToastId);
-        router.replace('/dashboard');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 100);
         return;
       }
 
@@ -101,7 +103,9 @@ export default function LoginPage() {
       if (memberData) {
         toast_service.success('Logged in successfully!');
         toast.dismiss(loadingToastId);
-        router.replace('/member');
+        setTimeout(() => {
+          router.push('/member');
+        }, 100);
         return;
       }
 
@@ -150,7 +154,9 @@ export default function LoginPage() {
       // No chama or member found
       toast_service.success('Logged in successfully!');
       toast.dismiss(loadingToastId);
-      router.replace('/dashboard');
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 100);
     } catch (error: any) {
       toast_service.error(error.message || 'An error occurred during login');
       toast.dismiss(loadingToastId);

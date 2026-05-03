@@ -142,8 +142,10 @@ export default function SignupPage() {
       console.log('Chama created successfully');
       toast.success('Account created successfully! Redirecting to login...');
       setIsLoading(false);
-      // Redirect to login immediately without delay
-      router.push('/login');
+      // Redirect to login with small delay to ensure session is properly established
+      setTimeout(() => {
+        router.push('/login');
+      }, 500);
     } catch (error: any) {
       console.error('Signup error:', error);
       toast.error(error.message || 'An error occurred during signup');
