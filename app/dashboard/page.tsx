@@ -11,6 +11,7 @@ import { useRBAC } from '@/hooks/useRBAC';
 import { useChamaStore } from '@/store/useChamaStore';
 import { getMembers, getContributions, getLoans } from '@/lib/supabase';
 import { formatCurrency } from '@/lib/utils';
+import { isDevMode } from '@/lib/devMode';
 import { Plus, Users, DollarSign, Banknote, TrendingUp, Activity } from 'lucide-react';
 import Link from 'next/link';
 
@@ -32,8 +33,15 @@ export default function DashboardPage() {
     if (rbacLoading) return;
 
     const loadData = async () => {
-      if (!chama || !user) {
+      // In dev mode, skip auth check
+      if (!isDevMode() && (!chama || !user)) {
         router.push('/login');
+        return;
+      }
+
+      // If no chama (even in dev mode), use empty data
+      if (!chama) {
+        setIsLoading(false);
         return;
       }
 

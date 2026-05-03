@@ -1,0 +1,513 @@
+You are upgrading the UI of Grove 
+— a Chama Management Platform.
+
+ABSOLUTE RULES — READ FIRST:
+→ DO NOT touch ANY JavaScript logic
+→ DO NOT change ANY function names
+→ DO NOT modify ANY supabase calls
+→ DO NOT change ANY useState hooks
+→ DO NOT change ANY useEffect hooks
+→ DO NOT change ANY onClick handlers
+→ DO NOT change ANY routing logic
+→ DO NOT change ANY API calls
+→ DO NOT rename ANY variables
+→ DO NOT add ANY hardcoded/fake data
+→ DO NOT add ANY mock numbers
+→ DO NOT add ANY placeholder amounts
+→ ALL data must come from existing
+   variables already in the code
+→ ONLY change className attributes
+→ ONLY change visual layout structure
+→ ONLY change colors and spacing
+→ If unsure about a line → SKIP IT
+
+DESIGN SYSTEM:
+Background: #0B1120
+Card bg: #111827
+Input bg: #1a2535
+Border: #1f2937
+Primary green: #00D084
+Text primary: white
+Text secondary: #9ca3af
+Border radius: rounded-xl (12px)
+
+═══════════════════════════════════
+PAGE 1 — LOGIN PAGE
+═══════════════════════════════════
+
+Find the login page file.
+
+Change ONLY classNames to achieve:
+
+LAYOUT:
+min-h-screen bg-[#0B1120]
+flex flex-col items-center 
+justify-center px-4
+
+TOP SECTION:
+Leaf/logo icon in dark pill:
+bg-slate-800 rounded-full 
+p-4 mb-4 mx-auto w-fit
+
+"Grove" text:
+text-green-400 text-2xl 
+font-bold text-center
+
+Main heading (keep existing text):
+text-white text-2xl font-bold 
+text-center mt-2
+
+Subtitle (keep existing text):
+text-gray-400 text-sm 
+text-center mt-1 mb-6
+
+FORM CONTAINER:
+w-full max-w-sm mx-auto
+
+EACH INPUT WRAPPER:
+relative mb-4
+
+EACH LABEL:
+text-white text-sm font-medium mb-1 block
+
+EACH INPUT:
+w-full bg-[#1a2535] text-white
+border border-slate-700
+rounded-xl py-3 px-4 pl-10
+placeholder-gray-500
+focus:outline-none
+focus:border-green-500
+focus:ring-1 focus:ring-green-500
+
+Add icon positioning wrapper:
+absolute left-3 top-3.5
+text-gray-400 w-4 h-4
+
+SUBMIT BUTTON (keep onClick):
+w-full bg-green-500 
+hover:bg-green-600
+text-white font-semibold
+rounded-xl py-4 mt-2
+transition-colors
+
+BOTTOM LINKS:
+text-gray-400 text-sm text-center mt-4
+Sign up link: text-green-400
+
+Security badge:
+flex items-center justify-center
+gap-2 mt-6
+text-gray-500 text-xs
+
+═══════════════════════════════════
+PAGE 2 — SIGNUP PAGE
+═══════════════════════════════════
+
+Find the signup page file.
+
+Change ONLY classNames:
+
+LAYOUT:
+min-h-screen bg-[#0B1120]
+px-4 py-6
+
+TOP:
+Back arrow: text-white mb-4
+Logo same as login page
+Heading: text-white text-2xl 
+font-bold text-center
+Subtitle: text-gray-400 text-sm 
+text-center mt-1 mb-6
+
+ALL INPUTS same style as login:
+bg-[#1a2535] text-white
+border border-slate-700
+rounded-xl py-3 px-4
+placeholder-gray-500
+focus:outline-none
+focus:border-green-500
+
+BUTTON same as login:
+w-full bg-green-500
+hover:bg-green-600
+text-white font-semibold
+rounded-xl py-4
+
+BOTTOM LINK:
+text-gray-400 text-sm text-center
+Sign in: text-green-400
+
+═══════════════════════════════════
+PAGE 3 — DASHBOARD
+═══════════════════════════════════
+
+Find dashboard page file.
+
+Change ONLY classNames:
+
+OVERALL:
+min-h-screen bg-[#0B1120] pb-20
+
+HEADER SECTION:
+flex justify-between items-center
+px-4 pt-4 pb-2
+
+Left side:
+flex items-center gap-2
+Logo small + "Grove" text-green-400
+
+Right side:
+flex items-center gap-3
+Bell icon button
+Avatar circle:
+w-8 h-8 rounded-full 
+bg-green-500 flex items-center 
+justify-center text-white text-sm
+
+GREETING (use existing name variable):
+px-4 mt-3
+Name: text-white text-lg font-semibold
+Subtitle: text-gray-400 text-sm mt-0.5
+
+STATS CARDS GRID:
+px-4 mt-4
+className="grid grid-cols-2 gap-3"
+
+Each stat card:
+bg-[#111827] rounded-xl p-3
+border border-[#1f2937]
+
+Card inner layout:
+flex justify-between items-start
+
+Card text:
+Label: text-gray-400 text-xs mb-1
+Value: text-white font-bold text-xl
+(use existing data variables)
+Trend: text-green-400 text-xs mt-1
+(only if trend data exists in code)
+
+Card icon:
+w-8 h-8 rounded-lg
+bg-opacity-20 flex items-center 
+justify-center text-sm
+
+RECENT ACTIVITY SECTION:
+px-4 mt-6
+Heading row:
+flex justify-between items-center mb-3
+"Recent Activity": 
+text-white font-semibold
+"View all": text-green-400 text-sm
+
+Each activity item:
+flex items-center gap-3 py-3
+border-b border-slate-800
+
+Avatar:
+w-9 h-9 rounded-full bg-slate-700
+flex items-center justify-center
+text-white text-sm font-medium
+
+Content:
+flex-1
+Title: text-white text-sm font-medium
+Sub: text-gray-400 text-xs mt-0.5
+
+Amount right:
+text-green-400 text-sm font-semibold
+
+QUICK ACTIONS:
+px-4 mt-6
+Heading: text-white font-semibold mb-3
+Grid: grid grid-cols-2 gap-3
+
+Each action button (keep onClick):
+bg-[#111827] rounded-xl p-4
+border border-[#1f2937]
+flex flex-col items-center gap-2
+text-center
+
+Icon wrapper:
+w-10 h-10 rounded-lg
+flex items-center justify-center
+mb-1
+
+Label: text-white text-sm font-medium
+
+═══════════════════════════════════
+PAGE 4 — MEMBERS PAGE
+═══════════════════════════════════
+
+Find members page file.
+
+Change ONLY classNames:
+
+HEADER:
+px-4 pt-4 pb-2
+flex justify-between items-center
+"Members": text-white text-xl font-bold
+Add button (keep onClick):
+bg-green-500 text-white
+rounded-xl px-4 py-2 text-sm
+flex items-center gap-1
+
+SEARCH INPUT:
+px-4 mt-3
+Input: w-full bg-[#1a2535]
+text-white rounded-xl
+border border-slate-700
+py-3 px-4 pl-10
+placeholder-gray-500
+Search icon: absolute left-3
+
+FILTER TABS:
+px-4 mt-3
+flex gap-2 overflow-x-auto
+Hide scrollbar
+
+Each tab (keep onClick):
+px-4 py-1.5 rounded-full text-sm
+Active: bg-green-500 text-white
+Inactive: border border-slate-600
+text-gray-400
+
+MEMBERS LIST:
+px-4 mt-4 space-y-3
+
+Each member card:
+bg-[#111827] rounded-xl p-4
+border border-[#1f2937]
+flex justify-between items-start
+
+Left side:
+flex items-center gap-3
+Avatar: w-10 h-10 rounded-full
+bg-green-800 text-green-300
+flex items-center justify-center
+font-semibold text-sm
+
+Member info:
+Name: text-white font-semibold text-sm
+Role: text-gray-400 text-xs
+Phone: text-gray-400 text-xs
+
+Right side:
+Contributions label: 
+text-gray-400 text-xs
+Amount: text-green-400 
+font-semibold text-sm
+Loan: text-gray-400 text-xs
+Three dots menu button
+
+═══════════════════════════════════
+PAGE 5 — CONTRIBUTIONS PAGE
+═══════════════════════════════════
+
+Find contributions page file.
+
+Change ONLY classNames:
+
+HEADER:
+Same pattern as members page
+"Contributions" title
+"+ Record" green button
+
+STATS CARDS (3 across):
+grid grid-cols-3 gap-2 px-4 mt-4
+
+Each card:
+bg-[#111827] rounded-xl p-3
+border border-[#1f2937]
+Label: text-gray-400 text-xs
+Value: text-white font-bold text-lg
+(use existing variables only)
+
+FILTER ROW:
+flex gap-2 px-4 mt-3
+overflow-x-auto
+
+CONTRIBUTIONS LIST:
+px-4 mt-4 space-y-2
+
+Each item:
+bg-[#111827] rounded-xl p-4
+border border-[#1f2937]
+flex justify-between items-center
+
+Left:
+Avatar + name + date
+Name: text-white text-sm font-medium
+Date: text-gray-400 text-xs
+
+Right:
+Amount: text-green-400 font-bold
+Method badge: 
+bg-blue-900 text-blue-300
+OR bg-orange-900 text-orange-300
+rounded-full px-2 py-0.5 text-xs
+
+═══════════════════════════════════
+PAGE 6 — LOANS PAGE
+═══════════════════════════════════
+
+Find loans page file.
+
+Change ONLY classNames:
+
+HEADER:
+"Loans" title + "New Loan" button
+Same pattern as other pages
+
+STATS (3 cards):
+grid grid-cols-3 gap-2 px-4 mt-4
+Same card style
+
+FILTER TABS:
+All | Active | Repaid | Overdue
+Same tab style as members
+
+LOANS LIST:
+px-4 mt-4 space-y-3
+
+Each loan card:
+bg-[#111827] rounded-xl p-4
+border border-[#1f2937]
+
+Member row:
+flex justify-between items-center
+Name: text-white font-semibold text-sm
+Status badge:
+Active: bg-green-900 text-green-300
+Overdue: bg-red-900 text-red-300
+Repaid: bg-blue-900 text-blue-300
+rounded-full px-2 py-0.5 text-xs
+
+Amount row:
+text-white font-bold text-lg
+Issue date: text-gray-400 text-xs
+
+Progress bar (if repayment data exists):
+w-full bg-slate-700 rounded-full h-1.5 mt-2
+Progress: bg-green-500 rounded-full h-1.5
+
+═══════════════════════════════════
+PAGE 7 — REPORTS PAGE
+═══════════════════════════════════
+
+Find reports page file.
+
+Change ONLY classNames:
+
+HEADER:
+"Reports" title
+Download button right
+
+REPORT CARDS (2x2):
+grid grid-cols-2 gap-3 px-4 mt-4
+
+Each report card:
+bg-[#111827] rounded-xl p-4
+border border-[#1f2937]
+flex flex-col items-center
+gap-2 text-center
+
+Icon wrapper:
+w-12 h-12 rounded-xl
+bg-opacity-20 flex items-center
+justify-center mb-1
+
+Label: text-white text-sm font-medium
+Sub: text-gray-400 text-xs
+
+═══════════════════════════════════
+PAGE 8 — SETTINGS PAGE
+═══════════════════════════════════
+
+Find settings page file.
+
+Change ONLY classNames:
+
+HEADER:
+"Settings" title
+Same pattern
+
+SETTINGS SECTIONS:
+space-y-4 px-4 mt-4
+
+Section heading:
+text-gray-400 text-xs 
+font-semibold uppercase
+tracking-wider mb-2
+
+Each setting item:
+bg-[#111827] rounded-xl
+border border-[#1f2937]
+overflow-hidden
+
+Each row (keep onClick):
+flex justify-between items-center
+p-4 border-b border-slate-800
+last:border-0
+
+Left:
+flex items-center gap-3
+Icon: text-gray-400
+Label: text-white text-sm
+
+Right:
+Chevron: text-gray-400
+OR toggle switch
+
+LOGOUT BUTTON:
+mx-4 mt-6 w-full
+bg-red-900 text-red-400
+rounded-xl py-3
+border border-red-800
+text-center font-medium
+
+═══════════════════════════════════
+BOTTOM NAVIGATION
+═══════════════════════════════════
+
+Find bottom nav component.
+
+Change ONLY classNames:
+
+CONTAINER:
+fixed bottom-0 left-0 right-0
+bg-[#0B1120] border-t border-slate-800
+px-4 py-2 pb-safe
+flex justify-around items-center
+z-50
+
+Each nav item (keep onClick/href):
+flex flex-col items-center gap-1
+py-1 px-3
+
+Active icon: text-green-400
+Inactive icon: text-gray-500
+
+Active label: text-green-400 text-xs
+Inactive label: text-gray-500 text-xs
+
+═══════════════════════════════════
+AFTER ALL CHANGES:
+═══════════════════════════════════
+
+1. Run: npm run build
+   Fix any className syntax errors.
+   Do NOT fix logic errors.
+
+2. Confirm zero build errors.
+
+3. Run:
+   git add .
+   git commit -m "UI upgrade to 
+   dark fintech design"
+   git push origin grove.succes
+
+4. List every file modified.
+
+5. Confirm no logic was changed.
+   Only classNames were modified.

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lock, Phone, Eye, EyeOff, Shield, Mail } from 'lucide-react';
 import { signInWithPhone, signUpWithPhone, createMemberFromSignUp, getSession, getMemberByUserId } from '@/lib/supabase';
+import { isDevMode } from '@/lib/devMode';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -26,8 +27,12 @@ export default function AuthPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Removed initial auth check from login page - let dashboard handle redirects
-  // This prevents race conditions with auth state initialization
+  // In dev mode, redirect to dashboard immediately
+  useEffect(() => {
+    if (isDevMode()) {
+      router.replace('/dashboard');
+    }
+  }, [router]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
