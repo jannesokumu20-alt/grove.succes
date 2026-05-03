@@ -2,7 +2,7 @@
 
 export default function MembersPage() {
   return (
-    <div className="members-page">
+    <main className="members-page" style={{ display: 'flex', flexDirection: 'column' }}>
 
       {/* HEADER */}
       <div className="members-header">
@@ -88,6 +88,6 @@ export default function MembersPage() {
       {/* BOTTOM NAV SPACING */}
       <div className="bottom-space" />
 
-    </div>
+    </main>
   );
 }

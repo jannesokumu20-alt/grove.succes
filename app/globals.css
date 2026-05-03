@@ -236,7 +236,9 @@
     padding: 16px;
     background: radial-gradient(circle at top, #0a1a2f, #020617);
     min-height: 100vh;
+    min-height: 100dvh; /* mobile viewport height */
     color: white;
+    display: block;
   }
 
   /* HEADER */
