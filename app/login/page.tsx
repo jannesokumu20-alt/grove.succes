@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -20,6 +20,31 @@ export default function LoginPage() {
     password: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [session, setSession] = useState<any>(null);
+
+  useEffect(() => {
+    // Get initial session
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+      if (session) {
+        router.push('/dashboard');
+      }
+    };
+    getSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event: any, session: any) => {
+        setSession(session);
+        if (session) {
+          router.push('/dashboard');
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -91,10 +116,6 @@ export default function LoginPage() {
       if (chamaData) {
         toast_service.success('Logged in successfully!');
         toast.dismiss(loadingToastId);
-        console.log('Redirecting to dashboard...');
-        setTimeout(() => {
-          window.location.href = '/dashboard';
-        }, 100);
         return;
       }
 
@@ -110,10 +131,6 @@ export default function LoginPage() {
       if (memberData) {
         toast_service.success('Logged in successfully!');
         toast.dismiss(loadingToastId);
-        console.log('Redirecting to member...');
-        setTimeout(() => {
-          window.location.href = '/member';
-        }, 100);
         return;
       }
 
@@ -149,7 +166,6 @@ export default function LoginPage() {
               await updateMember(matchingMember.id, { user_id: session.user.id });
               toast_service.success('Logged in successfully!');
               toast.dismiss(loadingToastId);
-              router.replace('/member');
               return;
             }
           }
@@ -162,10 +178,6 @@ export default function LoginPage() {
       // No chama or member found
       toast_service.success('Logged in successfully!');
       toast.dismiss(loadingToastId);
-      console.log('No chama or member found, redirecting to dashboard...');
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 100);
     } catch (error: any) {
       toast_service.error(error.message || 'An error occurred during login');
       toast.dismiss(loadingToastId);
