@@ -2,270 +2,433 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import toast from 'react-hot-toast';
-import Button from '@/components/Button';
-import Input from '@/components/Input';
-import { supabase } from '@/lib/supabase';
-import { useToast } from '@/hooks/useToast';
-import { getMemberByEmailAndPhone, updateMember } from '@/lib/supabase';
-import { isValidEmail } from '@/lib/utils';
+import { Lock, Phone, Eye, EyeOff, Shield, Mail } from 'lucide-react';
+import { signInWithPhone, signUpWithPhone, createMemberFromSignUp, getSession, getMemberByUserId } from '@/lib/supabase';
 
-export default function LoginPage() {
+export default function AuthPage() {
   const router = useRouter();
-  const toast_service = useToast();
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [session, setSession] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Get initial session
-    const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      if (session) {
-        router.push('/dashboard');
-      }
-    };
-    getSession();
+  // Sign In form state
+  const [signInEmail, setSignInEmail] = useState('');
+  const [signInPhone, setSignInPhone] = useState('');
+  const [signInPassword, setSignInPassword] = useState('');
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event: any, session: any) => {
-        setSession(session);
-        if (session) {
-          router.push('/dashboard');
-        }
-      }
-    );
+  // Sign Up form state
+  const [fullName, setFullName] = useState('');
+  const [signUpEmail, setSignUpEmail] = useState('');
+  const [signUpPhone, setSignUpPhone] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-    return () => subscription.unsubscribe();
-  }, []);
+  // Removed initial auth check from login page - let dashboard handle redirects
+  // This prevents race conditions with auth state initialization
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.email) {
-      newErrors.email = 'Email is required';
-    } else if (!isValidEmail(formData.email)) {
-      newErrors.email = 'Invalid email address';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+    setError(null);
     setIsLoading(true);
-    const loadingToastId = toast_service.loading('Logging in...');
 
     try {
-      if (!supabase) {
-        throw new Error('Supabase is not configured. Please check your environment variables.');
+      if (!signInPhone.trim()) {
+        throw new Error('Phone number is required');
+      }
+      if (!signInPassword) {
+        throw new Error('Password is required');
       }
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      });
+      const { session, user } = await signInWithPhone(signInPhone, signInPassword);
 
-      if (error) {
-        toast_service.error(error.message);
-        toast.dismiss(loadingToastId);
-        setIsLoading(false);
-        return;
+      if (!session || !user) {
+        throw new Error('Sign in failed. Please try again.');
       }
 
-      // Verify session exists before redirecting
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session) {
-        toast_service.error('Session verification failed. Please try again.');
-        toast.dismiss(loadingToastId);
-        setIsLoading(false);
-        return;
+      const member = await getMemberByUserId(user.id);
+      if (!member) {
+        throw new Error('User profile not found. Please sign up first.');
       }
 
-      console.log('Session verified for user:', session.user.id);
+      // Increased delay to 2 seconds to ensure Zustand store syncs
+      // and any pending database operations complete
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      router.push('/dashboard');
+    } catch (err: any) {
+      console.error('Sign in error:', err.message || err);
+      setError(err.message || 'Failed to sign in. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      // Check if user is a chama owner
-      const { data: chamaData, error: chamaError } = await supabase
-        .from('chamas')
-        .select('id')
-        .eq('user_id', session.user.id)
-        .single();
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
 
-      console.log('Chama data:', chamaData, 'Error:', chamaError);
-
-      if (chamaData) {
-        toast_service.success('Logged in successfully!');
-        toast.dismiss(loadingToastId);
-        return;
+    try {
+      if (!fullName.trim()) {
+        throw new Error('Full name is required');
+      }
+      if (!signUpPhone.trim()) {
+        throw new Error('Phone number is required');
+      }
+      if (!password) {
+        throw new Error('Password is required');
+      }
+      if (password.length < 6) {
+        throw new Error('Password must be at least 6 characters');
+      }
+      if (password.trim() !== confirmPassword.trim()) {
+        throw new Error('Passwords do not match');
       }
 
-      // Check if user is a member
-      const { data: memberData, error: memberError } = await supabase
-        .from('members')
-        .select('id')
-        .eq('user_id', session.user.id)
-        .single();
+      const { session, user } = await signUpWithPhone(signUpPhone, password, fullName);
 
-      console.log('Member data:', memberData, 'Error:', memberError);
-
-      if (memberData) {
-        toast_service.success('Logged in successfully!');
-        toast.dismiss(loadingToastId);
-        return;
+      if (!session || !user) {
+        throw new Error('Sign up failed. Please try again.');
       }
 
-      // If no member found with user_id, check if this user should link to an existing member
-      // (someone who joined via invite code before creating an account)
-      try {
-        // Get the phone number from the user's metadata if available
-        const phoneMetadata = session.user.user_metadata?.phone;
-        
-        if (phoneMetadata) {
-          // Normalize both phone formats for comparison
-          const normalizePhone = (phone: string) => {
-            return phone.replace(/\D/g, '').replace(/^0/, '').replace(/^254/, '');
-          };
-          
-          const normalizedAuthPhone = normalizePhone(phoneMetadata);
-          
-          // Get all unlinked members
-          const { data: unlinkedMembers, error: unlinkedError } = await supabase
-            .from('members')
-            .select('*')
-            .is('user_id', null);
-
-          if (unlinkedMembers && unlinkedMembers.length > 0) {
-            // Find a member with matching normalized phone
-            const matchingMember = unlinkedMembers.find((member: any) => {
-              const normalizedMemberPhone = normalizePhone(member.phone || '');
-              return normalizedMemberPhone === normalizedAuthPhone;
-            });
-
-            if (matchingMember) {
-              // Link this member to the user
-              await updateMember(matchingMember.id, { user_id: session.user.id });
-              toast_service.success('Logged in successfully!');
-              toast.dismiss(loadingToastId);
-              return;
-            }
-          }
-        }
-      } catch (err) {
-        // If linking fails, continue with standard redirect
-        console.error('Member linking error:', err);
+      if (!user.email) {
+        throw new Error('Failed to create user account. Please try again.');
       }
 
-      // No chama or member found
-      toast_service.success('Logged in successfully!');
-      toast.dismiss(loadingToastId);
-    } catch (error: any) {
-      toast_service.error(error.message || 'An error occurred during login');
-      toast.dismiss(loadingToastId);
+      await createMemberFromSignUp(user.id, fullName, signUpPhone, user.email, inviteCode);
+
+      // Increased delay to 2.5 seconds to ensure member record is fully created
+      // and schema cache is updated before dashboard loads
+      await new Promise(resolve => setTimeout(resolve, 2500));
+      router.push('/dashboard');
+    } catch (err: any) {
+      console.error('Sign up error:', err.message || err);
+      setError(err.message || 'Failed to create account. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0B1120] flex flex-col items-center justify-center px-4">
-      <div className="w-full max-w-sm mx-auto">
-        {/* Logo */}
-        <div className="bg-slate-800 rounded-full p-4 mb-4 mx-auto w-fit">
-          <span className="text-2xl">🌿</span>
-        </div>
-        <div className="text-center">
-          <h1 className="text-green-400 text-2xl font-bold text-center">
-            Grove
-          </h1>
-          <p className="text-white text-2xl font-bold text-center mt-2">Welcome Back</p>
-          <p className="text-gray-400 text-sm text-center mt-1 mb-6">Sign in to your account</p>
-        </div>
-
-        {/* Form */}
-        <div className="w-full max-w-sm mx-auto">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative mb-4">
-              <label className="text-white text-sm font-medium mb-1 block">Email Address</label>
-              <div className="absolute left-3 top-3.5 text-gray-400 w-4 h-4">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                </svg>
+    <div className="min-h-screen bg-[#0B1120] flex flex-col items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md">
+        {!isSignUp ? (
+          // SIGN IN FORM
+          <>
+            {/* Logo Section */}
+            <div className="text-center mb-12">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-800/50 border border-slate-700 flex items-center justify-center">
+                <span className="text-4xl">🌿</span>
               </div>
-              <input
-                type="email"
-                placeholder="your@email.com"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                className="w-full bg-[#1a2535] text-white border border-slate-700 rounded-xl py-3 px-4 pl-10 placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-              />
-              {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+              <h1 className="text-3xl font-bold text-green-500 mb-2">Grove</h1>
+              <h2 className="text-2xl font-bold text-white mb-2">Welcome back! 👋</h2>
+              <p className="text-slate-400 text-sm">Sign in to continue to your account</p>
             </div>
 
-            <div className="relative mb-4">
-              <label className="text-white text-sm font-medium mb-1 block">Password</label>
-              <div className="absolute left-3 top-3.5 text-gray-400 w-4 h-4">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-xl">
+                <p className="text-sm text-red-200">{error}</p>
               </div>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                className="w-full bg-[#1a2535] text-white border border-slate-700 rounded-xl py-3 px-4 pl-10 placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-              />
-              {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+            )}
+
+            {/* Sign In Form */}
+            <form onSubmit={handleSignIn} className="space-y-5 mb-8">
+              {/* Email */}
+              <div>
+                <label className="block text-xs font-medium text-white mb-2">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={signInEmail}
+                    onChange={(e) => setSignInEmail(e.target.value)}
+                    disabled={isLoading}
+                    className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50 pl-12 pr-4"
+                  />
+                </div>
+              </div>
+
+              {/* Phone Number */}
+              <div>
+                <label className="block text-xs font-medium text-white mb-2">Phone Number</label>
+                <div className="relative">
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                  <input
+                    type="tel"
+                    placeholder="07XX XXX XXX"
+                    value={signInPhone}
+                    onChange={(e) => setSignInPhone(e.target.value)}
+                    disabled={isLoading}
+                    className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50 pl-12 pr-4"
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-xs font-medium text-white mb-2">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter your password"
+                    value={signInPassword}
+                    onChange={(e) => setSignInPassword(e.target.value)}
+                    disabled={isLoading}
+                    className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50 pl-12 pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={isLoading}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 disabled:opacity-50"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Sign In Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+              >
+                {isLoading ? 'Signing In...' : 'Sign In'}
+              </button>
+            </form>
+
+            {/* Or Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-700"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-[#0B1120] text-slate-500">or</span>
+              </div>
             </div>
 
+            {/* Google Sign In */}
             <button
-              type="submit"
-              className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl py-4 mt-2 transition-colors"
+              type="button"
               disabled={isLoading}
+              className="w-full py-3 border border-slate-700 rounded-xl text-white font-semibold hover:bg-slate-900/50 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 mb-6"
             >
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <text x="0" y="20" fontSize="20" fill="currentColor">G</text>
+              </svg>
+              Sign in with Google
             </button>
-          </form>
 
-          <div className="text-gray-400 text-sm text-center mt-4">
-            Don't have an account?{' '}
-            <Link href="/signup" className="text-green-400">
-              Sign up
-            </Link>
-          </div>
+            {/* Sign Up Link */}
+            <p className="text-center text-slate-400 text-sm">
+              Don't have an account?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSignUp(true);
+                  setError(null);
+                }}
+                className="text-green-500 hover:underline font-medium"
+              >
+                Sign up
+              </button>
+            </p>
+          </>
+        ) : (
+          // SIGN UP FORM
+          <>
+            {/* Logo Section */}
+            <div className="text-center mb-12">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-800/50 border border-slate-700 flex items-center justify-center">
+                <span className="text-4xl">🌿</span>
+              </div>
+              <h1 className="text-3xl font-bold text-green-500 mb-2">Grove</h1>
+              <h2 className="text-2xl font-bold text-white mb-2">Create Account</h2>
+              <p className="text-slate-400 text-sm">Join Grove and manage your Chama</p>
+            </div>
 
-          <div className="flex items-center justify-center gap-2 mt-6 text-gray-500 text-xs">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-            Secure login protected by encryption
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-xl">
+                <p className="text-sm text-red-200">{error}</p>
+              </div>
+            )}
+
+            {/* Sign Up Form */}
+            <form onSubmit={handleSignUp} className="space-y-5 mb-8">
+              {/* Full Name */}
+              <div>
+                <label className="block text-xs font-medium text-white mb-2">Full Name</label>
+                <input
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  disabled={isLoading}
+                  className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50"
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-xs font-medium text-white mb-2">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={signUpEmail}
+                    onChange={(e) => setSignUpEmail(e.target.value)}
+                    disabled={isLoading}
+                    className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50 pl-12 pr-4"
+                  />
+                </div>
+              </div>
+
+              {/* Phone Number */}
+              <div>
+                <label className="block text-xs font-medium text-white mb-2">Phone Number</label>
+                <div className="relative">
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                  <input
+                    type="tel"
+                    placeholder="07XX XXX XXX"
+                    value={signUpPhone}
+                    onChange={(e) => setSignUpPhone(e.target.value)}
+                    disabled={isLoading}
+                    className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50 pl-12 pr-4"
+                  />
+                </div>
+              </div>
+
+              {/* Invite Code */}
+              <div>
+                <label className="block text-xs font-medium text-white mb-2">Invite Code <span className="text-slate-500">(Optional)</span></label>
+                <input
+                  type="text"
+                  placeholder="Enter invite code"
+                  value={inviteCode}
+                  onChange={(e) => setInviteCode(e.target.value)}
+                  disabled={isLoading}
+                  className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50"
+                />
+                <p className="text-xs text-slate-500 mt-2">Get from your Chama admin</p>
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-xs font-medium text-white mb-2">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="6+ characters"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
+                    className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50 pl-12 pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={isLoading}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 disabled:opacity-50"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label className="block text-xs font-medium text-white mb-2">Confirm Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    placeholder="Confirm password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    disabled={isLoading}
+                    className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50 pl-12 pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    disabled={isLoading}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 disabled:opacity-50"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Create Account Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+              >
+                {isLoading ? 'Creating Account...' : 'Create Account'}
+              </button>
+            </form>
+
+            {/* Or Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-700"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-[#0B1120] text-slate-500">or</span>
+              </div>
+            </div>
+
+            {/* Google Sign Up */}
+            <button
+              type="button"
+              disabled={isLoading}
+              className="w-full py-3 border border-slate-700 rounded-xl text-white font-semibold hover:bg-slate-900/50 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 mb-6"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <text x="0" y="20" fontSize="20" fill="currentColor">G</text>
+              </svg>
+              Sign up with Google
+            </button>
+
+            {/* Sign In Link */}
+            <p className="text-center text-slate-400 text-sm">
+              Have an account?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSignUp(false);
+                  setError(null);
+                }}
+                className="text-green-500 hover:underline font-medium"
+              >
+                Sign in
+              </button>
+            </p>
+          </>
+        )}
+
+        {/* Security Badge - Bottom */}
+        <div className="mt-16 pt-8 border-t border-slate-800">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Shield className="w-4 h-4 text-slate-400" />
+            <p className="text-sm text-slate-400 font-medium">Secure. Smart. Built for Chamas.</p>
           </div>
+          <p className="text-xs text-slate-600 text-center">Your data is encrypted and protected.</p>
         </div>
       </div>
     </div>
   );
 }
+
+
+
