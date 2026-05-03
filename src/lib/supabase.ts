@@ -220,14 +220,29 @@ export async function signInWithPhone(phone: string, password: string) {
   const normalizedPhone = normalizePhone(trimmedPhone);
 
   try {
-    // Verify that a member with this phone exists
-    const { data: memberData, error: memberError } = await supabase
+    // Verify that a member with this phone exists and get their stored email
+    let { data: memberData, error: memberError } = await supabase
       .from('members')
-      .select('id, user_id')
+      .select('id, user_id, email')
       .eq('phone', normalizedPhone)
       .maybeSingle();
 
-    if (memberError && memberError.code !== 'PGRST116') {
+    // If email column doesn't exist yet, try without it
+    if (memberError && memberError.message?.includes('email')) {
+      console.log('[signInWithPhone] Email column not in schema, retrying...');
+      const { data: retryData, error: retryError } = await supabase
+        .from('members')
+        .select('id, user_id')
+        .eq('phone', normalizedPhone)
+        .maybeSingle();
+      
+      if (retryError && retryError.code !== 'PGRST116') {
+        throw new Error('Failed to verify account. Please try again.');
+      }
+      
+      memberData = retryData;
+      memberError = null;
+    } else if (memberError && memberError.code !== 'PGRST116') {
       console.error('[signInWithPhone] Member lookup error:', memberError);
       throw new Error('Failed to verify account. Please try again.');
     }
@@ -236,11 +251,19 @@ export async function signInWithPhone(phone: string, password: string) {
       throw new Error('Phone number not found. Please sign up first.');
     }
 
-    // Generate the email that was used during signup
-    // Supabase Auth holds the real password, so we use Supabase Auth to validate it
-    const authEmail = generateUniqueEmail(trimmedPhone);
+    // Determine which email to use for auth
+    let authEmail = memberData.email;
+    
+    if (!authEmail) {
+      // If email not in members table yet (before migration), generate it
+      // This maintains backward compatibility
+      authEmail = generateUniqueEmail(trimmedPhone);
+      console.log('[signInWithPhone] Using generated email (members.email not set):', authEmail);
+    } else {
+      console.log('[signInWithPhone] Using stored email from members table');
+    }
 
-    // Sign in with Supabase Auth using the generated email
+    // Sign in with Supabase Auth using the email
     // This is the ONLY place we validate the password - through Supabase Auth
     const { data, error } = await supabase.auth.signInWithPassword({
       email: authEmail,
