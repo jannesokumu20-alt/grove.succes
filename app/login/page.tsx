@@ -77,6 +77,8 @@ export default function LoginPage() {
         return;
       }
 
+      console.log('Session verified for user:', session.user.id);
+
       // Check if user is a chama owner
       const { data: chamaData, error: chamaError } = await supabase
         .from('chamas')
@@ -84,11 +86,14 @@ export default function LoginPage() {
         .eq('user_id', session.user.id)
         .single();
 
+      console.log('Chama data:', chamaData, 'Error:', chamaError);
+
       if (chamaData) {
         toast_service.success('Logged in successfully!');
         toast.dismiss(loadingToastId);
+        console.log('Redirecting to dashboard...');
         setTimeout(() => {
-          router.push('/dashboard');
+          window.location.href = '/dashboard';
         }, 100);
         return;
       }
@@ -100,11 +105,14 @@ export default function LoginPage() {
         .eq('user_id', session.user.id)
         .single();
 
+      console.log('Member data:', memberData, 'Error:', memberError);
+
       if (memberData) {
         toast_service.success('Logged in successfully!');
         toast.dismiss(loadingToastId);
+        console.log('Redirecting to member...');
         setTimeout(() => {
-          router.push('/member');
+          window.location.href = '/member';
         }, 100);
         return;
       }
@@ -154,8 +162,9 @@ export default function LoginPage() {
       // No chama or member found
       toast_service.success('Logged in successfully!');
       toast.dismiss(loadingToastId);
+      console.log('No chama or member found, redirecting to dashboard...');
       setTimeout(() => {
-        router.push('/dashboard');
+        window.location.href = '/dashboard';
       }, 100);
     } catch (error: any) {
       toast_service.error(error.message || 'An error occurred during login');
