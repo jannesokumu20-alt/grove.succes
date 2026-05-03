@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, Phone, Eye, EyeOff, Shield } from 'lucide-react';
+import { Lock, Phone, Eye, EyeOff, Shield, Mail } from 'lucide-react';
 import { signInWithPhone, signUpWithPhone, createMemberFromSignUp, getSession, getMemberByUserId } from '@/lib/supabase';
 
 export default function AuthPage() {
@@ -14,11 +14,13 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Sign In form state
+  const [signInEmail, setSignInEmail] = useState('');
   const [signInPhone, setSignInPhone] = useState('');
   const [signInPassword, setSignInPassword] = useState('');
 
   // Sign Up form state
   const [fullName, setFullName] = useState('');
+  const [signUpEmail, setSignUpEmail] = useState('');
   const [signUpPhone, setSignUpPhone] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [password, setPassword] = useState('');
@@ -146,6 +148,22 @@ export default function AuthPage() {
 
             {/* Sign In Form */}
             <form onSubmit={handleSignIn} className="space-y-5 mb-8">
+              {/* Email */}
+              <div>
+                <label className="block text-xs font-medium text-white mb-2">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={signInEmail}
+                    onChange={(e) => setSignInEmail(e.target.value)}
+                    disabled={isLoading}
+                    className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50 pl-12 pr-4"
+                  />
+                </div>
+              </div>
+
               {/* Phone Number */}
               <div>
                 <label className="block text-xs font-medium text-white mb-2">Phone Number</label>
@@ -266,6 +284,22 @@ export default function AuthPage() {
                   disabled={isLoading}
                   className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50"
                 />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-xs font-medium text-white mb-2">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={signUpEmail}
+                    onChange={(e) => setSignUpEmail(e.target.value)}
+                    disabled={isLoading}
+                    className="bg-slate-800 text-white placeholder-slate-500 border border-slate-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-green-500 disabled:opacity-50 pl-12 pr-4"
+                  />
+                </div>
               </div>
 
               {/* Phone Number */}
