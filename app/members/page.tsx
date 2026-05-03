@@ -14,7 +14,7 @@ import { useRBAC } from '@/hooks/useRBAC';
 import { useToast } from '@/hooks/useToast';
 import { useChamaStore } from '@/store/useChamaStore';
 import { getMembers, addMember } from '@/lib/supabase';
-import { formatDate, isValidPhoneNumber } from '@/lib/utils';
+import { formatDate, isValidPhoneNumber, formatCurrency } from '@/lib/utils';
 import { Plus, Search, Phone, Calendar, MoreVertical } from 'lucide-react';
 
 export default function MembersPage() {
@@ -104,173 +104,138 @@ export default function MembersPage() {
   const inactiveCount = members.filter(m => m.status !== 'active').length;
 
   return (
-    <div className="min-h-screen bg-slate-950">
-      <Navbar />
-      <Sidebar />
+    <div className="min-h-screen bg-[#0B1120] pb-20">
+      <div className="px-4 pt-4 pb-2">
+        <div className="flex justify-between items-center">
+          <h1 className="text-white text-xl font-bold">Members</h1>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-green-500 text-white rounded-xl px-4 py-2 text-sm flex items-center gap-1"
+          >
+            <Plus size={16} />
+            Add
+          </button>
+        </div>
+      </div>
+
+      <div className="px-4 mt-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-3.5 text-gray-400 w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Search members..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-[#1a2535] text-white rounded-xl border border-slate-700 py-3 px-4 pl-10 placeholder-gray-500 focus:outline-none focus:border-green-500"
+          />
+        </div>
+      </div>
+
+      <div className="px-4 mt-3">
+        <div className="flex gap-2 overflow-x-auto">
+          {['all', 'active'].map((status) => (
+            <button
+              key={status}
+              onClick={() => setStatusFilter(status)}
+              className={`px-4 py-1.5 rounded-full text-sm ${
+                statusFilter === status
+                  ? 'bg-green-500 text-white'
+                  : 'border border-slate-600 text-gray-400'
+              }`}
+            >
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="px-4 mt-4 space-y-3">
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-400">Loading members...</p>
+          </div>
+        ) : filteredMembers.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-400 mb-4">No members found</p>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-green-500 text-white rounded-xl px-4 py-2 text-sm"
+            >
+              Add First Member
+            </button>
+          </div>
+        ) : (
+          filteredMembers.map((member) => (
+            <div
+              key={member.id}
+              className="bg-[#111827] rounded-xl p-4 border border-[#1f2937] flex justify-between items-start"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-green-800 text-green-300 flex items-center justify-center font-semibold text-sm">
+                  {member.name?.charAt(0).toUpperCase() || '?'}
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold text-sm">{member.name}</h3>
+                  <p className="text-gray-400 text-xs">{member.role || 'Member'}</p>
+                  <p className="text-gray-400 text-xs">{member.phone || 'N/A'}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-gray-400 text-xs">Contributions</p>
+                <p className="text-green-400 font-semibold text-sm">
+                  {member.total_contributions ? formatCurrency(member.total_contributions) : 'KES 0'}
+                </p>
+                <p className="text-gray-400 text-xs">Loans</p>
+                <p className="text-green-400 font-semibold text-sm">
+                  {member.active_loans ? formatCurrency(member.active_loans) : 'KES 0'}
+                </p>
+                <button className="text-gray-400 mt-2">
+                  <MoreVertical size={16} />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
       <BottomNav />
 
-      <main className="flex-1 md:ml-64 min-h-screen bg-slate-950 pt-[70px] md:pt-6 pb-24 md:pb-6">
-        <div className="w-full max-w-7xl mx-auto px-4 md:px-6 py-6">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Members</h1>
-                <p className="text-slate-400">Manage and track your chama members</p>
-              </div>
-              <Button
-                onClick={() => setIsModalOpen(true)}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2"
-              >
-                <Plus size={20} />
-                <span className="hidden md:inline">Add Member</span>
-              </Button>
-            </div>
-          </div>
+      {/* Add Member Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Add New Member"
+      >
+        <form onSubmit={handleAddMember} className="space-y-4">
+          <Input
+            label="Full Name"
+            placeholder="John Doe"
+            value={formData.fullName}
+            onChange={(e) =>
+              setFormData({ ...formData, fullName: e.target.value })
+            }
+            error={errors.fullName}
+          />
 
-          {/* Member Count Badges */}
-          <div className="grid grid-cols-3 md:grid-cols-3 gap-3 mb-8">
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
-              <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Total Members</p>
-              <p className="text-2xl font-bold text-white">{members.length}</p>
-            </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
-              <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Active</p>
-              <p className="text-2xl font-bold text-emerald-400">{activeCount}</p>
-            </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
-              <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Inactive</p>
-              <p className="text-2xl font-bold text-orange-400">{inactiveCount}</p>
-            </div>
-          </div>
+          <Input
+            label="Phone Number"
+            placeholder="+254712345678 or 0712345678"
+            value={formData.phone}
+            onChange={(e) =>
+              setFormData({ ...formData, phone: e.target.value })
+            }
+            error={errors.phone}
+          />
 
-          {/* Search and Filters */}
-          <div className="mb-8 space-y-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 text-slate-400" size={20} />
-              <input
-                type="text"
-                placeholder="Search members..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-10 pr-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-600"
-              />
-            </div>
-            <div className="flex gap-2">
-              {['all', 'active'].map((status) => (
-                <button
-                  key={status}
-                  onClick={() => setStatusFilter(status)}
-                  className={`px-4 py-2 rounded-lg font-medium transition ${
-                    statusFilter === status
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-slate-900 text-slate-400 border border-slate-800 hover:border-emerald-600'
-                  }`}
-                >
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Members Grid */}
-          {isLoading ? (
-            <div className="text-center py-12">
-              <p className="text-slate-400">Loading members...</p>
-            </div>
-          ) : filteredMembers.length === 0 ? (
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-12 text-center">
-              <p className="text-slate-400 mb-4">No members found</p>
-              <Button
-                onClick={() => setIsModalOpen(true)}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg"
-              >
-                Add First Member
-              </Button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredMembers.map((member) => (
-                <div
-                  key={member.id}
-                  className="bg-slate-900 border border-slate-800 rounded-lg p-6 hover:border-slate-700 transition"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center text-white font-bold text-lg">
-                      {member.name?.charAt(0).toUpperCase() || '?'}
-                    </div>
-                    <button className="text-slate-400 hover:text-white">
-                      <MoreVertical size={20} />
-                    </button>
-                  </div>
-                  <h3 className="text-lg font-bold text-white mb-1">{member.name}</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-slate-400">
-                      <Phone size={16} />
-                      <span>{member.phone || 'N/A'}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-400">
-                      <Calendar size={16} />
-                      <span>{formatDate(member.joined_at || member.created_at)}</span>
-                    </div>
-                  </div>
-                  <div className="mt-4 flex items-center justify-between">
-                    <Badge
-                      variant={member.status === 'active' ? 'green' : 'yellow'}
-                    >
-                      {member.status || 'active'}
-                    </Badge>
-                    {member.credit_score !== undefined && (
-                      <Badge
-                        variant={member.credit_score >= 75 ? 'green' : member.credit_score >= 50 ? 'yellow' : 'red'}
-                      >
-                        {member.credit_score}/100
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Add Member Modal */}
-        <Modal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          title="Add New Member"
-        >
-          <form onSubmit={handleAddMember} className="space-y-4">
-            <Input
-              label="Full Name"
-              placeholder="John Doe"
-              value={formData.fullName}
-              onChange={(e) =>
-                setFormData({ ...formData, fullName: e.target.value })
-              }
-              error={errors.fullName}
-            />
-
-            <Input
-              label="Phone Number"
-              placeholder="+254712345678 or 0712345678"
-              value={formData.phone}
-              onChange={(e) =>
-                setFormData({ ...formData, phone: e.target.value })
-              }
-              error={errors.phone}
-            />
-
-            <Button
-              type="submit"
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-lg"
-              isLoading={isSubmitting}
-            >
-              Add Member
-            </Button>
-          </form>
-        </Modal>
-      </main>
+          <Button
+            type="submit"
+            className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl py-4"
+            isLoading={isSubmitting}
+          >
+            Add Member
+          </Button>
+        </form>
+      </Modal>
     </div>
   );
 }

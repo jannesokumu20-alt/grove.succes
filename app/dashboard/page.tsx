@@ -80,91 +80,140 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950">
-      <Navbar />
-      <Sidebar />
-      <BottomNav />
+    <div className="min-h-screen bg-[#0B1120] pb-20">
+      <div className="flex justify-between items-center px-4 pt-4 pb-2">
+        <div className="flex items-center gap-2">
+          <div className="bg-slate-800 rounded-full p-2">
+            <span className="text-green-400 text-lg">🌿</span>
+          </div>
+          <span className="text-green-400 font-bold">Grove</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <button className="text-gray-400">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+          </button>
+          <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-medium">
+            {user?.email?.[0]?.toUpperCase()}
+          </div>
+        </div>
+      </div>
 
-      <main className="flex-1 md:ml-64 min-h-screen bg-slate-950 pt-[70px] md:pt-6 pb-24 md:pb-6">
-        <div className="w-full max-w-7xl mx-auto px-4 md:px-6 py-6">
-          {/* Welcome Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-              Welcome back, {user?.email?.split('@')[0]}! 👋
-            </h1>
-            <p className="text-slate-400">Here's what's happening in {chama?.name}</p>
+      <div className="px-4 mt-3">
+        <h1 className="text-white text-lg font-semibold">Welcome back, {user?.email?.split('@')[0]}!</h1>
+        <p className="text-gray-400 text-sm mt-0.5">Here's what's happening in {chama?.name}</p>
+      </div>
+
+      <div className="px-4 mt-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-[#111827] rounded-xl p-3 border border-[#1f2937]">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Total Savings</p>
+                <p className="text-white font-bold text-xl">{formatCurrency(stats.totalSavings)}</p>
+              </div>
+              <div className="w-8 h-8 rounded-lg bg-emerald-900 bg-opacity-20 flex items-center justify-center">
+                <DollarSign size={16} className="text-emerald-400" />
+              </div>
+            </div>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <StatCard
-              title="Total Savings"
-              value={formatCurrency(stats.totalSavings)}
-              icon={<DollarSign size={24} />}
-              color="emerald"
-            />
-            <StatCard
-              title="Active Loans"
-              value={formatCurrency(stats.activeLoans)}
-              icon={<Banknote size={24} />}
-              color="blue"
-            />
-            <StatCard
-              title="Total Members"
-              value={stats.totalMembers}
-              icon={<Users size={24} />}
-              color="cyan"
-            />
-            <StatCard
-              title="This Month"
-              value={formatCurrency(stats.thisMonthContributions)}
-              icon={<TrendingUp size={24} />}
-              color="orange"
-            />
+          <div className="bg-[#111827] rounded-xl p-3 border border-[#1f2937]">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Active Loans</p>
+                <p className="text-white font-bold text-xl">{formatCurrency(stats.activeLoans)}</p>
+              </div>
+              <div className="w-8 h-8 rounded-lg bg-blue-900 bg-opacity-20 flex items-center justify-center">
+                <Banknote size={16} className="text-blue-400" />
+              </div>
+            </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-            <Link
-              href="/contributions"
-              className="w-full bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 block"
-            >
-              <Plus size={20} />
-              <span className="hidden md:inline">Contribution</span>
-            </Link>
-            <Link
-              href="/members"
-              className="w-full bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 block"
-            >
-              <Plus size={20} />
-              <span className="hidden md:inline">Member</span>
-            </Link>
-            <Link
-              href="/loans"
-              className="w-full bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 block"
-            >
-              <Plus size={20} />
-              <span className="hidden md:inline">Loan</span>
-            </Link>
-            <Link
-              href="/meetings"
-              className="w-full bg-gradient-to-br from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 block"
-            >
-              <Plus size={20} />
-              <span className="hidden md:inline">Meeting</span>
-            </Link>
+          <div className="bg-[#111827] rounded-xl p-3 border border-[#1f2937]">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Total Members</p>
+                <p className="text-white font-bold text-xl">{stats.totalMembers}</p>
+              </div>
+              <div className="w-8 h-8 rounded-lg bg-cyan-900 bg-opacity-20 flex items-center justify-center">
+                <Users size={16} className="text-cyan-400" />
+              </div>
+            </div>
           </div>
 
-          {/* Recent Activity */}
-          <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-            <h2 className="text-xl font-bold text-white mb-4">Recent Activity</h2>
-            <div className="text-center py-12">
-              <Activity size={48} className="text-slate-600 mx-auto mb-4" />
-              <p className="text-slate-400">No recent activity yet</p>
+          <div className="bg-[#111827] rounded-xl p-3 border border-[#1f2937]">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-gray-400 text-xs mb-1">This Month</p>
+                <p className="text-white font-bold text-xl">{formatCurrency(stats.thisMonthContributions)}</p>
+              </div>
+              <div className="w-8 h-8 rounded-lg bg-orange-900 bg-opacity-20 flex items-center justify-center">
+                <TrendingUp size={16} className="text-orange-400" />
+              </div>
             </div>
           </div>
         </div>
-      </main>
+      </div>
+
+      <div className="px-4 mt-6">
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-white font-semibold">Recent Activity</h2>
+          <Link href="#" className="text-green-400 text-sm">View all</Link>
+        </div>
+        <div className="text-center py-12">
+          <Activity size={48} className="text-gray-500 mx-auto mb-4" />
+          <p className="text-gray-400">No recent activity yet</p>
+        </div>
+      </div>
+
+      <div className="px-4 mt-6">
+        <h2 className="text-white font-semibold mb-3">Quick Actions</h2>
+        <div className="grid grid-cols-2 gap-3">
+          <Link
+            href="/contributions"
+            className="bg-[#111827] rounded-xl p-4 border border-[#1f2937] flex flex-col items-center gap-2 text-center"
+          >
+            <div className="w-10 h-10 rounded-lg bg-emerald-900 bg-opacity-20 flex items-center justify-center mb-1">
+              <DollarSign size={20} className="text-emerald-400" />
+            </div>
+            <span className="text-white text-sm font-medium">Contribution</span>
+          </Link>
+
+          <Link
+            href="/members"
+            className="bg-[#111827] rounded-xl p-4 border border-[#1f2937] flex flex-col items-center gap-2 text-center"
+          >
+            <div className="w-10 h-10 rounded-lg bg-cyan-900 bg-opacity-20 flex items-center justify-center mb-1">
+              <Users size={20} className="text-cyan-400" />
+            </div>
+            <span className="text-white text-sm font-medium">Members</span>
+          </Link>
+
+          <Link
+            href="/loans"
+            className="bg-[#111827] rounded-xl p-4 border border-[#1f2937] flex flex-col items-center gap-2 text-center"
+          >
+            <div className="w-10 h-10 rounded-lg bg-blue-900 bg-opacity-20 flex items-center justify-center mb-1">
+              <Banknote size={20} className="text-blue-400" />
+            </div>
+            <span className="text-white text-sm font-medium">Loans</span>
+          </Link>
+
+          <Link
+            href="/meetings"
+            className="bg-[#111827] rounded-xl p-4 border border-[#1f2937] flex flex-col items-center gap-2 text-center"
+          >
+            <div className="w-10 h-10 rounded-lg bg-orange-900 bg-opacity-20 flex items-center justify-center mb-1">
+              <Plus size={20} className="text-orange-400" />
+            </div>
+            <span className="text-white text-sm font-medium">Meetings</span>
+          </Link>
+        </div>
+      </div>
+
+      <BottomNav />
     </div>
   );
 }

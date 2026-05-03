@@ -149,119 +149,152 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-grove-dark flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-[#0B1120] px-4 py-6">
+      <div className="w-full max-w-sm mx-auto">
+        {/* Back Button */}
+        <div className="mb-4">
+          <Link href="/login" className="text-white">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </Link>
+        </div>
+
         {/* Logo */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-grove-accent mb-2">
-            🌿 Grove
+        <div className="bg-slate-800 rounded-full p-4 mb-4 mx-auto w-fit">
+          <span className="text-2xl">🌿</span>
+        </div>
+        <div className="text-center">
+          <h1 className="text-green-400 text-2xl font-bold text-center">
+            Grove
           </h1>
-          <p className="text-slate-400">Tech-Powered Savings Management</p>
+          <p className="text-white text-2xl font-bold text-center">Create Account</p>
+          <p className="text-gray-400 text-sm text-center mt-1 mb-6">
+            Step {step} of 2
+          </p>
         </div>
 
         {/* Form */}
-        <div className="bg-slate-900 border border-slate-800 rounded-lg p-8">
-          <h2 className="text-2xl font-bold text-white mb-2">Create Account</h2>
-          <p className="text-slate-400 text-sm mb-6">
-            Step {step} of 2
-          </p>
-
+        <div className="w-full max-w-sm mx-auto">
           <form onSubmit={handleSubmit} className="space-y-4">
             {step === 1 ? (
               <>
-                <Input
-                  label="Full Name"
-                  placeholder="John Doe"
-                  value={formData.fullName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, fullName: e.target.value })
-                  }
-                  error={errors.fullName}
-                />
+                <div className="relative mb-4">
+                  <label className="text-white text-sm font-medium mb-1 block">Full Name</label>
+                  <input
+                    type="text"
+                    placeholder="John Doe"
+                    value={formData.fullName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, fullName: e.target.value })
+                    }
+                    className="w-full bg-[#1a2535] text-white border border-slate-700 rounded-xl py-3 px-4 placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                  />
+                  {errors.fullName && <p className="text-red-400 text-xs mt-1">{errors.fullName}</p>}
+                </div>
 
-                <Input
-                  label="Email Address"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  error={errors.email}
-                />
+                <div className="relative mb-4">
+                  <label className="text-white text-sm font-medium mb-1 block">Email Address</label>
+                  <input
+                    type="email"
+                    placeholder="your@email.com"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                    className="w-full bg-[#1a2535] text-white border border-slate-700 rounded-xl py-3 px-4 placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                  />
+                  {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+                </div>
 
-                <Input
-                  label="Password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  error={errors.password}
-                />
+                <div className="relative mb-4">
+                  <label className="text-white text-sm font-medium mb-1 block">Password</label>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                    className="w-full bg-[#1a2535] text-white border border-slate-700 rounded-xl py-3 px-4 placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                  />
+                  {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+                </div>
 
-                <Input
-                  label="Confirm Password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      confirmPassword: e.target.value,
-                    })
-                  }
-                  error={errors.confirmPassword}
-                />
+                <div className="relative mb-4">
+                  <label className="text-white text-sm font-medium mb-1 block">Confirm Password</label>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    value={formData.confirmPassword}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        confirmPassword: e.target.value,
+                      })
+                    }
+                    className="w-full bg-[#1a2535] text-white border border-slate-700 rounded-xl py-3 px-4 placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                  />
+                  {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword}</p>}
+                </div>
 
-                <Button
+                <button
                   type="button"
-                  variant="primary"
-                  className="w-full"
                   onClick={handleNextStep}
+                  className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl py-4 transition-colors"
                 >
                   Continue
-                </Button>
+                </button>
               </>
             ) : (
               <>
-                <Input
-                  label="Phone Number"
-                  placeholder="+254712345678 or 0712345678"
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                  error={errors.phone}
-                />
+                <div className="relative mb-4">
+                  <label className="text-white text-sm font-medium mb-1 block">Phone Number</label>
+                  <input
+                    type="tel"
+                    placeholder="+254712345678 or 0712345678"
+                    value={formData.phone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
+                    className="w-full bg-[#1a2535] text-white border border-slate-700 rounded-xl py-3 px-4 placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                  />
+                  {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
+                </div>
 
-                <Input
-                  label="Chama Name"
-                  placeholder="e.g., Kazi United"
-                  value={formData.chamaName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, chamaName: e.target.value })
-                  }
-                  error={errors.chamaName}
-                />
+                <div className="relative mb-4">
+                  <label className="text-white text-sm font-medium mb-1 block">Chama Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Kazi United"
+                    value={formData.chamaName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, chamaName: e.target.value })
+                    }
+                    className="w-full bg-[#1a2535] text-white border border-slate-700 rounded-xl py-3 px-4 placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                  />
+                  {errors.chamaName && <p className="text-red-400 text-xs mt-1">{errors.chamaName}</p>}
+                </div>
 
-                <Input
-                  label="Monthly Contribution Amount (KES)"
-                  type="number"
-                  placeholder="5000"
-                  value={formData.contributionAmount}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      contributionAmount: e.target.value,
-                    })
-                  }
-                  error={errors.contributionAmount}
-                />
+                <div className="relative mb-4">
+                  <label className="text-white text-sm font-medium mb-1 block">Monthly Contribution Amount (KES)</label>
+                  <input
+                    type="number"
+                    placeholder="5000"
+                    value={formData.contributionAmount}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        contributionAmount: e.target.value,
+                      })
+                    }
+                    className="w-full bg-[#1a2535] text-white border border-slate-700 rounded-xl py-3 px-4 placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                  />
+                  {errors.contributionAmount && <p className="text-red-400 text-xs mt-1">{errors.contributionAmount}</p>}
+                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-200 mb-2">
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-white mb-2">
                     Meeting Day
                   </label>
                   <select
@@ -269,7 +302,7 @@ export default function SignupPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, meetingDay: e.target.value })
                     }
-                    className="w-full px-4 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-grove-accent"
+                    className="w-full bg-[#1a2535] text-white border border-slate-700 rounded-xl py-3 px-4 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                   >
                     <option>Monday</option>
                     <option>Tuesday</option>
@@ -282,34 +315,30 @@ export default function SignupPage() {
                 </div>
 
                 <div className="flex gap-3">
-                  <Button
+                  <button
                     type="button"
-                    variant="secondary"
-                    className="flex-1"
                     onClick={() => setStep(1)}
+                    className="flex-1 bg-[#111827] border border-[#1f2937] text-white font-semibold rounded-xl py-4 transition-colors"
                   >
                     Back
-                  </Button>
-                  <Button
+                  </button>
+                  <button
                     type="submit"
-                    variant="primary"
-                    className="flex-1"
-                    isLoading={isLoading}
+                    disabled={isLoading}
+                    className="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl py-4 transition-colors"
                   >
-                    Sign Up
-                  </Button>
+                    {isLoading ? 'Creating...' : 'Sign Up'}
+                  </button>
                 </div>
               </>
             )}
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-slate-400">
-              Already have an account?{' '}
-              <Link href="/login" className="text-grove-accent hover:underline">
-                Sign in
-              </Link>
-            </p>
+          <div className="text-gray-400 text-sm text-center mt-4">
+            Already have an account?{' '}
+            <Link href="/login" className="text-green-400">
+              Sign in
+            </Link>
           </div>
         </div>
       </div>
