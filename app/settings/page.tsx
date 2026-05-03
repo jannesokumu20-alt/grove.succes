@@ -161,64 +161,63 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0B1220] to-[#05070D]">
-      <Navbar />
-      <Sidebar />
-      <BottomNav />
+    <div className="min-h-screen bg-[#0B1120] pb-20">
+      <div className="px-4 pt-4 pb-2">
+        <h1 className="text-white text-xl font-bold">Settings</h1>
+      </div>
 
-      <main className="flex-1 md:ml-64 min-h-screen bg-gradient-to-b from-[#0B1220] to-[#05070D] pt-[70px] md:pt-6 pb-24 md:pb-6 relative z-10">
-        <div className="w-full max-w-3xl mx-auto px-4 md:px-6 py-6">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-2">
-              <SettingsIcon size={32} className="text-[#00D084]" />
-              Settings
-            </h1>
-            <p className="text-[#AEB6C2]">Manage your chama settings</p>
-          </div>
-
-          {/* Chama Information Section */}
-          <div className="rounded-[16px] p-6 mb-8" style={{
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
-          }}>
-            <h2 className="text-xl font-semibold text-white mb-6">Chama Information</h2>
-            <form onSubmit={handleSaveSettings} className="space-y-6">
+      <div className="space-y-4 px-4 mt-4">
+        {/* Chama Information Section */}
+        <div>
+          <h2 className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">Chama Information</h2>
+          <div className="bg-[#111827] rounded-xl border border-[#1f2937] overflow-hidden">
+            <form onSubmit={handleSaveSettings} className="p-4 space-y-4">
               {/* Chama Name */}
-              <Input
-                label="Chama Name"
-                placeholder="e.g., Kazi United"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                error={errors.name}
-              />
+              <div className="flex justify-between items-center p-4 border-b border-slate-800">
+                <div className="flex items-center gap-3">
+                  <SettingsIcon size={20} className="text-gray-400" />
+                  <span className="text-white text-sm">Chama Name</span>
+                </div>
+                <input
+                  type="text"
+                  placeholder="e.g., Kazi United"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  className="bg-transparent text-white text-right focus:outline-none"
+                />
+              </div>
 
               {/* Contribution Amount */}
-              <Input
-                label="Monthly Contribution Amount (KES)"
-                type="number"
-                placeholder="5000"
-                value={formData.contributionAmount}
-                onChange={(e) =>
-                  setFormData({ ...formData, contributionAmount: e.target.value })
-                }
-                error={errors.contributionAmount}
-              />
+              <div className="flex justify-between items-center p-4 border-b border-slate-800">
+                <div className="flex items-center gap-3">
+                  <span className="text-gray-400">💰</span>
+                  <span className="text-white text-sm">Monthly Contribution</span>
+                </div>
+                <input
+                  type="number"
+                  placeholder="5000"
+                  value={formData.contributionAmount}
+                  onChange={(e) =>
+                    setFormData({ ...formData, contributionAmount: e.target.value })
+                  }
+                  className="bg-transparent text-white text-right focus:outline-none"
+                />
+              </div>
 
               {/* Meeting Day */}
-              <div>
-                <label className="block text-sm font-medium text-[#AEB6C2] mb-2">
-                  Meeting Day
-                </label>
+              <div className="flex justify-between items-center p-4 border-b border-slate-800">
+                <div className="flex items-center gap-3">
+                  <span className="text-gray-400">📅</span>
+                  <span className="text-white text-sm">Meeting Day</span>
+                </div>
                 <select
                   value={formData.meetingDay}
                   onChange={(e) =>
                     setFormData({ ...formData, meetingDay: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00D084]"
+                  className="bg-transparent text-white text-right focus:outline-none"
                 >
                   <option>Monday</option>
                   <option>Tuesday</option>
@@ -231,52 +230,37 @@ export default function SettingsPage() {
               </div>
 
               {/* Savings Goal */}
-              <Input
-                label="Annual Savings Goal (KES) - Optional"
-                type="number"
-                placeholder="500000"
-                value={formData.savingsGoal}
-                onChange={(e) =>
-                  setFormData({ ...formData, savingsGoal: e.target.value })
-                }
-                error={errors.savingsGoal}
-              />
-
-              {/* Save Button */}
-              <Button
-                type="submit"
-                variant="primary"
-                className="w-full"
-                isLoading={isLoading}
-                icon={<Save size={16} />}
-              >
-                Save Chama Settings
-              </Button>
-
-              {/* Goal Planner Button */}
-              <Button
-                type="button"
-                variant="secondary"
-                className="w-full"
-                onClick={() => setIsGoalPlannerOpen(true)}
-              >
-                💡 Calculate Contribution with Goal Planner
-              </Button>
+              <div className="flex justify-between items-center p-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-gray-400">🎯</span>
+                  <span className="text-white text-sm">Annual Savings Goal</span>
+                </div>
+                <input
+                  type="number"
+                  placeholder="500000"
+                  value={formData.savingsGoal}
+                  onChange={(e) =>
+                    setFormData({ ...formData, savingsGoal: e.target.value })
+                  }
+                  className="bg-transparent text-white text-right focus:outline-none"
+                />
+              </div>
             </form>
           </div>
+        </div>
 
-          {/* Automation Toggles Section */}
-          <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold text-white mb-6">Automation Settings</h2>
-
-            <div className="space-y-6">
+        {/* Automation Settings Section */}
+        <div>
+          <h2 className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">Automation</h2>
+          <div className="bg-[#111827] rounded-xl border border-[#1f2937] overflow-hidden">
+            <div className="p-4 space-y-4">
               {/* Auto Reminders Toggle */}
-              <div className="flex items-center justify-between pb-4 border-b border-slate-700">
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Auto Reminders</h3>
-                  <p className="text-sm text-slate-400">Automatically send contribution reminders</p>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <span className="text-gray-400">🔔</span>
+                  <span className="text-white text-sm">Auto Reminders</span>
                 </div>
-                <label className="flex items-center gap-3">
+                <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={autoSettings.auto_reminders_enabled}
@@ -286,138 +270,78 @@ export default function SettingsPage() {
                         auto_reminders_enabled: e.target.checked,
                       })
                     }
-                    className="w-5 h-5 rounded"
+                    className="sr-only peer"
                   />
-                  <span className="text-sm font-medium text-slate-300">
-                    {autoSettings.auto_reminders_enabled ? 'ON' : 'OFF'}
-                  </span>
+                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
                 </label>
               </div>
 
-              {/* Auto Fines Toggle + Config */}
-              <div className="pb-4 border-b border-slate-700">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Auto Fines</h3>
-                    <p className="text-sm text-slate-400">Automatically apply fines for overdue contributions</p>
-                  </div>
-                  <label className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={autoSettings.auto_fines_enabled}
-                      onChange={(e) =>
-                        setAutoSettings({
-                          ...autoSettings,
-                          auto_fines_enabled: e.target.checked,
-                        })
-                      }
-                      className="w-5 h-5 rounded"
-                    />
-                    <span className="text-sm font-medium text-slate-300">
-                      {autoSettings.auto_fines_enabled ? 'ON' : 'OFF'}
-                    </span>
-                  </label>
+              {/* Auto Fines Toggle */}
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <span className="text-gray-400">⚠️</span>
+                  <span className="text-white text-sm">Auto Fines</span>
                 </div>
-
-                {autoSettings.auto_fines_enabled && (
-                  <div className="space-y-4 mt-4">
-                    {/* Fine Type */}
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
-                        Fine Type
-                      </label>
-                      <select
-                        value={autoSettings.fine_type}
-                        onChange={(e) =>
-                          setAutoSettings({
-                            ...autoSettings,
-                            fine_type: e.target.value as 'fixed' | 'percentage',
-                          })
-                        }
-                        className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-grove-accent"
-                      >
-                        <option value="fixed">Fixed Amount (KES)</option>
-                        <option value="percentage">Percentage of Contribution</option>
-                      </select>
-                    </div>
-
-                    {/* Fine Amount */}
-                    {autoSettings.fine_type === 'fixed' ? (
-                      <Input
-                        label="Fine Amount (KES)"
-                        type="number"
-                        min="0"
-                        step="50"
-                        value={autoSettings.fine_amount}
-                        onChange={(e) =>
-                          setAutoSettings({
-                            ...autoSettings,
-                            fine_amount: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    ) : (
-                      <Input
-                        label="Fine Percentage (%)"
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.5"
-                        value={autoSettings.fine_percentage}
-                        onChange={(e) =>
-                          setAutoSettings({
-                            ...autoSettings,
-                            fine_percentage: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Save Button */}
-              <Button
-                variant="primary"
-                icon={<Save size={16} />}
-                isLoading={isSavingAuto}
-                onClick={handleSaveAutomationSettings}
-              >
-                Save Automation Settings
-              </Button>
-            </div>
-          </div>
-
-          {/* Chama Details Section */}
-          <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-white mb-6">Chama Details</h2>
-            <div className="space-y-4">
-              <div className="pb-4 border-b border-slate-700">
-                <p className="text-slate-400 text-sm">Chama ID</p>
-                <p className="text-white font-mono text-sm">{chama.id}</p>
-              </div>
-              <div className="pb-4 border-b border-slate-700">
-                <p className="text-slate-400 text-sm">Invite Code</p>
-                <p className="text-white font-mono text-sm">{chama.invite_code}</p>
-              </div>
-              <div>
-                <p className="text-slate-400 text-sm">Created</p>
-                <p className="text-white text-sm">
-                  {new Date(chama.created_at).toLocaleDateString()}
-                </p>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={autoSettings.auto_fines_enabled}
+                    onChange={(e) =>
+                      setAutoSettings({
+                        ...autoSettings,
+                        auto_fines_enabled: e.target.checked,
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                </label>
               </div>
             </div>
           </div>
-
-          {/* Goal Planner Modal */}
-          <GoalPlannerModal
-            isOpen={isGoalPlannerOpen}
-            onClose={() => setIsGoalPlannerOpen(false)}
-            onCalculate={handleGoalPlannerSelect}
-            currentAmount={chama?.contribution_amount || 0}
-          />
         </div>
-      </main>
+
+        {/* Account Section */}
+        <div>
+          <h2 className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">Account</h2>
+          <div className="bg-[#111827] rounded-xl border border-[#1f2937] overflow-hidden">
+            <div className="flex justify-between items-center p-4 border-b border-slate-800">
+              <div className="flex items-center gap-3">
+                <span className="text-gray-400">👤</span>
+                <span className="text-white text-sm">Profile</span>
+              </div>
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+            <div className="flex justify-between items-center p-4 border-b border-slate-800">
+              <div className="flex items-center gap-3">
+                <span className="text-gray-400">🔐</span>
+                <span className="text-white text-sm">Security</span>
+              </div>
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+            <div className="flex justify-between items-center p-4">
+              <div className="flex items-center gap-3">
+                <span className="text-gray-400">📊</span>
+                <span className="text-white text-sm">Export Data</span>
+              </div>
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        {/* Logout Button */}
+        <button className="mx-4 mt-6 w-full bg-red-900 text-red-400 rounded-xl py-3 border border-red-800 text-center font-medium">
+          Sign Out
+        </button>
+      </div>
+
+      <BottomNav />
     </div>
   );
 }

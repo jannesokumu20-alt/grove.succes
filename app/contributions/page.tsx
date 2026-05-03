@@ -147,208 +147,188 @@ export default function ContributionsPage() {
   const thisYearTotal = thisYearContribs.reduce((sum, c) => sum + (c.amount || 0), 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0B1220] to-[#05070D]">
-      <Navbar />
-      <Sidebar />
-      <BottomNav />
-
-      <main className="flex-1 md:ml-64 min-h-screen bg-gradient-to-b from-[#0B1220] to-[#05070D] pt-[70px] md:pt-6 pb-24 md:pb-6 relative z-10">
-        <div className="w-full max-w-7xl mx-auto px-4 md:px-6 py-6">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-start justify-between">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Contributions</h1>
-                <p className="text-[#AEB6C2]">Track and record member contributions</p>
-              </div>
-              {role !== 'member' && (
-                <Button
-                  onClick={() => setIsModalOpen(true)}
-                  className="bg-gradient-to-r from-[#00D084] to-[#00B869] hover:shadow-lg text-black font-semibold py-2 px-4 rounded-lg flex items-center gap-2 transition"
-                >
-                  <Plus size={20} />
-                  <span className="hidden md:inline">Record</span>
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            {[
-              { label: 'Total All Time', value: allTimeTotal, color: '#00D084', bgColor: '#0C1A14', glowColor: '#00D084' },
-              { label: 'This Month', value: thisMonthTotal, color: '#3B82F6', bgColor: '#0C1620', glowColor: '#3B82F6' },
-              { label: 'This Year', value: thisYearTotal, color: '#F59E0B', bgColor: '#1A1109', glowColor: '#F59E0B' },
-            ].map((card, i) => (
-              <div
-                key={i}
-                className="rounded-[16px] px-6 py-6 transition-all hover:scale-105"
-                style={{
-                  background: card.bgColor,
-                  border: `2px solid ${card.color}`,
-                  boxShadow: `0 0 40px ${card.glowColor}70, 0 0 80px ${card.glowColor}30, inset 0 1px 2px rgba(255,255,255,0.1)`,
-                }}
-              >
-                <p className="text-xs text-[#AEB6C2] uppercase tracking-widest font-bold mb-2">{card.label}</p>
-                <p className="text-3xl font-bold text-white" style={{
-                  textShadow: `0 0 20px ${card.glowColor}c0`
-                }}>
-                  {formatCur(card.value)}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Tabs */}
-          <div className="mb-8 flex gap-2">
-            {['all', 'this-month', 'this-year'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab as typeof activeTab)}
-                className={`px-4 py-2 rounded-full font-bold text-xs transition ${
-                  activeTab === tab
-                    ? 'bg-gradient-to-r from-[#00D084] to-[#00B869] text-black shadow-lg'
-                    : 'bg-transparent text-[#AEB6C2] border border-white/20 hover:border-white/40'
-                }`}
-              >
-                {tab === 'all' && 'All Time'}
-                {tab === 'this-month' && 'This Month'}
-                {tab === 'this-year' && 'This Year'}
-              </button>
-            ))}
-          </div>
-
-          {/* Contributions List */}
-          {isLoading ? (
-            <div className="text-center py-12">
-              <p className="text-[#AEB6C2]">Loading contributions...</p>
-            </div>
-          ) : filteredContributions.length === 0 ? (
-            <div className="rounded-[16px] p-12 text-center" style={{
-              background: 'rgba(255, 255, 255, 0.03)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-            }}>
-              <p className="text-[#AEB6C2] mb-4">No contributions found</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {filteredContributions.map((contrib) => (
-                <div
-                  key={contrib.id}
-                  className="rounded-[14px] px-6 py-4 flex items-center justify-between transition-all hover:bg-white/8"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.04)',
-                    border: '1.5px solid rgba(255, 255, 255, 0.12)',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-                  }}
-                >
-                  <div className="flex-1">
-                    <p className="text-white font-bold text-sm">{contrib.members?.name || 'Unknown'}</p>
-                    <p className="text-[#6B7280] text-xs mt-1">{getMonthName(contrib.month)} {contrib.year}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[#00D084] font-bold text-sm">{formatCur(contrib.amount)}</p>
-                    <p className="text-[#6B7280] text-xs mt-1">{formatDate(contrib.created_at)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+    <div className="min-h-screen bg-[#0B1120] pb-20">
+      <div className="px-4 pt-4 pb-2">
+        <div className="flex justify-between items-center">
+          <h1 className="text-white text-xl font-bold">Contributions</h1>
+          {role !== 'member' && (
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-green-500 text-white rounded-xl px-4 py-2 text-sm flex items-center gap-1"
+            >
+              <Plus size={16} />
+              Record
+            </button>
           )}
         </div>
+      </div>
 
-        {/* Record Contribution Modal */}
-        <Modal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          title="Record Contribution"
-        >
-          <form onSubmit={handleRecordContribution} className="space-y-4">
+      <div className="grid grid-cols-3 gap-2 px-4 mt-4">
+        <div className="bg-[#111827] rounded-xl p-3 border border-[#1f2937]">
+          <p className="text-gray-400 text-xs">Total All Time</p>
+          <p className="text-white font-bold text-lg">{formatCur(allTimeTotal)}</p>
+        </div>
+        <div className="bg-[#111827] rounded-xl p-3 border border-[#1f2937]">
+          <p className="text-gray-400 text-xs">This Month</p>
+          <p className="text-white font-bold text-lg">{formatCur(thisMonthTotal)}</p>
+        </div>
+        <div className="bg-[#111827] rounded-xl p-3 border border-[#1f2937]">
+          <p className="text-gray-400 text-xs">This Year</p>
+          <p className="text-white font-bold text-lg">{formatCur(thisYearTotal)}</p>
+        </div>
+      </div>
+
+      <div className="flex gap-2 px-4 mt-3 overflow-x-auto">
+        {['all', 'this-month', 'this-year'].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab as typeof activeTab)}
+            className={`px-4 py-1.5 rounded-full text-sm whitespace-nowrap ${
+              activeTab === tab
+                ? 'bg-green-500 text-white'
+                : 'border border-slate-600 text-gray-400'
+            }`}
+          >
+            {tab === 'all' && 'All Time'}
+            {tab === 'this-month' && 'This Month'}
+            {tab === 'this-year' && 'This Year'}
+          </button>
+        ))}
+      </div>
+
+      <div className="px-4 mt-4 space-y-2">
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-400">Loading contributions...</p>
+          </div>
+        ) : filteredContributions.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-400">No contributions found</p>
+          </div>
+        ) : (
+          filteredContributions.map((contrib) => (
+            <div
+              key={contrib.id}
+              className="bg-[#111827] rounded-xl p-4 border border-[#1f2937] flex justify-between items-center"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center text-white text-sm font-medium">
+                  {contrib.members?.name?.charAt(0).toUpperCase() || '?'}
+                </div>
+                <div>
+                  <p className="text-white text-sm font-medium">{contrib.members?.name || 'Unknown'}</p>
+                  <p className="text-gray-400 text-xs">{formatDate(contrib.created_at)}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-green-400 font-bold">{formatCur(contrib.amount)}</p>
+                <span className={`rounded-full px-2 py-0.5 text-xs ${
+                  contrib.payment_method === 'mpesa' 
+                    ? 'bg-blue-900 text-blue-300' 
+                    : 'bg-orange-900 text-orange-300'
+                }`}>
+                  {contrib.payment_method || 'Cash'}
+                </span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <BottomNav />
+
+      {/* Record Contribution Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Record Contribution"
+      >
+        <form onSubmit={handleRecordContribution} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">Member</label>
+            <select
+              value={formData.memberId}
+              onChange={(e) =>
+                setFormData({ ...formData, memberId: e.target.value })
+              }
+              className="w-full bg-[#1a2535] text-white border border-slate-700 rounded-xl py-3 px-4 focus:outline-none focus:border-green-500"
+            >
+              <option value="">Select a member</option>
+              {members.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.name}
+                </option>
+              ))}
+            </select>
+            {errors.memberId && (
+              <p className="text-red-400 text-sm mt-1">{errors.memberId}</p>
+            )}
+          </div>
+
+          <Input
+            label="Amount (KES)"
+            type="number"
+            placeholder="5000"
+            value={formData.amount}
+            onChange={(e) =>
+              setFormData({ ...formData, amount: e.target.value })
+            }
+            error={errors.amount}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-white mb-2">Member</label>
+              <label className="block text-sm font-medium text-white mb-2">Month</label>
               <select
-                value={formData.memberId}
+                value={formData.month}
                 onChange={(e) =>
-                  setFormData({ ...formData, memberId: e.target.value })
+                  setFormData({ ...formData, month: parseInt(e.target.value) })
                 }
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-600"
+                className="w-full bg-[#1a2535] text-white border border-slate-700 rounded-xl py-3 px-4 focus:outline-none focus:border-green-500"
               >
-                <option value="">Select a member</option>
-                {members.map((member) => (
-                  <option key={member.id} value={member.id}>
-                    {member.name}
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                  <option key={month} value={month}>
+                    {getMonthName(month)}
                   </option>
                 ))}
               </select>
-              {errors.memberId && (
-                <p className="text-red-400 text-sm mt-1">{errors.memberId}</p>
-              )}
             </div>
-
-            <Input
-              label="Amount (KES)"
-              type="number"
-              placeholder="5000"
-              value={formData.amount}
-              onChange={(e) =>
-                setFormData({ ...formData, amount: e.target.value })
-              }
-              error={errors.amount}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">Month</label>
-                <select
-                  value={formData.month}
-                  onChange={(e) =>
-                    setFormData({ ...formData, month: parseInt(e.target.value) })
-                  }
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-600"
-                >
-                  {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-                    <option key={month} value={month}>
-                      {getMonthName(month)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">Year</label>
-                <select
-                  value={formData.year}
-                  onChange={(e) =>
-                    setFormData({ ...formData, year: parseInt(e.target.value) })
-                  }
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-600"
-                >
-                  {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i).map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">Year</label>
+              <select
+                value={formData.year}
+                onChange={(e) =>
+                  setFormData({ ...formData, year: parseInt(e.target.value) })
+                }
+                className="w-full bg-[#1a2535] text-white border border-slate-700 rounded-xl py-3 px-4 focus:outline-none focus:border-green-500"
+              >
+                {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i).map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
             </div>
+          </div>
 
-            <Input
-              label="Note (optional)"
-              placeholder="Add a note..."
-              value={formData.note}
-              onChange={(e) =>
-                setFormData({ ...formData, note: e.target.value })
-              }
-            />
+          <Input
+            label="Note (optional)"
+            placeholder="Add a note..."
+            value={formData.note}
+            onChange={(e) =>
+              setFormData({ ...formData, note: e.target.value })
+            }
+          />
 
-            <Button
-              type="submit"
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-lg"
-              isLoading={isSubmitting}
-            >
-              Record Contribution
-            </Button>
-          </form>
-        </Modal>
-      </main>
+          <Button
+            type="submit"
+            className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl py-4"
+            isLoading={isSubmitting}
+          >
+            Record Contribution
+          </Button>
+        </form>
+      </Modal>
     </div>
   );
 }
