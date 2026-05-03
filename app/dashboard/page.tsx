@@ -12,7 +12,6 @@ import { useChamaStore } from '@/store/useChamaStore';
 import { getMembers, getContributions, getLoans } from '@/lib/supabase';
 import { formatCurrency } from '@/lib/utils';
 import { isDevMode } from '@/lib/devMode';
-import { Plus, Users, DollarSign, Banknote, TrendingUp, Activity } from 'lucide-react';
 import Link from 'next/link';
 import './dashboard.css';
 
@@ -89,122 +88,119 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="dashboard-container min-h-screen bg-[#061226] text-white">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-2">
-          <div className="bg-slate-800 rounded-full p-2">
+    <div className="container">
+      {/* HEADER */}
+      <div className="header">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
             <span className="text-green-400 text-lg">🌿</span>
+            <span className="text-green-400 font-bold">Grove</span>
           </div>
-          <span className="text-green-400 font-bold">Grove</span>
+          <div className="subtitle">Here's what's happening in {chama?.name}</div>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-gray-400 text-sm">Logged in as</span>
+          <span className="text-gray-400 text-xs">Logged in as</span>
           <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-medium">
             {user?.email?.[0]?.toUpperCase()}
           </div>
         </div>
       </div>
 
-      <div className="mb-6">
-        <h1 className="text-white text-lg font-semibold">Welcome back, {user?.email?.split('@')[0]}!</h1>
-        <p className="text-gray-400 text-sm mt-1">Here's what's happening in {chama?.name}</p>
-      </div>
-
-      <div className="cards-grid">
-        <div className="card stat-card">
-          <div className="card-label">Total Savings</div>
-          <div className="card-value">{formatCurrency(stats.totalSavings)}</div>
-          <div className="icon-box icon-green">
-            <DollarSign size={18} />
+      {/* STATS GRID */}
+      <div className="grid">
+        <div className="card stat">
+          <div className="stat-top">
+            <div className="stat-label">TOTAL SAVINGS</div>
+            <div className="icon green">💰</div>
           </div>
+          <div className="stat-value">{formatCurrency(stats.totalSavings)}</div>
         </div>
 
-        <div className="card stat-card">
-          <div className="card-label">Active Loans</div>
-          <div className="card-value">{formatCurrency(stats.activeLoans)}</div>
-          <div className="icon-box icon-blue">
-            <Banknote size={18} />
+        <div className="card stat">
+          <div className="stat-top">
+            <div className="stat-label">ACTIVE LOANS</div>
+            <div className="icon blue">💳</div>
           </div>
+          <div className="stat-value">{formatCurrency(stats.activeLoans)}</div>
         </div>
 
-        <div className="card stat-card">
-          <div className="card-label">Total Members</div>
-          <div className="card-value">{stats.totalMembers}</div>
-          <div className="icon-box icon-purple">
-            <Users size={18} />
+        <div className="card stat">
+          <div className="stat-top">
+            <div className="stat-label">TOTAL MEMBERS</div>
+            <div className="icon purple">👥</div>
           </div>
+          <div className="stat-value">{stats.totalMembers}</div>
         </div>
 
-        <div className="card stat-card">
-          <div className="card-label">This Month</div>
-          <div className="card-value">{formatCurrency(stats.thisMonthContributions)}</div>
-          <div className="icon-box icon-orange">
-            <TrendingUp size={18} />
+        <div className="card stat">
+          <div className="stat-top">
+            <div className="stat-label">THIS MONTH</div>
+            <div className="icon orange">📈</div>
           </div>
+          <div className="stat-value">{formatCurrency(stats.thisMonthContributions)}</div>
         </div>
       </div>
 
-      <div className="card balance-card">
-        <div className="card-label">Total Balance</div>
+      {/* BALANCE CARD */}
+      <div className="balance">
+        <div className="balance-title">TOTAL BALANCE</div>
         <div className="balance-amount">KES 250,000</div>
         <div className="balance-growth">+12.5% this month</div>
-        <div className="balance-split">
-          <div className="balance-box">
-            <div className="text-gray-400 text-xs font-medium">Deposits</div>
-            <div className="text-white text-sm font-semibold mt-2">KES 45,000</div>
+
+        <div className="divider"></div>
+
+        <div className="balance-row">
+          <div className="balance-col">
+            <span>Deposits</span>
+            <strong>KES 45,000</strong>
           </div>
-          <div className="balance-box">
-            <div className="text-gray-400 text-xs font-medium">Withdrawals</div>
-            <div className="text-white text-sm font-semibold mt-2">KES 5,000</div>
+          <div className="balance-col">
+            <span>Withdrawals</span>
+            <strong>KES 5,000</strong>
           </div>
         </div>
       </div>
 
-      <div className="mt-6 mb-6">
-        <h2 className="text-white font-semibold text-sm mb-3">Quick Actions</h2>
-        <div className="action-grid">
+      {/* ACTIONS */}
+      <div className="actions">
+        <div className="section-header">
+          <div style={{ fontSize: '14px', fontWeight: '600' }}>Quick Actions</div>
+        </div>
+        <div className="actions-grid">
           <div className="card action-card">
-            <div className="action-icon">
-              <DollarSign size={24} className="text-green-400" />
-            </div>
-            <span className="text-white text-sm font-medium">Contribution</span>
+            <div className="action-icon green">💰</div>
+            <div style={{ fontSize: '13px' }}>Contribution</div>
           </div>
 
           <div className="card action-card">
-            <div className="action-icon">
-              <Users size={24} className="text-blue-400" />
-            </div>
-            <span className="text-white text-sm font-medium">Members</span>
+            <div className="action-icon purple">👥</div>
+            <div style={{ fontSize: '13px' }}>Members</div>
           </div>
 
           <div className="card action-card">
-            <div className="action-icon">
-              <Banknote size={24} className="text-purple-400" />
-            </div>
-            <span className="text-white text-sm font-medium">Loans</span>
+            <div className="action-icon blue">💳</div>
+            <div style={{ fontSize: '13px' }}>Loans</div>
           </div>
 
           <div className="card action-card">
-            <div className="action-icon">
-              <Plus size={24} className="text-orange-400" />
-            </div>
-            <span className="text-white text-sm font-medium">Meeting</span>
+            <div className="action-icon orange">➕</div>
+            <div style={{ fontSize: '13px' }}>Meeting</div>
           </div>
         </div>
       </div>
 
-      <div>
-        <div className="flex justify-between items-center mb-3">
-          <h2 className="text-white font-semibold text-sm">Upcoming</h2>
-          <Link href="#" className="text-green-400 text-sm">View all</Link>
+      {/* UPCOMING */}
+      <div className="section">
+        <div className="section-header">
+          <div style={{ fontSize: '14px', fontWeight: '600' }}>Upcoming</div>
+          <Link href="#" className="view-all">View all</Link>
         </div>
-        <div className="card">
-          <div className="text-gray-400 text-sm text-center">
-            No upcoming meetings
-          </div>
+        <div className="card empty">
+          No upcoming meetings
         </div>
       </div>
 
+      {/* BOTTOM NAV */}
       <BottomNav />
     </div>
   );
