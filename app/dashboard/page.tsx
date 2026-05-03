@@ -88,17 +88,11 @@ export default function DashboardPage() {
           </div>
           <span className="text-green-400 font-bold">Grove</span>
         </div>
-        <div className="flex items-center gap-1">
-          <span className="text-gray-400 text-sm">Logged in as</span>
-          <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-medium">
-            {user?.email?.[0]?.toUpperCase()}
-          </div>
-        </div>
       </div>
 
       <div className="px-4 mt-2">
-        <h1 className="text-white text-lg font-semibold">Welcome back, {user?.email?.split('@')[0]}!</h1>
-        <p className="text-gray-400 text-sm mt-1">Here's what's happening in {chama?.name}</p>
+        <h1 className="text-white text-lg font-semibold">Welcome back, User!</h1>
+        <p className="text-gray-400 text-sm mt-1">Here's what's happening in your Chama</p>
       </div>
 
       <div className="px-4 mt-4">
@@ -106,7 +100,7 @@ export default function DashboardPage() {
           <div className="bg-[#111827] border border-[#1f2937] rounded-xl p-4">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-gray-400 text-xs mb-1 uppercase">Total Savings</p>
+                <p className="text-gray-400 text-xs mb-1">Total Savings</p>
                 <p className="text-white text-xl font-bold">{formatCurrency(stats.totalSavings)}</p>
               </div>
               <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-gray-300">
@@ -118,7 +112,7 @@ export default function DashboardPage() {
           <div className="bg-[#111827] border border-[#1f2937] rounded-xl p-4">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-gray-400 text-xs mb-1 uppercase">Active Loans</p>
+                <p className="text-gray-400 text-xs mb-1">Active Loans</p>
                 <p className="text-white text-xl font-bold">{formatCurrency(stats.activeLoans)}</p>
               </div>
               <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-gray-300">
@@ -130,7 +124,7 @@ export default function DashboardPage() {
           <div className="bg-[#111827] border border-[#1f2937] rounded-xl p-4">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-gray-400 text-xs mb-1 uppercase">Total Members</p>
+                <p className="text-gray-400 text-xs mb-1">Total Members</p>
                 <p className="text-white text-xl font-bold">{stats.totalMembers}</p>
               </div>
               <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-gray-300">
@@ -142,7 +136,7 @@ export default function DashboardPage() {
           <div className="bg-[#111827] border border-[#1f2937] rounded-xl p-4">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-gray-400 text-xs mb-1 uppercase">This Month</p>
+                <p className="text-gray-400 text-xs mb-1">This Month</p>
                 <p className="text-white text-xl font-bold">{formatCurrency(stats.thisMonthContributions)}</p>
               </div>
               <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-gray-300">
@@ -156,16 +150,16 @@ export default function DashboardPage() {
       <div className="mx-4 mt-4">
         <div className="bg-[#111827] border border-[#1f2937] rounded-xl p-4">
           <div className="text-white text-2xl font-bold">Total Balance</div>
-          <div className="text-green-400 text-sm">KES 250,000</div>
-          <div className="text-green-400 text-sm mt-1">+12.5% this month</div>
+          <div className="text-green-400 text-sm">KES {formatCurrency(stats.totalSavings)}</div>
+          <div className="text-green-400 text-sm mt-1">+0.0% this month</div>
           <div className="border-t border-slate-700 mt-3 flex justify-between">
             <div className="text-center flex-1">
               <div className="text-white text-sm font-semibold">Deposits</div>
-              <div className="text-gray-400 text-xs">KES 45,000</div>
+              <div className="text-gray-400 text-xs">KES {formatCurrency(stats.thisMonthContributions)}</div>
             </div>
             <div className="text-center flex-1">
               <div className="text-white text-sm font-semibold">Withdrawals</div>
-              <div className="text-gray-400 text-xs">KES 5,000</div>
+              <div className="text-gray-400 text-xs">KES 0</div>
             </div>
           </div>
         </div>
