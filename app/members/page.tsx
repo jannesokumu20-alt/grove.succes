@@ -9,6 +9,7 @@ import { useChamaStore } from '@/store/useChamaStore';
 import { getMembers, addMember } from '@/lib/supabase';
 import { isValidPhoneNumber } from '@/lib/utils';
 import { Plus, Search, Bell, Upload, Send, Zap } from 'lucide-react';
+import StickyHeader from '@/components/StickyHeader';
 
 export default function MembersPage() {
   const router = useRouter();
@@ -110,34 +111,22 @@ export default function MembersPage() {
   ];
 
   return (
-    <div className="members-page">
-      {/* HEADER */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-[36px] md:text-[40px] font-bold text-white tracking-tight">
-            Members
-          </h1>
-          <p className="text-[#9CA3AF] text-sm mt-2">
-            Manage your chama members
-          </p>
+    <>
+      <StickyHeader 
+        title="Members" 
+        subtitle="Manage your chama members" 
+      />
+
+      <div className="members-page pt-[90px] pb-28 md:pb-6 page-transition relative">
+        {/* Background Glow */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#00FFB2]/10 blur-[120px]" />
+          <div className="absolute bottom-[-200px] right-[-100px] w-[400px] h-[400px] bg-[#00D084]/10 blur-[120px]" />
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Notifications */}
-          <button className="relative p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition">
-            <Bell size={20} className="text-[#9CA3AF]" />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-[#00FFB2] rounded-full"></span>
-          </button>
-
-          {/* Profile */}
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00FFB2] to-[#00D4AA] flex items-center justify-center text-black font-bold">
-            U
-          </div>
-        </div>
-      </div>
-
-      {/* ACTION BAR */}
-      <div className="flex items-center gap-3 mb-6 overflow-x-auto pb-2">
+        <div className="relative z-10">
+          {/* ACTION BAR */}
+          <div className="flex items-center gap-3 mb-6 overflow-x-auto pb-2">
         <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#00FFB2] to-[#00D4AA] text-black text-sm font-semibold whitespace-nowrap">
           <Plus size={16} />
           Add Member
@@ -354,6 +343,8 @@ export default function MembersPage() {
 
       {/* BOTTOM NAV SPACING */}
       <div className="bottom-space" />
-    </div>
+        </div>
+      </div>
+    </>
   );
 }
