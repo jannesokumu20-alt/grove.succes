@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/useToast';
 import { useChamaStore } from '@/store/useChamaStore';
 import { getMembers, addMember } from '@/lib/supabase';
 import { isValidPhoneNumber } from '@/lib/utils';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Bell, Upload, Send, Zap } from 'lucide-react';
 
 export default function MembersPage() {
   const router = useRouter();
@@ -112,28 +112,62 @@ export default function MembersPage() {
   return (
     <div className="members-page">
       {/* HEADER */}
-      <div className="members-header">
-        <div className="header-left">
-          <button onClick={() => router.back()} className="back-btn" />
-          <div>
-            <h1>Members</h1>
-            <p>Manage your chama members</p>
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h1 className="text-[36px] md:text-[40px] font-bold text-white tracking-tight">
+            Members
+          </h1>
+          <p className="text-[#9CA3AF] text-sm mt-2">
+            Manage your chama members
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* Notifications */}
+          <button className="relative p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition">
+            <Bell size={20} className="text-[#9CA3AF]" />
+            <span className="absolute top-2 right-2 w-2 h-2 bg-[#00FFB2] rounded-full"></span>
+          </button>
+
+          {/* Profile */}
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00FFB2] to-[#00D4AA] flex items-center justify-center text-black font-bold">
+            U
           </div>
         </div>
-        <button onClick={() => setIsModalOpen(true)} className="add-btn" />
+      </div>
+
+      {/* ACTION BAR */}
+      <div className="flex items-center gap-3 mb-6 overflow-x-auto pb-2">
+        <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#00FFB2] to-[#00D4AA] text-black text-sm font-semibold whitespace-nowrap">
+          <Plus size={16} />
+          Add Member
+        </button>
+
+        <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white text-sm whitespace-nowrap hover:bg-white/10 transition">
+          <Upload size={16} />
+          Bulk Import
+        </button>
+
+        <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white text-sm whitespace-nowrap hover:bg-white/10 transition">
+          <Send size={16} />
+          Send Reminder
+        </button>
+
+        <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white text-sm whitespace-nowrap hover:bg-white/10 transition">
+          <Zap size={16} />
+          Assign Loan
+        </button>
       </div>
 
       {/* STATS CARDS */}
-      <div className="members-stats">
+      <div className="grid grid-cols-2 gap-4 mb-8">
         {statCards.map((stat, idx) => (
-          <div key={idx} className="stat-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-              <div>
-                <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '4px' }}>{stat.label}</p>
-                <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#fff' }}>{stat.value}</p>
-              </div>
-              <div style={{ fontSize: '24px' }}>{stat.icon}</div>
+          <div key={idx} className="rounded-[16px] px-4 py-5 flex flex-col justify-between h-[130px] transition hover:scale-[1.03] bg-white/5 border border-white/10">
+            <div>
+              <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '4px' }}>{stat.label}</p>
+              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#fff' }}>{stat.value}</p>
             </div>
+            <div style={{ fontSize: '24px' }}>{stat.icon}</div>
           </div>
         ))}
       </div>
@@ -189,29 +223,32 @@ export default function MembersPage() {
           <p className="text-[#9CA3AF]">Loading members...</p>
         </div>
       ) : filteredMembers.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-          <p style={{ color: '#9CA3AF', marginBottom: '16px' }}>No members found</p>
-          <button onClick={() => setIsModalOpen(true)} className="add-btn" style={{ margin: '0 auto' }}>
+        <div className="rounded-[16px] p-10 text-center bg-white/5 border border-white/10">
+          <p className="text-[#9CA3AF] mb-3">No members yet</p>
+
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="px-5 py-2 rounded-lg bg-gradient-to-r from-[#00FFB2] to-[#00D4AA] text-black font-semibold"
+          >
             Add Member
           </button>
         </div>
       ) : (
-        <div className="members-list">
+        <div className="space-y-3">
           {filteredMembers.map((member) => (
-            <div key={member.id} className="member-item">
-              <div className="member-left">
-                <div className="avatar green" style={{ fontSize: '18px' }}>
-                  {member.name?.charAt(0).toUpperCase() || '?'}
-                </div>
-                <div>
-                  <div className="name-line" style={{ width: '120px' }} />
-                  <div className="role-line" style={{ width: '80px', marginTop: '6px' }} />
-                </div>
+            <div key={member.id} className="rounded-[16px] p-4 flex items-center gap-4 bg-white/5 border border-white/10 hover:bg-white/10 transition">
+              <div className="avatar green" style={{ fontSize: '18px', width: '44px', height: '44px', minWidth: '44px' }}>
+                {member.name?.charAt(0).toUpperCase() || '?'}
               </div>
-              <div className="member-right">
-                <div className={`status ${member.status === 'active' ? 'active' : ''}`} />
-                <div className="arrow" />
+              <div className="flex-1">
+                <p style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '14px', marginBottom: '2px' }}>
+                  {member.name}
+                </p>
+                <p style={{ color: '#9CA3AF', fontSize: '12px' }}>
+                  {member.phone || 'N/A'}
+                </p>
               </div>
+              <div className={`status ${member.status === 'active' ? 'active' : ''}`} style={{ width: '12px', height: '12px', borderRadius: '50%', background: member.status === 'active' ? '#00FFB2' : '#EF4444' }} />
             </div>
           ))}
         </div>
