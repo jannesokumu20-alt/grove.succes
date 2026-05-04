@@ -1,0 +1,270 @@
+You are upgrading ONLY the Dashboard page UI of a React app.
+
+🚨 STRICT RULES:
+
+- DO NOT touch any logic
+- DO NOT modify functions, hooks, routing, or API calls
+- DO NOT rename variables
+- DO NOT change data rendering
+- DO NOT affect any other page (Login, Members, Contributions, etc.)
+- ONLY modify className values and layout wrappers inside the Dashboard file
+
+TARGET:
+Transform the dashboard into a clean dark fintech UI (like the provided design), and REMOVE the current gradient/glow cards.
+
+═══════════════════════
+🎨 GLOBAL DASHBOARD STYLE
+═══════════════════════
+
+Apply to main container:
+
+- min-h-screen bg-[#0B1120] text-white pb-20
+
+REMOVE:
+
+- ALL gradient backgrounds
+- ALL glowing borders
+- ALL multicolor outlines
+
+USE ONLY:
+
+- Flat dark surfaces
+- Subtle borders
+- Clean spacing
+
+═══════════════════════
+🧱 HEADER SECTION
+═══════════════════════
+
+Container:
+
+- px-4 pt-4 pb-2 flex justify-between items-center
+
+Left:
+
+- Chama name:
+  text-white text-base font-semibold
+- “Logged in as”:
+  text-gray-400 text-xs
+
+Right:
+
+- Logout:
+  text-gray-400 text-sm flex items-center gap-1
+
+═══════════════════════
+👋 GREETING TEXT
+═══════════════════════
+
+- px-4 mt-2
+- text-white text-lg font-semibold
+- subtitle:
+  text-gray-400 text-sm mt-1
+
+═══════════════════════
+📊 STATS CARDS (FIX THIS HARD)
+═══════════════════════
+
+Replace the current stacked glowing cards with:
+
+Container:
+
+- px-4 mt-4
+- grid grid-cols-2 gap-3
+
+Each card MUST be:
+
+- bg-[#111827]
+- border border-[#1f2937]
+- rounded-xl
+- p-4
+
+REMOVE:
+❌ colored borders
+❌ glow effects
+❌ gradients
+
+Card layout:
+
+- flex justify-between items-start
+
+Text:
+
+- label:
+  text-gray-400 text-xs mb-1 uppercase
+- value:
+  text-white text-xl font-bold
+
+Icon container:
+
+- w-8 h-8 rounded-lg
+- bg-white/5
+- flex items-center justify-center
+- text-gray-300
+
+═══════════════════════
+💰 TOTAL BALANCE CARD
+═══════════════════════
+
+Convert into a clean card:
+
+- mx-4 mt-4
+- bg-[#111827]
+- border border-[#1f2937]
+- rounded-xl
+- p-4
+
+Text:
+
+- label:
+  text-gray-400 text-sm
+- amount:
+  text-white text-2xl font-bold mt-1
+
+Trend:
+
+- text-green-400 text-sm mt-1
+
+Divider:
+
+- border-t border-slate-700 mt-3
+
+Bottom stats row:
+
+- flex justify-between mt-3
+
+Each mini stat:
+
+- text-center flex-1
+
+Value:
+
+- text-white text-sm font-semibold
+
+Label:
+
+- text-gray-400 text-xs
+
+═══════════════════════
+⚡ QUICK ACTIONS (VERY IMPORTANT)
+═══════════════════════
+
+Container:
+
+- px-4 mt-6
+
+Heading:
+
+- text-white font-semibold mb-3
+
+Grid:
+
+- grid grid-cols-2 gap-3
+
+Each button:
+
+- bg-[#111827]
+- border border-[#1f2937]
+- rounded-xl
+- p-4
+- flex flex-col items-center
+- justify-center
+- text-center
+- gap-2
+
+REMOVE glow backgrounds completely
+
+Icon wrapper:
+
+- w-10 h-10 rounded-lg
+- bg-white/5
+- flex items-center justify-center
+
+Label:
+
+- text-white text-sm font-medium
+
+═══════════════════════
+📅 UPCOMING SECTION
+═══════════════════════
+
+Container:
+
+- px-4 mt-6
+
+Header:
+
+- flex justify-between items-center mb-2
+
+Title:
+
+- text-white font-semibold
+
+"View all":
+
+- text-green-400 text-sm
+
+Card:
+
+- bg-[#111827]
+- border border-[#1f2937]
+- rounded-xl
+- p-4
+- text-gray-400 text-sm text-center
+
+═══════════════════════
+📜 RECENT ACTIVITY
+═══════════════════════
+
+Container:
+
+- px-4 mt-6
+
+Header:
+
+- flex justify-between items-center mb-3
+
+Items:
+
+- flex items-center gap-3 py-3
+- border-b border-slate-800
+
+Avatar:
+
+- w-9 h-9 rounded-full
+- bg-slate-700
+- flex items-center justify-center
+- text-white text-sm
+
+Text:
+
+- title: text-white text-sm font-medium
+- sub: text-gray-400 text-xs
+
+═══════════════════════
+🚫 FINAL CLEANUP
+═══════════════════════
+
+REMOVE from entire dashboard:
+
+- gradient backgrounds
+- blur effects
+- neon glow
+- colored borders (green, blue, purple, orange)
+
+ENFORCE:
+
+- bg-[#0B1120] page background
+- bg-[#111827] cards
+- border-[#1f2937]
+- green ONLY for highlights (text-green-400)
+
+═══════════════════════
+OUTPUT FORMAT
+═══════════════════════
+
+- Show ONLY the updated JSX sections
+- Do NOT rewrite full file
+- Do NOT touch logic
+- Do NOT modify other pages
+-

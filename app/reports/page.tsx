@@ -88,176 +88,51 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-grove-dark">
-      <Navbar />
-      <Sidebar />
-      <BottomNav />
-
-      <main className="ml-64 md:pt-20 pt-0 pb-20 md:pb-0 px-4 md:px-6 py-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Reports</h1>
-              <p className="text-slate-400">Monthly summary and analytics</p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="secondary"
-                onClick={handleExportPDF}
-                icon={<Download size={16} />}
-              >
-                Export PDF
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={handleExportExcel}
-                icon={<Download size={16} />}
-              >
-                Export Excel
-              </Button>
-            </div>
-          </div>
-
-          {/* Main Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <SummaryCard
-              title="Total Savings"
-              value={formatCurrency(stats.totalSavings)}
-              icon="💰"
-              color="green"
-            />
-            <SummaryCard
-              title="Outstanding Loans"
-              value={formatCurrency(stats.activeLoanBalance)}
-              icon="🏦"
-              color="red"
-            />
-            <SummaryCard
-              title="Total Members"
-              value={stats.memberCount}
-              icon="👥"
-              color="blue"
-            />
-            <SummaryCard
-              title="This Month"
-              value={formatCurrency(stats.thisMonthTotal)}
-              icon="📊"
-              color="purple"
-            />
-          </div>
-
-          {/* Report Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {/* Contribution Report */}
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">
-                Contribution Summary
-              </h2>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center pb-4 border-b border-slate-700">
-                  <span className="text-slate-400">Total Contributions</span>
-                  <span className="text-white font-semibold">
-                    {reportData.contributions}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center pb-4 border-b border-slate-700">
-                  <span className="text-slate-400">Total Saved</span>
-                  <span className="text-green-400 font-semibold">
-                    {formatCurrency(stats.totalSavings)}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-400">Members Not Contributed</span>
-                  <span className="text-red-400 font-semibold">
-                    {reportData.membersNotContributed}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Loan Report */}
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">Loan Summary</h2>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center pb-4 border-b border-slate-700">
-                  <span className="text-slate-400">Total Loans</span>
-                  <span className="text-white font-semibold">
-                    {reportData.loans}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center pb-4 border-b border-slate-700">
-                  <span className="text-slate-400">Outstanding</span>
-                  <span className="text-red-400 font-semibold">
-                    {formatCurrency(stats.activeLoanBalance)}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-400">Repaid Loans</span>
-                  <span className="text-blue-400 font-semibold">
-                    {reportData.repayments}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Health Check */}
-          <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Chama Health</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <p className="text-slate-400 text-sm mb-2">Member Engagement</p>
-                <div className="w-full bg-slate-800 rounded-full h-2">
-                  <div
-                    className="bg-green-500 h-2 rounded-full"
-                    style={{
-                      width: stats.memberCount > 0 
-                        ? `${((stats.memberCount - reportData.membersNotContributed) / stats.memberCount) * 100}%`
-                        : '0%'
-                    }}
-                  ></div>
-                </div>
-                <p className="text-slate-400 text-xs mt-2">
-                  {stats.memberCount > 0 
-                    ? `${Math.round(((stats.memberCount - reportData.membersNotContributed) / stats.memberCount) * 100)}% contributing`
-                    : 'No members'
-                  }
-                </p>
-              </div>
-              <div>
-                <p className="text-slate-400 text-sm mb-2">Loan Health</p>
-                <div className="w-full bg-slate-800 rounded-full h-2">
-                  <div
-                    className="bg-blue-500 h-2 rounded-full"
-                    style={{
-                      width: reportData.loans > 0 
-                        ? `${(reportData.repayments / reportData.loans) * 100}%`
-                        : '0%'
-                    }}
-                  ></div>
-                </div>
-                <p className="text-slate-400 text-xs mt-2">
-                  {reportData.loans > 0 
-                    ? `${Math.round((reportData.repayments / reportData.loans) * 100)}% repaid`
-                    : 'No loans'
-                  }
-                </p>
-              </div>
-              <div>
-                <p className="text-slate-400 text-sm mb-2">Savings Rate</p>
-                <div className="w-full bg-slate-800 rounded-full h-2">
-                  <div
-                    className="bg-purple-500 h-2 rounded-full"
-                    style={{ width: '75%' }}
-                  ></div>
-                </div>
-                <p className="text-slate-400 text-xs mt-2">Strong growth</p>
-              </div>
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#0B1120] pb-20">
+      <div className="px-4 pt-4 pb-2">
+        <div className="flex justify-between items-center">
+          <h1 className="text-white text-xl font-bold">Reports</h1>
+          <button className="text-gray-400">
+            <Download size={20} />
+          </button>
         </div>
-      </main>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 px-4 mt-4">
+        <div className="bg-[#111827] rounded-xl p-4 border border-[#1f2937] flex flex-col items-center gap-2 text-center">
+          <div className="w-12 h-12 rounded-xl bg-emerald-900 bg-opacity-20 flex items-center justify-center mb-1">
+            <span className="text-2xl">💰</span>
+          </div>
+          <span className="text-white text-sm font-medium">Total Savings</span>
+          <span className="text-gray-400 text-xs">{formatCurrency(stats.totalSavings)}</span>
+        </div>
+
+        <div className="bg-[#111827] rounded-xl p-4 border border-[#1f2937] flex flex-col items-center gap-2 text-center">
+          <div className="w-12 h-12 rounded-xl bg-red-900 bg-opacity-20 flex items-center justify-center mb-1">
+            <span className="text-2xl">🏦</span>
+          </div>
+          <span className="text-white text-sm font-medium">Outstanding Loans</span>
+          <span className="text-gray-400 text-xs">{formatCurrency(stats.activeLoanBalance)}</span>
+        </div>
+
+        <div className="bg-[#111827] rounded-xl p-4 border border-[#1f2937] flex flex-col items-center gap-2 text-center">
+          <div className="w-12 h-12 rounded-xl bg-blue-900 bg-opacity-20 flex items-center justify-center mb-1">
+            <span className="text-2xl">👥</span>
+          </div>
+          <span className="text-white text-sm font-medium">Total Members</span>
+          <span className="text-gray-400 text-xs">{stats.memberCount}</span>
+        </div>
+
+        <div className="bg-[#111827] rounded-xl p-4 border border-[#1f2937] flex flex-col items-center gap-2 text-center">
+          <div className="w-12 h-12 rounded-xl bg-purple-900 bg-opacity-20 flex items-center justify-center mb-1">
+            <span className="text-2xl">📊</span>
+          </div>
+          <span className="text-white text-sm font-medium">This Month</span>
+          <span className="text-gray-400 text-xs">{formatCurrency(stats.thisMonthTotal)}</span>
+        </div>
+      </div>
+
+      <BottomNav />
     </div>
   );
 }

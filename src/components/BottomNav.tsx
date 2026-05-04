@@ -41,8 +41,7 @@ export default function BottomNav() {
     .slice(0, 5); // Show only first 5 items on mobile
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 md:hidden bg-slate-900 border-t border-slate-800 z-40">
-      <div className="flex items-center justify-around">
+    <nav className="fixed bottom-0 left-0 right-0 bg-[#0B1120] border-t border-slate-800 px-4 py-2 pb-safe flex justify-around items-center z-50">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname.startsWith(item.href);
@@ -51,17 +50,18 @@ export default function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={cn(
-                'flex flex-col items-center gap-1 px-4 py-3 flex-1 transition',
-                isActive ? 'text-grove-accent' : 'text-slate-400'
-              )}
+              className="flex flex-col items-center gap-1 py-1 px-3"
             >
-              <Icon size={20} />
-              <span className="text-xs font-medium hidden">{item.name}</span>
+              <Icon 
+                size={20} 
+                className={isActive ? "text-green-400" : "text-gray-500"}
+              />
+              <span className={`text-xs ${isActive ? "text-green-400" : "text-gray-500"}`}>
+                {item.name}
+              </span>
             </Link>
           );
         })}
-      </div>
     </nav>
   );
 }

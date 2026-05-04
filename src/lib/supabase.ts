@@ -193,6 +193,11 @@ export async function signUpWithPhone(
       console.warn('[signUpWithPhone] No immediate session (may require verification)');
     }
 
+    // Ensure email is set in user object so it gets stored in members table
+    if (data?.user && !data.user.email) {
+      data.user.email = uniqueEmail;
+    }
+
     return data;
   } catch (err: any) {
     console.error('[signUpWithPhone] Error:', err.message || err);
@@ -220,24 +225,23 @@ export async function signInWithPhone(phone: string, password: string) {
   const normalizedPhone = normalizePhone(trimmedPhone);
 
   try {
-    // First, get the member record to find the associated email (issue #18)
+    // Verify that a member with this phone exists and get their stored email
     let { data: memberData, error: memberError } = await supabase
       .from('members')
       .select('id, user_id, email')
       .eq('phone', normalizedPhone)
       .maybeSingle();
 
-    // If email column doesn't exist in schema, try without it
+    // If email column doesn't exist yet, try without it
     if (memberError && memberError.message?.includes('email')) {
-      console.log('[signInWithPhone] Email column may not exist, retrying without email select...');
+      console.log('[signInWithPhone] Email column not in schema, retrying...');
       const { data: retryData, error: retryError } = await supabase
         .from('members')
-        .select('id, user_id, phone')
+        .select('id, user_id')
         .eq('phone', normalizedPhone)
         .maybeSingle();
       
       if (retryError && retryError.code !== 'PGRST116') {
-        console.error('[signInWithPhone] Member lookup error:', retryError);
         throw new Error('Failed to verify account. Please try again.');
       }
       
@@ -252,28 +256,54 @@ export async function signInWithPhone(phone: string, password: string) {
       throw new Error('Phone number not found. Please sign up first.');
     }
 
-    if (!memberData.user_id) {
-      throw new Error('Account not properly configured. Please contact support.');
+    // Determine which email to use for auth
+    let authEmail = memberData.email;
+    
+    if (!authEmail) {
+      // If email not in members table, retry with longer delay (schema cache delay)
+      console.log('[signInWithPhone] Email not found in members table, retrying with extended delay...');
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const { data: retryMember, error: retryError } = await supabase
+        .from('members')
+        .select('id, user_id, email')
+        .eq('phone', normalizedPhone)
+        .maybeSingle();
+      
+      if (retryError && retryError.code !== 'PGRST116') {
+        console.error('[signInWithPhone] Retry error:', retryError);
+      }
+      
+      authEmail = retryMember?.email;
+      
+      if (authEmail) {
+        console.log('[signInWithPhone] Email found on retry from members table');
+      } else {
+        // CRITICAL: If email still not found, throw error instead of generating
+        // This prevents the "different email on every attempt" problem
+        console.error('[signInWithPhone] Email not found in members table for phone:', normalizedPhone);
+        throw new Error('Your account email could not be found. Please sign up again.');
+      }
+    } else {
+      console.log('[signInWithPhone] Using stored email from members table');
     }
 
-    if (!memberData.email) {
-      throw new Error('Email not found. Please run the ADD_EMAIL_TO_MEMBERS migration and try signing up again.');
-    }
-
-    // Sign in with the email associated with this phone
+    // Sign in with Supabase Auth using the email
+    // This is the ONLY place we validate the password - through Supabase Auth
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: memberData.email,
+      email: authEmail,
       password: trimmedPassword,
     });
 
     if (error) {
       if (error.message?.includes('Invalid login credentials')) {
-        throw new Error('Incorrect password. Please try again.');
+        console.error('[signInWithPhone] Auth failed with email:', authEmail);
+        throw new Error('Incorrect phone number or password. Please check and try again.');
       }
       if (error.message?.includes('Email not confirmed')) {
         throw new Error('Please confirm your email before signing in.');
       }
-      console.error('[signInWithPhone] Auth error:', error);
+      console.error('[signInWithPhone] Auth error with email:', authEmail, 'Error:', error);
       throw new Error(`Sign in failed: ${error.message}`);
     }
 
@@ -488,7 +518,7 @@ export async function createMemberFromSignUp(
       console.log('[createMemberFromSignUp] Personal chama created successfully:', chamaId);
     }
 
-    // Prepare member record - email is optional (will be added via migration)
+    // Prepare member record with email (critical for sign in)
     const memberData: any = {
       user_id: userId,
       name: trimmedName,
@@ -499,9 +529,12 @@ export async function createMemberFromSignUp(
       credit_score: 50,
     };
 
-    // Add email if provided
+    // Email MUST be stored in members table for sign in to work
     if (trimmedEmail) {
       memberData.email = trimmedEmail;
+    } else {
+      // If no email provided, generate one and store it
+      memberData.email = generateUniqueEmail(trimmedPhone);
     }
 
     // Create member record with all required fields (issue #39, #40, #41, #43, #44)

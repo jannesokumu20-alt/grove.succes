@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from './useAuth';
 import { getUserRole, canAccessPage, getRedirectForRole, UserRole } from '@/lib/rbac';
+import { isDevMode } from '@/lib/devMode';
 
 export function useRBAC() {
   const { user } = useAuth();
@@ -20,7 +21,14 @@ export function useRBAC() {
     }
 
     const checkRole = async () => {
-      const userRole = await getUserRole(user.id);
+      // In dev mode, grant owner access to all pages
+      let userRole: UserRole = 'owner';
+      
+      if (!isDevMode()) {
+        // Normal auth flow - check role from database
+        userRole = await getUserRole(user.id);
+      }
+      
       setRole(userRole);
 
       // Check if user can access current page

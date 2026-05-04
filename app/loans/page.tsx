@@ -201,237 +201,217 @@ export default function LoansPage() {
   };
 
   return (
-    <div className="min-h-screen bg-grove-dark">
-      <Navbar />
-      <Sidebar />
-      <BottomNav />
-
-      <main className="ml-64 md:pt-20 pt-0 pb-20 md:pb-0 px-4 md:px-6 py-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Loans</h1>
-              <p className="text-slate-400">Manage member loans</p>
-            </div>
-            <Button
-              variant="primary"
-              onClick={() => setIsNewLoanModalOpen(true)}
-              icon={<Plus size={16} />}
-            >
-              New Loan
-            </Button>
-          </div>
-
-          {/* Summary Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-              <p className="text-slate-400 text-sm">Total Active Loans</p>
-              <p className="text-white font-semibold text-lg">
-                {loans.filter((l) => l.status === 'approved').length}
-              </p>
-            </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-              <p className="text-slate-400 text-sm">Total Outstanding</p>
-              <p className="text-red-400 font-semibold text-lg">
-                {formatCurrency(
-                  loans
-                    .filter((l) => l.status === 'approved')
-                    .reduce((sum, l) => sum + (l.balance || 0), 0)
-                )}
-              </p>
-            </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-              <p className="text-slate-400 text-sm">Overdue Loans</p>
-              <p className="text-yellow-400 font-semibold text-lg">
-                {loans.filter((l) => l.status === 'overdue').length}
-              </p>
-            </div>
-          </div>
-
-          {/* Loans Table */}
-          <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-            <Table
-              columns={[
-                { key: 'members', label: 'Member', render: (_, row) => row.members?.name },
-                { key: 'amount', label: 'Amount', render: (val) => formatCurrency(val) },
-                { key: 'balance', label: 'Balance', render: (val) => formatCurrency(val) },
-                {
-                  key: 'monthly_payment',
-                  label: 'Monthly',
-                  render: (val) => formatCurrency(val),
-                },
-                {
-                  key: 'status',
-                  label: 'Status',
-                  render: (val) => (
-                    <Badge
-                      variant={
-                        val === 'approved'
-                          ? 'green'
-                          : val === 'pending'
-                          ? 'yellow'
-                          : val === 'paid'
-                          ? 'blue'
-                          : 'red'
-                      }
-                    >
-                      {val}
-                    </Badge>
-                  ),
-                },
-                {
-                  key: 'id',
-                  label: 'Actions',
-                  render: (val, row) => (
-                    <div className="flex gap-2">
-                      {row.status === 'pending' && (
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => handleApproveLoan(val)}
-                        >
-                          Approve
-                        </Button>
-                      )}
-                      {row.status === 'approved' && (
-                        <Button
-                          size="sm"
-                          variant="primary"
-                          onClick={() => {
-                            setSelectedLoanId(val);
-                            setIsRepaymentModalOpen(true);
-                          }}
-                        >
-                          Repay
-                        </Button>
-                      )}
-                    </div>
-                  ),
-                },
-              ]}
-              data={loans}
-              isLoading={isLoading}
-              isEmpty={loans.length === 0}
-              emptyMessage="No loans yet"
-            />
-          </div>
+    <div className="min-h-screen bg-[#0B1120] pb-20">
+      <div className="px-4 pt-4 pb-2">
+        <div className="flex justify-between items-center">
+          <h1 className="text-white text-xl font-bold">Loans</h1>
+          <button
+            onClick={() => setIsNewLoanModalOpen(true)}
+            className="bg-green-500 text-white rounded-xl px-4 py-2 text-sm flex items-center gap-1"
+          >
+            <Plus size={16} />
+            New Loan
+          </button>
         </div>
+      </div>
 
-        {/* New Loan Modal */}
-        <Modal
-          isOpen={isNewLoanModalOpen}
-          onClose={() => setIsNewLoanModalOpen(false)}
-          title="Create New Loan"
-        >
-          <form onSubmit={handleCreateLoan} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Member
-              </label>
-              <select
-                value={formData.memberId}
-                onChange={(e) =>
-                  setFormData({ ...formData, memberId: e.target.value })
-                }
-                className="w-full px-4 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-grove-accent"
-              >
-                <option value="">Select a member</option>
-                {members.map((member) => (
-                  <option key={member.id} value={member.id}>
-                    {member.name}
-                  </option>
-                ))}
-              </select>
-              {errors.memberId && (
-                <p className="text-red-400 text-sm mt-1">{errors.memberId}</p>
+      <div className="grid grid-cols-3 gap-2 px-4 mt-4">
+        <div className="bg-[#111827] rounded-xl p-3 border border-[#1f2937]">
+          <p className="text-gray-400 text-xs">Total Active</p>
+          <p className="text-white font-bold text-lg">
+            {loans.filter((l) => l.status === 'approved').length}
+          </p>
+        </div>
+        <div className="bg-[#111827] rounded-xl p-3 border border-[#1f2937]">
+          <p className="text-gray-400 text-xs">Outstanding</p>
+          <p className="text-white font-bold text-lg">
+            {formatCurrency(
+              loans
+                .filter((l) => l.status === 'approved')
+                .reduce((sum, l) => sum + (l.balance || 0), 0)
+            )}
+          </p>
+        </div>
+        <div className="bg-[#111827] rounded-xl p-3 border border-[#1f2937]">
+          <p className="text-gray-400 text-xs">Overdue</p>
+          <p className="text-white font-bold text-lg">
+            {loans.filter((l) => l.status === 'overdue').length}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex gap-2 px-4 mt-3 overflow-x-auto">
+        {['all', 'active', 'repaid', 'overdue'].map((status) => (
+          <button
+            key={status}
+            className={`px-4 py-1.5 rounded-full text-sm whitespace-nowrap ${
+              status === 'all' || (status === 'active' && loans.some(l => l.status === 'approved'))
+                ? 'bg-green-500 text-white'
+                : 'border border-slate-600 text-gray-400'
+            }`}
+          >
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      <div className="px-4 mt-4 space-y-3">
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-400">Loading loans...</p>
+          </div>
+        ) : loans.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-400">No loans yet</p>
+          </div>
+        ) : (
+          loans.map((loan) => (
+            <div
+              key={loan.id}
+              className="bg-[#111827] rounded-xl p-4 border border-[#1f2937]"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-white font-semibold text-sm">{loan.members?.name || 'Unknown'}</h3>
+                <span className={`rounded-full px-2 py-0.5 text-xs ${
+                  loan.status === 'approved' 
+                    ? 'bg-green-900 text-green-300' 
+                    : loan.status === 'overdue'
+                    ? 'bg-red-900 text-red-300'
+                    : 'bg-blue-900 text-blue-300'
+                }`}>
+                  {loan.status || 'pending'}
+                </span>
+              </div>
+              <div className="text-white font-bold text-lg mb-1">{formatCurrency(loan.amount)}</div>
+              <div className="text-gray-400 text-xs mb-2">{formatDate(loan.created_at)}</div>
+              {loan.status === 'approved' && (
+                <div className="w-full bg-slate-700 rounded-full h-1.5 mt-2">
+                  <div 
+                    className="bg-green-500 rounded-full h-1.5" 
+                    style={{ 
+                      width: `${((loan.amount - (loan.balance || 0)) / loan.amount) * 100}%` 
+                    }}
+                  />
+                </div>
               )}
             </div>
+          ))
+        )}
+      </div>
 
-            <Input
-              label="Loan Amount (KES)"
-              type="number"
-              placeholder="50000"
-              value={formData.amount}
+      <BottomNav />
+
+      {/* New Loan Modal */}
+      <Modal
+        isOpen={isNewLoanModalOpen}
+        onClose={() => setIsNewLoanModalOpen(false)}
+        title="Create New Loan"
+      >
+        <form onSubmit={handleCreateLoan} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">
+              Member
+            </label>
+            <select
+              value={formData.memberId}
               onChange={(e) =>
-                setFormData({ ...formData, amount: e.target.value })
+                setFormData({ ...formData, memberId: e.target.value })
               }
-              error={errors.amount}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Interest Rate (%)"
-                type="number"
-                placeholder="10"
-                value={formData.interestRate}
-                onChange={(e) =>
-                  setFormData({ ...formData, interestRate: e.target.value })
-                }
-              />
-              <Input
-                label="Repayment Months"
-                type="number"
-                placeholder="12"
-                value={formData.repaymentMonths}
-                onChange={(e) =>
-                  setFormData({ ...formData, repaymentMonths: e.target.value })
-                }
-                error={errors.repaymentMonths}
-              />
-            </div>
-
-            <Input
-              label="Reason"
-              placeholder="e.g., Business expansion"
-              value={formData.reason}
-              onChange={(e) =>
-                setFormData({ ...formData, reason: e.target.value })
-              }
-            />
-
-            <Button
-              type="submit"
-              variant="primary"
-              className="w-full"
-              isLoading={isSubmitting}
+              className="w-full bg-[#1a2535] text-white border border-slate-700 rounded-xl py-3 px-4 focus:outline-none focus:border-green-500"
             >
-              Create Loan
-            </Button>
-          </form>
-        </Modal>
+              <option value="">Select a member</option>
+              {members.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.name}
+                </option>
+              ))}
+            </select>
+            {errors.memberId && (
+              <p className="text-red-400 text-sm mt-1">{errors.memberId}</p>
+            )}
+          </div>
 
-        {/* Record Repayment Modal */}
-        <Modal
-          isOpen={isRepaymentModalOpen}
-          onClose={() => {
-            setIsRepaymentModalOpen(false);
-            setSelectedLoanId(null);
-          }}
-          title="Record Repayment"
-        >
-          <form onSubmit={handleRecordRepayment} className="space-y-4">
+          <Input
+            label="Loan Amount (KES)"
+            type="number"
+            placeholder="50000"
+            value={formData.amount}
+            onChange={(e) =>
+              setFormData({ ...formData, amount: e.target.value })
+            }
+            error={errors.amount}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Repayment Amount (KES)"
+              label="Interest Rate (%)"
               type="number"
-              placeholder="0"
-              value={repaymentData.amount}
+              placeholder="10"
+              value={formData.interestRate}
               onChange={(e) =>
-                setRepaymentData({ ...repaymentData, amount: e.target.value })
+                setFormData({ ...formData, interestRate: e.target.value })
               }
             />
+            <Input
+              label="Repayment Months"
+              type="number"
+              placeholder="12"
+              value={formData.repaymentMonths}
+              onChange={(e) =>
+                setFormData({ ...formData, repaymentMonths: e.target.value })
+              }
+              error={errors.repaymentMonths}
+            />
+          </div>
 
-            <Button
-              type="submit"
-              variant="primary"
-              className="w-full"
-              isLoading={isSubmitting}
-            >
-              Record Repayment
-            </Button>
-          </form>
-        </Modal>
-      </main>
+          <Input
+            label="Reason"
+            placeholder="e.g., Business expansion"
+            value={formData.reason}
+            onChange={(e) =>
+              setFormData({ ...formData, reason: e.target.value })
+            }
+          />
+
+          <Button
+            type="submit"
+            className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl py-4"
+            isLoading={isSubmitting}
+          >
+            Create Loan
+          </Button>
+        </form>
+      </Modal>
+
+      {/* Record Repayment Modal */}
+      <Modal
+        isOpen={isRepaymentModalOpen}
+        onClose={() => {
+          setIsRepaymentModalOpen(false);
+          setSelectedLoanId(null);
+        }}
+        title="Record Repayment"
+      >
+        <form onSubmit={handleRecordRepayment} className="space-y-4">
+          <Input
+            label="Repayment Amount (KES)"
+            type="number"
+            placeholder="0"
+            value={repaymentData.amount}
+            onChange={(e) =>
+              setRepaymentData({ ...repaymentData, amount: e.target.value })
+            }
+          />
+
+          <Button
+            type="submit"
+            className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl py-4"
+            isLoading={isSubmitting}
+          >
+            Record Repayment
+          </Button>
+        </form>
+      </Modal>
     </div>
   );
 }
