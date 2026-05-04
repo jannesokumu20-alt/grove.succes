@@ -291,6 +291,7 @@
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.05);
     backdrop-filter: blur(10px);
+    min-height: 90px;
   }
 
   .stat-icon {
@@ -336,6 +337,7 @@
     background: rgba(255,255,255,0.04);
     padding: 12px;
     border-radius: 12px;
+    min-height: 44px;
   }
 
   .search-icon {
@@ -376,6 +378,7 @@
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.05);
     backdrop-filter: blur(10px);
+    min-height: 60px;
   }
 
   .member-left {
