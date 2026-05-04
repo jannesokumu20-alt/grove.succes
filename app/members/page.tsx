@@ -120,11 +120,11 @@ export default function MembersPage() {
       <Sidebar />
       <BottomNav />
 
-      <main style={{ position: 'relative', zIndex: 1, flexGrow: 1, marginLeft: 'auto', marginRight: 'auto', minHeight: '100vh', paddingTop: '70px', paddingBottom: '96px', background: 'transparent' }} className="md:ml-64 md:pt-6 md:pb-6">
-        <div style={{ width: '100%', maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', paddingLeft: '16px', paddingRight: '16px', paddingTop: '24px' }} className="md:px-6 md:py-6">
+      <main className="flex-1 md:ml-64 min-h-screen pt-[90px] md:pt-6 pb-[140px] md:pb-6 relative z-10 overflow-x-hidden">
+        <div className="min-h-screen overflow-x-hidden md:px-6 md:py-6" style={{ width: '100%', maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', paddingLeft: '16px', paddingRight: '16px', paddingTop: '24px' }}>
           
-          {/* Header */}
-          <div style={{ marginBottom: '32px' }}>
+          {/* Header - Sticky */}
+          <div className="sticky top-0 z-40 backdrop-blur-xl bg-[#05070F]/80 pb-4" style={{ marginBottom: '32px' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
               <div>
                 <h1 style={{ fontSize: '32px', fontWeight: 'bold', color: '#ffffff', marginBottom: '8px' }} className="md:text-4xl">Members</h1>
@@ -132,7 +132,8 @@ export default function MembersPage() {
               </div>
               <Button
                 onClick={() => setIsModalOpen(true)}
-                style={{ background: 'linear-gradient(135deg, #00FFB2 0%, #06D67D 100%)', color: '#ffffff', padding: '8px 16px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', border: 'none', fontWeight: '600', transition: 'all 0.2s ease' }}
+                className="bg-gradient-to-r from-[#22c55e] to-[#16a34a] text-black font-semibold"
+                style={{ padding: '8px 16px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', border: 'none', transition: 'all 0.2s ease', boxShadow: '0 0 20px rgba(34,197,94,0.5)' }}
               >
                 <Plus size={20} />
                 <span className="hidden md:inline">Add Member</span>
@@ -359,7 +360,8 @@ export default function MembersPage() {
               <p style={{ color: '#9CA3AF', marginBottom: '16px' }}>No members found</p>
               <Button
                 onClick={() => setIsModalOpen(true)}
-                style={{ background: 'linear-gradient(135deg, #00FFB2 0%, #06D67D 100%)', color: '#000', padding: '8px 16px', borderRadius: '12px', cursor: 'pointer', border: 'none', fontWeight: '600' }}
+                className="bg-gradient-to-r from-[#22c55e] to-[#16a34a] text-black font-semibold"
+                style={{ padding: '8px 16px', borderRadius: '12px', cursor: 'pointer', border: 'none', boxShadow: '0 0 20px rgba(34,197,94,0.5)' }}
               >
                 Add First Member
               </Button>
@@ -482,157 +484,44 @@ export default function MembersPage() {
         </div>
 
         {/* Floating Action Button - EXPANDED */}
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '80px',
-            right: '20px',
-            zIndex: 40,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
-          }}
-        >
+        <div className="fixed bottom-[90px] right-4 z-50 flex flex-col items-end gap-3">
+
           {fabExpanded && (
             <>
-              <button
-                style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #00FFB2 0%, #06D67D 100%)',
-                  border: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  boxShadow: '0 0 20px rgba(0,255,178,0.3)',
-                  transition: 'all 0.2s ease',
-                  animation: 'slideUp 0.3s ease',
-                }}
-                title="Add Contribution"
-              >
-                <svg width="24" height="24" fill="#000" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-white bg-black/60 px-3 py-1 rounded-md">Add Member</span>
+                <button className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-black shadow-lg">+</button>
+              </div>
 
-              <button
-                style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
-                  border: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  boxShadow: '0 0 20px rgba(59,130,246,0.3)',
-                  transition: 'all 0.2s ease',
-                  animation: 'slideUp 0.3s ease',
-                }}
-                title="Give Loan"
-              >
-                <svg width="24" height="24" fill="#fff" viewBox="0 0 24 24">
-                  <path d="M19 6h-5V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 10h-6v-2h6v2z" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-white bg-black/60 px-3 py-1 rounded-md">Bulk Import</span>
+                <button className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-lg">⬆</button>
+              </div>
 
-              <button
-                style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-                  border: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  boxShadow: '0 0 20px rgba(239,68,68,0.3)',
-                  transition: 'all 0.2s ease',
-                  animation: 'slideUp 0.3s ease',
-                }}
-                title="Add Fine"
-              >
-                <svg width="24" height="24" fill="#fff" viewBox="0 0 24 24">
-                  <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-white bg-black/60 px-3 py-1 rounded-md">Add Fine</span>
+                <button className="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center text-white shadow-lg">!</button>
+              </div>
 
-              <button
-                style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #A855F7 0%, #9333EA 100%)',
-                  border: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  boxShadow: '0 0 20px rgba(168,85,247,0.3)',
-                  transition: 'all 0.2s ease',
-                  animation: 'slideUp 0.3s ease',
-                }}
-                title="Send Reminder"
-              >
-                <svg width="24" height="24" fill="#fff" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-white bg-black/60 px-3 py-1 rounded-md">Send Reminder</span>
+                <button className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white shadow-lg">😊</button>
+              </div>
 
-              <button
-                style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #F97316 0%, #EA580C 100%)',
-                  border: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  boxShadow: '0 0 20px rgba(249,115,22,0.3)',
-                  transition: 'all 0.2s ease',
-                  animation: 'slideUp 0.3s ease',
-                }}
-                title="Import Members"
-              >
-                <svg width="24" height="24" fill="#fff" viewBox="0 0 24 24">
-                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-white bg-black/60 px-3 py-1 rounded-md">Add Contribution</span>
+                <button className="w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center text-white shadow-lg">+</button>
+              </div>
             </>
           )}
 
-          {/* Main FAB Button */}
           <button
             onClick={() => setFabExpanded(!fabExpanded)}
-            style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '50%',
-              background: fabExpanded ? 'linear-gradient(135deg, #64748B 0%, #475569 100%)' : 'linear-gradient(135deg, #00FFB2 0%, #06D67D 100%)',
-              border: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              fontSize: '28px',
-              color: fabExpanded ? '#fff' : '#000',
-              fontWeight: 'bold',
-              boxShadow: `0 10px 25px ${fabExpanded ? 'rgba(100,116,139,0.3)' : 'rgba(0,255,178,0.3)'}`,
-              transition: 'all 0.3s ease',
-              transform: 'scale(1)',
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            className="w-16 h-16 rounded-full bg-gradient-to-br from-[#22c55e] to-[#16a34a] flex items-center justify-center text-black shadow-xl"
           >
-            {fabExpanded ? '✕' : '+'}
+            {fabExpanded ? '×' : '+'}
           </button>
+
         </div>
 
         {/* Add Member Modal */}
