@@ -111,13 +111,6 @@ export default function MembersPage() {
 
   const [fabExpanded, setFabExpanded] = useState(false);
 
-  const statCards = [
-    { label: 'Total Members', value: totalMembers, color: '#00FFB2', icon: '👥' },
-    { label: 'Active Members', value: activeCount, color: '#3B82F6', icon: '✓' },
-    { label: 'Defaulters', value: defaulterCount, color: '#EF4444', icon: '⚠' },
-    { label: 'New This Month', value: newThisMonth, color: '#A855F7', icon: '✨' },
-  ];
-
   return (
     <div style={{ background: 'linear-gradient(135deg, #0A0F1C 0%, #05070F 100%)', minHeight: '100vh', position: 'relative' }}>
       {/* Subtle radial glow */}
@@ -148,49 +141,104 @@ export default function MembersPage() {
           </div>
 
           {/* Stats Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: '16px', marginBottom: '32px' }} className="md:grid-cols-2 lg:grid-cols-4">
-            {statCards.map((stat, idx) => (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            {[
+              {
+                title: 'Total Members',
+                value: totalMembers,
+                subtitle: 'All members',
+                change: totalMembers > 0 ? '+' + totalMembers : '0',
+                color: '#00D084',
+                bg: 'rgba(0,208,132,0.08)',
+                iconBg: 'rgba(0,208,132,0.15)',
+                icon: '👥'
+              },
+              {
+                title: 'Active Members',
+                value: activeCount,
+                subtitle: totalMembers > 0 ? Math.round((activeCount/totalMembers)*100) + '% active' : '0%',
+                change: activeCount > 0 ? '+' + activeCount : '0',
+                color: '#3B82F6',
+                bg: 'rgba(59,130,246,0.08)',
+                iconBg: 'rgba(59,130,246,0.15)',
+                icon: '✓'
+              },
+              {
+                title: 'Defaulters',
+                value: defaulterCount,
+                subtitle: totalMembers > 0 ? Math.round((defaulterCount/totalMembers)*100) + '% defaulters' : '0%',
+                change: defaulterCount > 0 ? '+' + defaulterCount : '0',
+                color: '#F97316',
+                bg: 'rgba(249,115,22,0.08)',
+                iconBg: 'rgba(249,115,22,0.15)',
+                icon: '⚠'
+              },
+              {
+                title: 'New This Month',
+                value: newThisMonth,
+                subtitle: 'New joiners',
+                change: newThisMonth > 0 ? '+' + newThisMonth : '0',
+                color: '#A855F7',
+                bg: 'rgba(168,85,247,0.08)',
+                iconBg: 'rgba(168,85,247,0.15)',
+                icon: '✨'
+              },
+            ].map((card, i) => (
               <div
-                key={idx}
+                key={i}
+                className="rounded-[16px] p-4 flex flex-col justify-between h-[130px] transition hover:scale-[1.02]"
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: `1px solid rgba(255,255,255,0.08)`,
-                  backdropFilter: 'blur(12px)',
-                  borderRadius: '18px',
-                  padding: '16px',
-                  height: '90px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  boxShadow: `0 0 20px ${stat.color}20`,
-                  transition: 'all 0.2s ease',
-                  cursor: 'pointer',
+                  background: card.bg,
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  backdropFilter: 'blur(10px)',
+                  boxShadow: `0 0 0px ${card.color}00, inset 0 1px 1px rgba(255,255,255,0.05)`
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
               >
+                {/* TOP */}
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-[11px] text-[#9CA3AF] font-medium">
+                      {card.title}
+                    </p>
+                  </div>
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center"
+                    style={{
+                      background: card.iconBg,
+                      boxShadow: `0 0 20px ${card.color}40`
+                    }}
+                  >
+                    <span style={{ color: card.color }}>
+                      {card.icon}
+                    </span>
+                  </div>
+                </div>
+
+                {/* VALUE */}
                 <div>
-                  <p style={{ color: '#9CA3AF', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
-                    {stat.label}
+                  <p
+                    className="text-[22px] font-bold text-white leading-tight"
+                    style={{
+                      textShadow: `0 0 12px ${card.color}60`
+                    }}
+                  >
+                    {card.value}
                   </p>
-                  <p style={{ color: '#ffffff', fontSize: '28px', fontWeight: 'bold' }}>
-                    {stat.value}
+                  <p className="text-[11px] text-[#9CA3AF]">
+                    {card.subtitle}
                   </p>
                 </div>
-                <div
-                  style={{
-                    width: '56px',
-                    height: '56px',
-                    borderRadius: '50%',
-                    background: `rgba(${stat.color === '#00FFB2' ? '0,255,178' : stat.color === '#3B82F6' ? '59,130,246' : stat.color === '#EF4444' ? '239,68,68' : '168,85,247'}, 0.1)`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '24px',
-                    boxShadow: `0 0 15px ${stat.color}30`,
-                  }}
-                >
-                  {stat.icon}
+
+                {/* CHANGE */}
+                <div>
+                  <p
+                    className="text-[11px] font-medium flex items-center gap-1"
+                    style={{
+                      color: card.change.includes('-') ? '#EF4444' : card.color
+                    }}
+                  >
+                    {card.change.includes('-') ? '↓' : '↑'} {card.change}
+                  </p>
                 </div>
               </div>
             ))}
