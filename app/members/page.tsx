@@ -109,8 +109,6 @@ export default function MembersPage() {
     return joinDate.getMonth() === now.getMonth() && joinDate.getFullYear() === now.getFullYear();
   }).length;
 
-  const [fabExpanded, setFabExpanded] = useState(false);
-
   return (
     <div style={{ background: 'linear-gradient(135deg, #0A0F1C 0%, #05070F 100%)', minHeight: '100vh', position: 'relative' }}>
       {/* Subtle radial glow */}
@@ -123,21 +121,56 @@ export default function MembersPage() {
       <main className="flex-1 md:ml-64 min-h-screen pt-[90px] md:pt-6 pb-[140px] md:pb-6 relative z-10 overflow-x-hidden">
         <div className="min-h-screen overflow-x-hidden md:px-6 md:py-6" style={{ width: '100%', maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', paddingLeft: '16px', paddingRight: '16px', paddingTop: '24px' }}>
           
-          {/* Header - Sticky */}
-          <div className="sticky top-0 z-40 backdrop-blur-xl bg-[#05070F]/80 pb-4" style={{ marginBottom: '32px' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
+          {/* ===== MEMBERS HEADER + ACTIONS (FIXED & RESTORED) ===== */}
+          <div className="sticky top-0 z-40 bg-[#0B1220]/95 backdrop-blur-lg border-b border-white/10">
+
+            {/* TOP BAR */}
+            <div className="flex items-center justify-between px-4 py-3">
+              
               <div>
-                <h1 style={{ fontSize: '32px', fontWeight: 'bold', color: '#ffffff', marginBottom: '8px' }} className="md:text-4xl">Members</h1>
-                <p style={{ color: '#9CA3AF' }}>Manage your chama members</p>
+                <h1 className="text-2xl font-bold text-white">Members</h1>
+                <p className="text-gray-400 text-sm">Manage your chama members</p>
               </div>
-              <Button
+
+              {/* ADD MEMBER BUTTON (RESTORED) */}
+              <button
                 onClick={() => setIsModalOpen(true)}
-                className="bg-gradient-to-r from-[#22c55e] to-[#16a34a] text-black font-semibold"
-                style={{ padding: '8px 16px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', border: 'none', transition: 'all 0.2s ease', boxShadow: '0 0 20px rgba(34,197,94,0.5)' }}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl 
+                           bg-gradient-to-r from-green-500 to-emerald-600 
+                           text-black font-semibold shadow-lg shadow-green-500/30
+                           active:scale-95 transition"
               >
-                <Plus size={20} />
-                <span className="hidden md:inline">Add Member</span>
-              </Button>
+                <span className="text-lg">+</span>
+                <span className="hidden sm:inline">Add Member</span>
+              </button>
+
+            </div>
+
+            {/* ACTION BUTTONS ROW */}
+            <div className="flex gap-3 px-4 pb-4 overflow-x-auto">
+
+              {/* BULK IMPORT */}
+              <button
+                onClick={() => toast.custom('Bulk import coming soon')}
+                className="flex items-center gap-2 px-4 py-2 rounded-full 
+                           border border-white/10 text-white 
+                           bg-white/5 backdrop-blur-md
+                           hover:bg-white/10 transition whitespace-nowrap"
+              >
+                📤 <span>Bulk Import</span>
+              </button>
+
+              {/* SEND REMINDER */}
+              <button
+                onClick={() => toast.custom('Send reminder coming soon')}
+                className="flex items-center gap-2 px-4 py-2 rounded-full 
+                           border border-white/10 text-white 
+                           bg-white/5 backdrop-blur-md
+                           hover:bg-white/10 transition whitespace-nowrap"
+              >
+                ✉️ <span>Send Reminder</span>
+              </button>
+
             </div>
           </div>
 
@@ -483,43 +516,34 @@ export default function MembersPage() {
           )}
         </div>
 
-        {/* Floating Action Button - EXPANDED */}
-        <div className="fixed bottom-[90px] right-4 z-50 flex flex-col items-end gap-3">
+        {/* FLOATING ACTION MENU - CLEAN LABELED VERSION */}
+        <div className="fixed bottom-24 right-4 flex flex-col items-end gap-3 z-50">
 
-          {fabExpanded && (
-            <>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-white bg-black/60 px-3 py-1 rounded-md">Add Member</span>
-                <button className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-black shadow-lg">+</button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-white bg-black/60 px-3 py-1 rounded-md">Bulk Import</span>
-                <button className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-lg">⬆</button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-white bg-black/60 px-3 py-1 rounded-md">Add Fine</span>
-                <button className="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center text-white shadow-lg">!</button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-white bg-black/60 px-3 py-1 rounded-md">Send Reminder</span>
-                <button className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white shadow-lg">😊</button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-white bg-black/60 px-3 py-1 rounded-md">Add Contribution</span>
-                <button className="w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center text-white shadow-lg">+</button>
-              </div>
-            </>
-          )}
-
+          {/* ADD MEMBER */}
           <button
-            onClick={() => setFabExpanded(!fabExpanded)}
-            className="w-16 h-16 rounded-full bg-gradient-to-br from-[#22c55e] to-[#16a34a] flex items-center justify-center text-black shadow-xl"
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-3 bg-green-500 text-black 
+                       px-4 py-3 rounded-full shadow-lg shadow-green-500/40"
           >
-            {fabExpanded ? '×' : '+'}
+            ➕ <span className="text-sm font-medium">Add Member</span>
+          </button>
+
+          {/* BULK IMPORT */}
+          <button
+            onClick={() => toast.custom('Bulk import coming soon')}
+            className="flex items-center gap-3 bg-blue-500 text-white 
+                       px-4 py-3 rounded-full shadow-lg"
+          >
+            📤 <span className="text-sm">Bulk Import</span>
+          </button>
+
+          {/* SEND REMINDER */}
+          <button
+            onClick={() => toast.custom('Send reminder coming soon')}
+            className="flex items-center gap-3 bg-purple-500 text-white 
+                       px-4 py-3 rounded-full shadow-lg"
+          >
+            ✉️ <span className="text-sm">Reminders</span>
           </button>
 
         </div>
